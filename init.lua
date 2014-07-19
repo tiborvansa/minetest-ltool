@@ -28,9 +28,14 @@ function ltool.header(index)
 	return "tabheader[0,0;ltool_tab;Edit,Database,Plant;"..tostring(index)..";true;false]"
 end
 
-function ltool.edit(treedef)
-	if(treedef==nil) then
+function ltool.edit(tree)
+	local treedef, name
+	if(tree==nil) then
 		treedef = ltool.emptytreedef
+		name = ""
+	else
+		treedef = tree.treedef
+		name = tree.name
 	end
 	local s = function(input)
 		if(input==nil) then
@@ -58,8 +63,8 @@ function ltool.edit(treedef)
 	"field[3.2,0.3;3,10;random_level;Randomness level;"..s(treedef.random_level).."]"..
 	"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..s(treedef.trunk_type).."]"..
 	"field[3.2,1.5;3,10;thin_branches;Thin branches? (true/false);"..s(treedef.thin_branches).."]"..
+	"field[3.2,2.1;3,10;name;Name;"..s(name).."]"..
 	"button[0,6.5;2,1;edit_okay;Plant]"..
--- TODO: implement saving and loading
 	"button[2.1,6.5;2,1;edit_save;Save]"
 end
 
@@ -197,23 +202,37 @@ function ltool.process_form(player,formname,fields)
 
 			minetest.spawn_tree(tree_pos, fields)
 		elseif(fields.edit_save) then
-			fields.angle = tonumber(fields.angle)
-			fields.iterations = tonumber(fields.iterations)
-			fields.random_level = tonumber(fields.random_level)
+			local treedef = {}
+			treedef.axiom = fields.axiom
+			treedef.rules_a = fields.rules_a
+			treedef.rules_b = fields.rules_b
+			treedef.rules_c = fields.rules_c
+			treedef.rules_d = fields.rules_d
+			treedef.trunk = fields.trunk
+			treedef.leaves = fields.leaves
+			treedef.leaves2 = fields.leaves2
+			treedef.leaves2_chance = fields.leaves2_chance
+			treedef.angle = tonumber(fields.angle)
+			treedef.iterations = tonumber(fields.iterations)
+			treedef.random_level = tonumber(fields.random_level)
+			treedef.trunk_type = fields.trunk_type
 			if(fields.thin_branches == "true") then
-				fields.thin_branches = true
+				treedef.thin_branches = true
 			elseif(fields.thin_branches == "false") then
-				fields.thin_branches = false
+				treedef.thin_branches = false
 			else
 				return
 			end
-
+			local name = fields.name
+			local author = player:get_player_name()
+			
+			ltool.add_tree(name, author, treedef)
 
 		elseif(fields.database_copy) then
 --			if(fields.treelist ~= nil) then
 --				local sel = tonumber(fields.treelist)
 				local sel = 1
-				local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.trees[sel].treedef)
+				local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.trees[sel])
 				minetest.show_formspec(player:get_player_name(), "ltool:treeform", formspec)
 --			end
 		elseif(fields.database_select) then
