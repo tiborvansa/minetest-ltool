@@ -1,5 +1,6 @@
 ltool = {}
 
+ltool.playerinfos = {}
 ltool.trees = {}
 ltool.emptytreedef = {
 	axiom="",
@@ -68,10 +69,10 @@ function ltool.edit(tree)
 	"button[2.1,6.5;2,1;edit_save;Save]"
 end
 
-function ltool.database()
-	local treestr = ltool.get_tree_names()
+function ltool.database(index)
+	local treestr = ltool.get_tree_names(index)
 	return ""..
-	"textlist[0,0;5,6;treelist;"..treestr..";1;false]"..
+	"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
 	"button[0,6.5;2,1;database_select;Select]"..
 	"button[2.1,6.5;2,1;database_copy;Copy to editor]"..
 	"button[4.2,6.5;2,1;database_update;Update list]"
@@ -92,7 +93,7 @@ function ltool.add_tree(name, author, treedef)
 	table.insert(ltool.trees, {name = name, author = author, treedef = treedef})
 end
 
-function ltool.get_tree_names()
+function ltool.get_tree_names(index)
 	local string = ""
 	for t=1,#ltool.trees do
 		string = string .. minetest.formspec_escape(ltool.trees[t].name)
@@ -167,17 +168,18 @@ minetest.register_chatcommand("treeform",
 
 function ltool.process_form(player,formname,fields)
 	if(formname == "ltool:treeform") then
+		local playername = player:get_player_name()
 		if fields.ltool_tab ~= nil then
 			local tab = tonumber(fields.ltool_tab)
 			local formspec
 			if(tab==1) then
 				formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit()
 			elseif(tab==2) then
-				formspec = ltool.loadtreeform..ltool.header(2)..ltool.database()
+				formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel)
 			elseif(tab==3) then
 				formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant()
 			end
-			minetest.show_formspec(player:get_player_name(), "ltool:treeform", formspec)
+			minetest.show_formspec(playername, "ltool:treeform", formspec)
 			return
 		end
 			
@@ -224,17 +226,24 @@ function ltool.process_form(player,formname,fields)
 				return
 			end
 			local name = fields.name
-			local author = player:get_player_name()
 			
-			ltool.add_tree(name, author, treedef)
+			ltool.add_tree(name, playername, treedef)
 
+		elseif(fields.treelist) then
+			local event = minetest.explode_textlist_event(fields.treelist)
+			if(event.type == "CHG") then
+				ltool.playerinfos[playername].dbsel = event.index
+				local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(event.index)
+				minetest.show_formspec(playername, "ltool:treeform", formspec)
+			end
 		elseif(fields.database_copy) then
---			if(fields.treelist ~= nil) then
---				local sel = tonumber(fields.treelist)
-				local sel = 1
-				local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.trees[sel])
-				minetest.show_formspec(player:get_player_name(), "ltool:treeform", formspec)
---			end
+			if(ltool.playerinfos[playername] ~= nil) then
+				sel = ltool.playerinfos[playername].dbsel
+			else
+				sel = 1
+			end
+			local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.trees[sel])
+			minetest.show_formspec(playername, "ltool:treeform", formspec)
 		elseif(fields.database_select) then
 			
 		end
@@ -244,9 +253,15 @@ function ltool.process_form(player,formname,fields)
 end
 
 function ltool.leave(player)
-	ltool.playerinfos[player] = nil
+	ltool.playerinfos[player:get_player_name()] = nil
+end
+
+function ltool.join(player)
+	ltool.playerinfos[player:get_player_name()] = { dbsel = 1 }
 end
 
 minetest.register_on_player_receive_fields(ltool.process_form)
 
 minetest.register_on_leaveplayer(ltool.leave)
+
+minetest.register_on_joinplayer(ltool.join)
