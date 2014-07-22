@@ -39,6 +39,7 @@ do
 		end
 		minetest.log("action", "[ltool] Tree data loaded from "..filepath..".")
 	else
+	--[=[
 		--[[ add some example trees ]]
 		ltool.add_tree("Apple Tree", nil,
 		{
@@ -57,6 +58,7 @@ do
 		})
 		ltool.add_tree("Example tree 1", "Wuzzy", {})
 		ltool.add_tree("Special []<>,; character tree", "Wuzzy", {})
+	]=]
 	end
 end
 
@@ -110,10 +112,15 @@ end
 
 function ltool.database(index)
 	local treestr = ltool.get_tree_names(index)
-	return ""..
-	"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
-	"button[0,6.5;2,1;database_copy;Copy to editor]"..
-	"button[2.1,6.5;2,1;database_update;Update list]"
+	if(treestr ~= nil) then
+		return ""..
+		"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
+		"button[0,6.5;2,1;database_copy;Copy to editor]"..
+		"button[2.1,6.5;2,1;database_update;Reload]"
+	else
+		return "label[0,0;The tree database is empty.]"..
+		"button[2.1,6.5;2,1;database_update;Reload]"
+	end
 end
 
 function ltool.plant()
@@ -130,6 +137,9 @@ end
 
 function ltool.get_tree_names(index)
 	local string = ""
+	if(#ltool.trees == 0) then
+		return nil
+	end
 	for t=1,#ltool.trees do
 		string = string .. minetest.formspec_escape(ltool.trees[t].name)
 		if(t < #ltool.trees) then
