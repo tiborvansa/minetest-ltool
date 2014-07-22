@@ -106,8 +106,7 @@ function ltool.edit(tree)
 	"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..s(treedef.trunk_type).."]"..
 	"field[3.2,1.5;3,10;thin_branches;Thin branches? (true/false);"..s(treedef.thin_branches).."]"..
 	"field[3.2,2.1;3,10;name;Name;"..s(name).."]"..
-	"button[0,6.5;2,1;edit_okay;Plant]"..
-	"button[2.1,6.5;2,1;edit_save;Save]"
+	"button[0,6.5;2,1;edit_save;Save]"
 end
 
 function ltool.database(index)
@@ -269,8 +268,7 @@ minetest.register_chatcommand("treeform",
 			"field[3.2,0.3;3,10;random_level;Randomness level;"..i.random_level.."]"..
 			"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..i.trunk_type.."]"..
 			"field[3.2,1.5;3,10;thin_branches;Thin branches? (true/false);"..i.thin_branches.."]"..
-			"button[0,6.5;2,1;edit_okay;Plant]"..
-			"button[2.1,6.5;2,1;edit_save;Save]"..
+			"button[0.6,6.5;2,1;edit_save;Save]"..
 		end
 ]]
 		minetest.show_formspec(player_name, "ltool:treeform", formspec)
@@ -301,26 +299,14 @@ function ltool.process_form(player,formname,fields)
 			return
 		end
 			
-		if(fields.edit_okay or fields.plant_plant) then
-			minetest.log("action","ltool: Planting tree")
-			fields.angle = tonumber(fields.angle)
-			fields.iterations = tonumber(fields.iterations)
-			fields.random_level = tonumber(fields.random_level)
-			if(fields.thin_branches == "true") then
-				fields.thin_branches = true
-			elseif(fields.thin_branches == "false") then
-				fields.thin_branches = false
-			else
-				return
-			end
-			fields.seed = tonumber(fields.seed)
-	
-			local tree_pos = {x=0,y=0,z=0}
-			tree_pos = player:getpos()
+		if(fields.plant_plant) then
+			minetest.log("action","[ltool] Planting tree")
+			local tree = ltool.trees[ltool.playerinfos[playername].dbsel]
+
+			local tree_pos = player:getpos()
 			tree_pos.x = tree_pos.x + 5
 
-
-			minetest.spawn_tree(tree_pos, fields)
+			minetest.spawn_tree(tree_pos, tree.treedef)
 		elseif(fields.edit_save) then
 			local param1, param2
 			param1, param2 = ltool.evaluate_edit_fields(fields)
