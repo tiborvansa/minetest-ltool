@@ -302,11 +302,16 @@ function ltool.process_form(player,formname,fields)
 		if(fields.plant_plant) then
 			minetest.log("action","[ltool] Planting tree")
 			local tree = ltool.trees[ltool.playerinfos[playername].dbsel]
+			local treedef = tree.treedef
 
 			local tree_pos = player:getpos()
 			tree_pos.x = tree_pos.x + 5
 
-			minetest.spawn_tree(tree_pos, tree.treedef)
+			treedef.seed = fields.seed
+
+			minetest.spawn_tree(tree_pos, treedef)
+
+			treedef.seed = nil
 		elseif(fields.edit_save) then
 			local param1, param2
 			param1, param2 = ltool.evaluate_edit_fields(fields)
