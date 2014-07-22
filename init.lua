@@ -21,6 +21,45 @@ ltool.emptytreedef = {
 	thin_branches="",
 }
 
+function ltool.add_tree(name, author, treedef)
+	table.insert(ltool.trees, {name = name, author = author, treedef = treedef})
+end
+
+do
+	local filepath = minetest.get_worldpath().."/ltool.mt"
+	local file = io.open(filepath, "r")
+	if(file) then
+		local string = file:read()
+		io.close(file)
+		if(string ~= nil) then
+			local savetable = minetest.deserialize(string)
+			if(savetable.trees ~= nil) then
+				ltool.trees = savetable.trees
+			end
+		end
+		minetest.log("action", "[ltool] Tree data loaded from "..filepath..".")
+	else
+		--[[ add some example trees ]]
+		ltool.add_tree("Apple Tree", nil,
+		{
+			axiom="FFFFFAFFBF",
+			rules_a="[&&&FFFFF&&FFFF][&&&++++FFFFF&&FFFF][&&&----FFFFF&&FFFF]",
+			rules_b="[&&&++FFFFF&&FFFF][&&&--FFFFF&&FFFF][&&&------FFFFF&&FFFF]",
+			trunk="default:tree",
+			leaves="default:leaves",
+			angle=30,
+			iterations=2,
+			random_level=0,
+			trunk_type="single",
+			thin_branches=true,
+			fruit_chance=10,
+			fruit="default:apple"
+		})
+		ltool.add_tree("Example tree 1", "Wuzzy", {})
+		ltool.add_tree("Special []<>,; character tree", "Wuzzy", {})
+	end
+end
+
 ltool.seed = os.time()
 
 ltool.loadtreeform = "size[6,7]"
@@ -88,9 +127,6 @@ function ltool.plant()
 	"button[0,6.5;2,1;plant_plant;Plant]"
 end
 
-function ltool.add_tree(name, author, treedef)
-	table.insert(ltool.trees, {name = name, author = author, treedef = treedef})
-end
 
 function ltool.get_tree_names(index)
 	local string = ""
@@ -102,25 +138,6 @@ function ltool.get_tree_names(index)
 	end
 	return string
 end
-
---[[ add some example trees ]]
-ltool.add_tree("Apple Tree", nil,
-{
-	axiom="FFFFFAFFBF",
-	rules_a="[&&&FFFFF&&FFFF][&&&++++FFFFF&&FFFF][&&&----FFFFF&&FFFF]",
-	rules_b="[&&&++FFFFF&&FFFF][&&&--FFFFF&&FFFF][&&&------FFFFF&&FFFF]",
-	trunk="default:tree",
-	leaves="default:leaves",
-	angle=30,
-	iterations=2,
-	random_level=0,
-	trunk_type="single",
-	thin_branches=true,
-	fruit_chance=10,
-	fruit="default:apple"
-})
-ltool.add_tree("Example tree 1", "Wuzzy", {})
-ltool.add_tree("Special []<>,; character tree", "Wuzzy", {})
 
 
 
@@ -260,8 +277,26 @@ function ltool.join(player)
 	ltool.playerinfos[player:get_player_name()] = { dbsel = 1 }
 end
 
+function ltool.save_to_file()
+	local savetable = {}
+	savetable.trees = ltool.trees
+	local savestring = minetest.serialize(savetable)
+	local filepath = minetest.get_worldpath().."/ltool.mt"
+	local file = io.open(filepath, "w")
+	if(file) then
+		file:write(savestring)
+		io.close(file)
+		minetest.log("action", "[ltool] Tree data saved to "..filepath..".")
+	else
+		minetest.log("error", "[ltool] Failed to write ltool data to "..filepath".")
+	end
+	
+end
+
 minetest.register_on_player_receive_fields(ltool.process_form)
 
 minetest.register_on_leaveplayer(ltool.leave)
 
 minetest.register_on_joinplayer(ltool.join)
+
+minetest.register_on_shutdown(ltool.save_to_file)
