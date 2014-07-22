@@ -38,27 +38,6 @@ do
 			end
 		end
 		minetest.log("action", "[ltool] Tree data loaded from "..filepath..".")
-	else
-	--[=[
-		--[[ add some example trees ]]
-		ltool.add_tree("Apple Tree", nil,
-		{
-			axiom="FFFFFAFFBF",
-			rules_a="[&&&FFFFF&&FFFF][&&&++++FFFFF&&FFFF][&&&----FFFFF&&FFFF]",
-			rules_b="[&&&++FFFFF&&FFFF][&&&--FFFFF&&FFFF][&&&------FFFFF&&FFFF]",
-			trunk="default:tree",
-			leaves="default:leaves",
-			angle=30,
-			iterations=2,
-			random_level=0,
-			trunk_type="single",
-			thin_branches=true,
-			fruit_chance=10,
-			fruit="default:apple"
-		})
-		ltool.add_tree("Example tree 1", "Wuzzy", {})
-		ltool.add_tree("Special []<>,; character tree", "Wuzzy", {})
-	]=]
 	end
 end
 
