@@ -96,9 +96,9 @@ function ltool.edit(tree)
 	"field[0.2,-0.9;3,10;trunk;Trunk node name;"..s(treedef.trunk).."]"..
 	"field[0.2,-0.3;3,10;leaves;Leaves node name;"..s(treedef.leaves).."]"..
 	"field[0.2,0.3;3,10;leaves2;Secondary leaves node name;"..s(treedef.leaves2).."]"..
-	"field[0.2,0.9;3,10;leaves2_chance;Secondary leaves chance;"..s(treedef.leaves2_chance).."]"..
+	"field[0.2,0.9;3,10;leaves2_chance;Secondary leaves chance (in percent);"..s(treedef.leaves2_chance).."]"..
 	"field[0.2,1.5;3,10;fruit;Fruit node name;"..s(treedef.fruit).."]"..
-	"field[0.2,2.1;3,10;fruit_chance;Fruit chance;"..s(treedef.fruit_chance).."]"..
+	"field[0.2,2.1;3,10;fruit_chance;Fruit chance (in percent);"..s(treedef.fruit_chance).."]"..
 
 	"field[3.2,-0.9;3,10;angle;Angle (in degrees);"..s(treedef.angle).."]"..
 	"field[3.2,-0.3;3,10;iterations;Iterations;"..s(treedef.iterations).."]"..
@@ -135,8 +135,26 @@ function ltool.evaluate_edit_fields(fields)
 	treedef.leaves2 = fields.leaves2
 	treedef.leaves2_chance = fields.leaves2_chance
 	treedef.angle = tonumber(fields.angle)
+	if(treedef.angle == nil) then
+		return nil, "The field \"Angle\" must contain a number."
+	end
 	treedef.iterations = tonumber(fields.iterations)
+	if(treedef.iterations == nil) then
+		return nil, "The field \"Iterations\" must contain a natural number greater or equal to 0."
+	elseif(treedef.iterations < 0) then
+		return nil, "The field \"Iterations\" must contain a natural number greater or equal to 0."
+	end
 	treedef.random_level = tonumber(fields.random_level)
+	if(treedef.random_level == nil) then
+		return nil, "The field \"Randomness level\" must contain a number."
+	end
+	treedef.fruit = fields.fruit
+	treedef.fruit_chance = tonumber(fields.fruit_chance)
+	if(treedef.fruit_chance == nil) then
+		return nil, "The field \"Fruit chance\" must contain a number."
+	elseif(treedef.fruit_chance > 100 or treedef.fruit_chance < 0) then
+		return nil, "Fruit chance must be between 0% and 100%."
+	end
 	if(fields.trunk_type == "single" or fields.trunk_type == "double" or fields.trunk_type == "crossed") then
 		treedef.trunk_type = fields.trunk_type
 	else
@@ -267,7 +285,7 @@ function ltool.process_form(player,formname,fields)
 			local param1, param2
 			param1, param2 = ltool.evaluate_edit_fields(fields)
 		
-			if(treedef ~= nil) then
+			if(param1 ~= nil) then
 				local treedef = param1
 				local name = param2
 				ltool.add_tree(name, playername, treedef)
