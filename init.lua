@@ -100,7 +100,7 @@ function ltool.edit(tree)
 	"field[0.2,1.5;3,10;fruit;Fruit node name;"..s(treedef.fruit).."]"..
 	"field[0.2,2.1;3,10;fruit_chance;Fruit chance;"..s(treedef.fruit_chance).."]"..
 
-	"field[3.2,-0.9;3,10;angle;Angle;"..s(treedef.angle).."]"..
+	"field[3.2,-0.9;3,10;angle;Angle (in degrees);"..s(treedef.angle).."]"..
 	"field[3.2,-0.3;3,10;iterations;Iterations;"..s(treedef.iterations).."]"..
 	"field[3.2,0.3;3,10;random_level;Randomness level;"..s(treedef.random_level).."]"..
 	"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..s(treedef.trunk_type).."]"..
@@ -121,6 +121,40 @@ function ltool.database(index)
 		return "label[0,0;The tree database is empty.]"..
 		"button[2.1,6.5;2,1;database_update;Reload]"
 	end
+end
+
+function ltool.evaluate_edit_fields(fields)
+	local treedef = {}
+	treedef.axiom = fields.axiom
+	treedef.rules_a = fields.rules_a
+	treedef.rules_b = fields.rules_b
+	treedef.rules_c = fields.rules_c
+	treedef.rules_d = fields.rules_d
+	treedef.trunk = fields.trunk
+	treedef.leaves = fields.leaves
+	treedef.leaves2 = fields.leaves2
+	treedef.leaves2_chance = fields.leaves2_chance
+	treedef.angle = tonumber(fields.angle)
+	treedef.iterations = tonumber(fields.iterations)
+	treedef.random_level = tonumber(fields.random_level)
+	if(fields.trunk_type == "single" or fields.trunk_type == "double" or fields.trunk_type == "crossed") then
+		treedef.trunk_type = fields.trunk_type
+	else
+		return nil, "Trunk type must be \"single\", \"double\" or \"crossed\"."
+	end
+	treedef.thin_branches = fields.thin_branches
+	if(fields.thin_branches == "true") then
+		treedef.thin_branches = true
+	elseif(fields.thin_branches == "false") then
+		treedef.thin_branches = false
+	else
+		return nil, "Field \"Thin branches?\" must be \"true\" or \"false\"."
+	end
+	local name = fields.name
+	if(name == "") then
+		return nil, "Name is empty."
+	end
+	return treedef, name
 end
 
 function ltool.plant()
@@ -193,8 +227,8 @@ minetest.register_chatcommand("treeform",
 })
 
 function ltool.process_form(player,formname,fields)
+	local playername = player:get_player_name()
 	if(formname == "ltool:treeform") then
-		local playername = player:get_player_name()
 		if fields.ltool_tab ~= nil then
 			local tab = tonumber(fields.ltool_tab)
 			local formspec
@@ -230,31 +264,19 @@ function ltool.process_form(player,formname,fields)
 
 			minetest.spawn_tree(tree_pos, fields)
 		elseif(fields.edit_save) then
-			local treedef = {}
-			treedef.axiom = fields.axiom
-			treedef.rules_a = fields.rules_a
-			treedef.rules_b = fields.rules_b
-			treedef.rules_c = fields.rules_c
-			treedef.rules_d = fields.rules_d
-			treedef.trunk = fields.trunk
-			treedef.leaves = fields.leaves
-			treedef.leaves2 = fields.leaves2
-			treedef.leaves2_chance = fields.leaves2_chance
-			treedef.angle = tonumber(fields.angle)
-			treedef.iterations = tonumber(fields.iterations)
-			treedef.random_level = tonumber(fields.random_level)
-			treedef.trunk_type = fields.trunk_type
-			if(fields.thin_branches == "true") then
-				treedef.thin_branches = true
-			elseif(fields.thin_branches == "false") then
-				treedef.thin_branches = false
+			local param1, param2
+			param1, param2 = ltool.evaluate_edit_fields(fields)
+		
+			if(treedef ~= nil) then
+				local treedef = param1
+				local name = param2
+				ltool.add_tree(name, playername, treedef)
 			else
-				return
+				local formspec = "size[6,2;]label[0,0.2;Error: The tree definition is invalid.]"..
+				"label[0,0.4;"..minetest.formspec_escape(param2).."]"..
+				"button[2,1.5;2,1;okay;OK]"
+				minetest.show_formspec(playername, "ltool:treeform_error_badtreedef", formspec)
 			end
-			local name = fields.name
-			
-			ltool.add_tree(name, playername, treedef)
-
 		elseif(fields.treelist) then
 			local event = minetest.explode_textlist_event(fields.treelist)
 			if(event.type == "CHG") then
@@ -274,8 +296,9 @@ function ltool.process_form(player,formname,fields)
 			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel)
 			minetest.show_formspec(playername, "ltool:treeform", formspec)
 		end
-	elseif(formname == "ltool:loadtreeform") then
-
+	elseif(formname == "ltool:treeform_error_badtreedef") then
+		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit()
+		minetest.show_formspec(playername, "ltool:treeform", formspec)
 	end
 end
 
