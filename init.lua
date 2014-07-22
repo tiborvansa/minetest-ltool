@@ -67,7 +67,7 @@ ltool.seed = os.time()
 ltool.loadtreeform = "size[6,7]"
 
 function ltool.header(index)
-	return "tabheader[0,0;ltool_tab;Edit,Database,Plant;"..tostring(index)..";true;false]"
+	return "tabheader[0,0;ltool_tab;Edit,Database,Plant,Cheat sheet;"..tostring(index)..";true;false]"
 end
 
 function ltool.edit(tree)
@@ -121,6 +121,35 @@ function ltool.database(index)
 		return "label[0,0;The tree database is empty.]"..
 		"button[2.1,6.5;2,1;database_update;Reload]"
 	end
+end
+
+function ltool.cheat_sheet()
+	return ""..
+	"tablecolumns[text;text]"..
+	"tableoptions[background=#000000;highlight=#000000;border=false]"..
+	"table[0,0;6,7;cheat_sheet;"..
+	"Symbol,Action,"..
+	"G,Move forward one unit with the pen up,"..
+	"F,Move forward one unit with the pen down drawing trunks and branches,"..
+	"f,Move forward one unit with the pen down drawing leaves (100% chance),"..
+	"T,Move forward one unit with the pen down drawing trunks only,"..
+	"R,Move forward one unit with the pen down placing fruit,"..
+	"A,Replace with rules set A,"..
+	"B,Replace with rules set B,"..
+	"C,Replace with rules set C,"..
+	"D,Replace with rules set D,"..
+	"a,Replace with rules set A\\, chance 90%,"..
+	"b,Replace with rules set B\\, chance 80%,"..
+	"c,Replace with rules set C\\, chance 70%,"..
+	"d,Replace with rules set D\\, chance 60%,"..
+	"+,Yaw the turtle right by angle parameter,"..
+	"-,Yaw the turtle left by angle parameter,"..
+	"&,Pitch the turtle down by angle parameter,"..
+	"^,Pitch the turtle up by angle parameter,"..
+	"/,Roll the turtle to the right by angle parameter,"..
+	"*,Roll the turtle to the left by angle parameter,"..
+	"\\[,Save in stack current state info,"..
+	"\\],Recover from stack state info]"
 end
 
 function ltool.evaluate_edit_fields(fields)
@@ -249,14 +278,17 @@ function ltool.process_form(player,formname,fields)
 	if(formname == "ltool:treeform") then
 		if fields.ltool_tab ~= nil then
 			local tab = tonumber(fields.ltool_tab)
-			local formspec
+			local formspec, contents
 			if(tab==1) then
-				formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit()
+				contents = ltool.edit()
 			elseif(tab==2) then
-				formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel)
+				contents = ltool.database(ltool.playerinfos[playername].dbsel)
 			elseif(tab==3) then
-				formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant()
+				contents = ltool.plant()
+			elseif(tab==4) then
+				contents = ltool.cheat_sheet()
 			end
+			formspec = ltool.loadtreeform..ltool.header(tab)..contents
 			minetest.show_formspec(playername, "ltool:treeform", formspec)
 			return
 		end
