@@ -205,14 +205,18 @@ function ltool.evaluate_edit_fields(fields)
 end
 
 function ltool.plant(tree)
-	return ""..
-	"label[0,0;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
---	"dropdown[0,0.3;5;plantmode;Absolute coordinates,Relative coordinates,Distance to view;1]"..
---	"field[0.2,-2.7;6,10;x;x;]"..
---	"field[0.2,-2.1;6,10;y;y;]"..
---	"field[0.2,-1.5;6,10;z;z;]"..
-	"field[0.2,0;6,10;seed;Seed;"..ltool.seed.."]"..
-	"button[0,6.5;2,1;plant_plant;Plant]"
+	if(tree ~= nil) then
+		return ""..
+		"label[0,0;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
+--		"dropdown[0,0.3;5;plantmode;Absolute coordinates,Relative coordinates,Distance to view;1]"..
+--		"field[0.2,-2.7;6,10;x;x;]"..
+--		"field[0.2,-2.1;6,10;y;y;]"..
+--		"field[0.2,-1.5;6,10;z;z;]"..
+		"field[0.2,0;6,10;seed;Seed;"..ltool.seed.."]"..
+		"button[0,6.5;2,1;plant_plant;Plant]"
+	else
+		return "label[0,0;There are no trees to plant.]"
+	end
 end
 
 
@@ -284,7 +288,11 @@ function ltool.process_form(player,formname,fields)
 			elseif(tab==2) then
 				contents = ltool.database(ltool.playerinfos[playername].dbsel)
 			elseif(tab==3) then
-				contents = ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
+				if(#ltool.trees > 0) then
+					contents = ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
+				else
+					contents = ltool.plant()
+				end
 			elseif(tab==4) then
 				contents = ltool.cheat_sheet()
 			end
