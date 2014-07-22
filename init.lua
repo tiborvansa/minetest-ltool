@@ -73,9 +73,8 @@ function ltool.database(index)
 	local treestr = ltool.get_tree_names(index)
 	return ""..
 	"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
-	"button[0,6.5;2,1;database_select;Select]"..
-	"button[2.1,6.5;2,1;database_copy;Copy to editor]"..
-	"button[4.2,6.5;2,1;database_update;Update list]"
+	"button[0,6.5;2,1;database_copy;Copy to editor]"..
+	"button[2.1,6.5;2,1;database_update;Update list]"
 end
 
 function ltool.plant()
@@ -244,8 +243,6 @@ function ltool.process_form(player,formname,fields)
 			end
 			local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.trees[sel])
 			minetest.show_formspec(playername, "ltool:treeform", formspec)
-		elseif(fields.database_select) then
-			
 		end
 	elseif(formname == "ltool:loadtreeform") then
 
