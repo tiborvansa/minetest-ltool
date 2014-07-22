@@ -243,6 +243,9 @@ function ltool.process_form(player,formname,fields)
 			end
 			local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.trees[sel])
 			minetest.show_formspec(playername, "ltool:treeform", formspec)
+		elseif(fields.database_update) then
+			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel)
+			minetest.show_formspec(playername, "ltool:treeform", formspec)
 		end
 	elseif(formname == "ltool:loadtreeform") then
 
