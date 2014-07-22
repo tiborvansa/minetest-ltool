@@ -204,9 +204,9 @@ function ltool.evaluate_edit_fields(fields)
 	return treedef, name
 end
 
-function ltool.plant()
+function ltool.plant(tree)
 	return ""..
-	"label[-0.2,-0.5;Selected: <insert tree here>]"..
+	"label[0,0;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
 --	"dropdown[0,0.3;5;plantmode;Absolute coordinates,Relative coordinates,Distance to view;1]"..
 --	"field[0.2,-2.7;6,10;x;x;]"..
 --	"field[0.2,-2.1;6,10;y;y;]"..
@@ -284,7 +284,7 @@ function ltool.process_form(player,formname,fields)
 			elseif(tab==2) then
 				contents = ltool.database(ltool.playerinfos[playername].dbsel)
 			elseif(tab==3) then
-				contents = ltool.plant()
+				contents = ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
 			elseif(tab==4) then
 				contents = ltool.cheat_sheet()
 			end
