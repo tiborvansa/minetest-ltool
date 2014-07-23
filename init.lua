@@ -185,11 +185,11 @@ end
 function ltool.plant(tree)
 	if(tree ~= nil) then
 		return ""..
-		"label[0,0;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
---		"dropdown[0,0.3;5;plantmode;Absolute coordinates,Relative coordinates,Distance to view;1]"..
---		"field[0.2,-2.7;6,10;x;x;]"..
---		"field[0.2,-2.1;6,10;y;y;]"..
---		"field[0.2,-1.5;6,10;z;z;]"..
+		"label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
+		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates;1]"..
+		"field[0.2,-2.7;6,10;x;x;]"..
+		"field[0.2,-2.1;6,10;y;y;]"..
+		"field[0.2,-1.5;6,10;z;z;]"..
 		"field[0.2,0;6,10;seed;Seed;"..ltool.seed.."]"..
 		"button[0,6.5;2,1;plant_plant;Plant]"
 	else
@@ -283,10 +283,35 @@ function ltool.process_form(player,formname,fields)
 			local tree = ltool.trees[ltool.playerinfos[playername].dbsel]
 			local treedef = tree.treedef
 
-			local tree_pos = player:getpos()
-			tree_pos.x = tree_pos.x + 5
+			local x,y,z = tonumber(fields.x), tonumber(fields.y), tonumber(fields.z)
+			local tree_pos
+			local fail = function()
+				local formspec = "size[6,2;]label[0,0.2;Error: The coordinates must be numbers.]"..
+				"button[2,1.5;2,1;okay;OK]"
+				minetest.show_formspec(playername, "ltool:treeform_error_badplantfields", formspec)
+			end
+			if(fields.plantmode == "Absolute coordinates") then
+				if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
+					fail()
+					return
+				end
+				tree_pos = {x=fields.x, y=fields.y, z=fields.z}
+			elseif(fields.plantmode == "Relative coordinates") then
+				if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
+					fail()
+					return
+				end
+				tree_pos = player:getpos()
+				tree_pos.x = tree_pos.x + fields.x
+				tree_pos.y = tree_pos.y + fields.y
+				tree_pos.z = tree_pos.z + fields.z
+			else
+				minetest.log("error", "[ltool] fields.plantmode = "..tostring(fields.plantmode))
+			end
 
-			treedef.seed = fields.seed
+			if(tonumber(fields.seed)~=nil) then
+				treedef.seed = tonumber(fields.seed)
+			end
 
 			minetest.spawn_tree(tree_pos, treedef)
 
@@ -326,6 +351,9 @@ function ltool.process_form(player,formname,fields)
 		end
 	elseif(formname == "ltool:treeform_error_badtreedef") then
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit()
+		minetest.show_formspec(playername, "ltool:treeform", formspec)
+	elseif(formname == "ltool:treeform_error_badplantfields") then
+		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
 		minetest.show_formspec(playername, "ltool:treeform", formspec)
 	end
 end
