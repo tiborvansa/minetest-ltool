@@ -88,8 +88,8 @@ function ltool.edit(tree)
 	"button[0,6.5;2,1;edit_save;Save]"
 end
 
-function ltool.database(index)
-	local treestr = ltool.get_tree_names(index)
+function ltool.database(index, playername)
+	local treestr = ltool.get_tree_names(index, playername)
 	if(treestr ~= nil) then
 		return ""..
 		"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
@@ -198,13 +198,19 @@ function ltool.plant(tree)
 end
 
 
-function ltool.get_tree_names(index)
+function ltool.get_tree_names(index, playername)
 	local string = ""
 	if(#ltool.trees == 0) then
 		return nil
 	end
+	local colorstring
 	for t=1,#ltool.trees do
-		string = string .. minetest.formspec_escape(ltool.trees[t].name)
+		if(ltool.trees[t].author == playername) then
+			colorstring = "#FFFF00"
+		else
+			colorstring = ""
+		end
+		string = string .. colorstring .. minetest.formspec_escape(ltool.trees[t].name)
 		if(t < #ltool.trees) then
 			string = string .. ","
 		end
@@ -263,7 +269,7 @@ function ltool.process_form(player,formname,fields)
 			if(tab==1) then
 				contents = ltool.edit()
 			elseif(tab==2) then
-				contents = ltool.database(ltool.playerinfos[playername].dbsel)
+				contents = ltool.database(ltool.playerinfos[playername].dbsel, playername)
 			elseif(tab==3) then
 				if(#ltool.trees > 0) then
 					contents = ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
@@ -334,7 +340,7 @@ function ltool.process_form(player,formname,fields)
 			local event = minetest.explode_textlist_event(fields.treelist)
 			if(event.type == "CHG") then
 				ltool.playerinfos[playername].dbsel = event.index
-				local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(event.index)
+				local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(event.index, playername)
 				minetest.show_formspec(playername, "ltool:treeform", formspec)
 			end
 		elseif(fields.database_copy) then
@@ -346,7 +352,7 @@ function ltool.process_form(player,formname,fields)
 			local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.trees[sel])
 			minetest.show_formspec(playername, "ltool:treeform", formspec)
 		elseif(fields.database_update) then
-			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel)
+			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 			minetest.show_formspec(playername, "ltool:treeform", formspec)
 		end
 	elseif(formname == "ltool:treeform_error_badtreedef") then
