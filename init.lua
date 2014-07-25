@@ -123,10 +123,10 @@ function ltool.database(index, playername)
 		return ""..
 		"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
 		"button[0,6.5;2,1;database_copy;Copy to editor]"..
-		"button[2.1,6.5;2,1;database_update;Reload]"
+		"button[2.1,6.5;2,1;database_update;Reload database]"
 	else
 		return "label[0,0;The tree database is empty.]"..
-		"button[2.1,6.5;2,1;database_update;Reload]"
+		"button[2.1,6.5;2,1;database_update;Reload database]"
 	end
 end
 
