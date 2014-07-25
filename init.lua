@@ -21,6 +21,35 @@ ltool.emptytreedef = {
 	thin_branches="",
 }
 
+minetest.register_node("ltool:sapling", {
+	description = "custom L-system tree sapling",
+	stack_max = 1,
+	drawtype = "plantlike",
+	tiles = { "ltool_sapling.png" },
+	inventory_image = "ltool_sapling.png",
+	wield_image = "ltool_sapling.png",
+	paramtype = "light",
+	paramtype2= "wallmounted",
+	walkable = false,
+	buildable_to = true,
+	groups = { dig_immediate = 3, not_in_creative_inventory=1 },
+	after_place_node = function(pos, placer, itemstack, pointed_thing)
+		-- Transfer metadata and start timer
+		local nodemeta = minetest.get_meta(pos)
+		local itemmeta = itemstack:get_metadata()
+		nodemeta:set_string("treedef", itemmeta)
+		local timer = minetest.get_node_timer(pos)
+		timer:start(5)
+	end,
+	on_timer = function(pos, elapsed)
+		-- Place tree
+		local meta = minetest.get_meta(pos)
+		local treedef = minetest.deserialize(meta:get_string("treedef"))
+		minetest.remove_node(pos)
+		minetest.spawn_tree(pos, treedef)
+	end,
+})
+
 function ltool.add_tree(name, author, treedef)
 	table.insert(ltool.trees, {name = name, author = author, treedef = treedef})
 end
@@ -191,7 +220,8 @@ function ltool.plant(tree)
 		"field[0.2,-2.1;6,10;y;y;]"..
 		"field[0.2,-1.5;6,10;z;z;]"..
 		"field[0.2,0;6,10;seed;Seed;"..ltool.seed.."]"..
-		"button[0,6.5;2,1;plant_plant;Plant]"
+		"button[0,6.5;2,1;plant_plant;Plant]"..
+		"button[2.1,6.5;2,1;sapling;Give me a sapling]"
 	else
 		return "label[0,0;There are no trees to plant.]"
 	end
@@ -322,6 +352,12 @@ function ltool.process_form(player,formname,fields)
 			minetest.spawn_tree(tree_pos, treedef)
 
 			treedef.seed = nil
+		elseif(fields.sapling) then
+			local sapling = ItemStack("ltool:sapling")
+			-- TODO: Copy the seed into the sapling, too.
+			sapling:set_metadata(minetest.serialize(ltool.trees[ltool.playerinfos[playername].dbsel].treedef))
+			local leftover = player:get_inventory():add_item("main", sapling)
+			-- TODO: Open error dialog if item could not be given to player
 		elseif(fields.edit_save) then
 			local param1, param2
 			param1, param2 = ltool.evaluate_edit_fields(fields)
