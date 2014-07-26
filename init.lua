@@ -33,6 +33,7 @@ minetest.register_node("ltool:sapling", {
 	walkable = false,
 	buildable_to = true,
 	groups = { dig_immediate = 3, not_in_creative_inventory=1 },
+	drop = "",
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 		-- Transfer metadata and start timer
 		local nodemeta = minetest.get_meta(pos)
