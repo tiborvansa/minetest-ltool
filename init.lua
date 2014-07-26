@@ -261,14 +261,6 @@ function ltool.cheat_sheet()
 	"\\],Recover from stack state info]"
 end
 
---[[ spawns a simple dialog formspec to a player ]]
-function ltool.show_dialog(playername, formname, message)
-	local formspec = "size[6,2;]label[0,0.2;"..message.."]"..
-	"button[2,1.5;2,1;okay;OK]"
-	minetest.show_formspec(playername, formname, formspec)
-
-end
-
 --[[ creates the content of a textlist which contains all trees.
 	index: Selected entry
 	playername: To which the main formspec is shown to. Used for highlighting owned trees
@@ -298,8 +290,24 @@ function ltool.build_tree_textlist(index, playername)
 	return string, tree_ids
 end
 
+--[=[ Here come functions which show formspecs to players ]=]
 
---[=[ End of formspec building functions ]=]
+--[[ Shows the main tree formular to the given player, starting with the "Edit" tab ]]
+function ltool.show_treeform(playername)
+	local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
+	minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
+end
+
+--[[ spawns a simple dialog formspec to a player ]]
+function ltool.show_dialog(playername, formname, message)
+	local formspec = "size[6,2;]label[0,0.2;"..message.."]"..
+	"button[2,1.5;2,1;okay;OK]"
+	minetest.show_formspec(playername, formname, formspec)
+
+end
+
+
+--[=[ End of formspec-relatec functions ]=]
 
 --[[ This function does a lot of parameter checks and returns (tree, tree_name) on success.
 	If ANY parameter check fails, the whole function fails.
@@ -454,10 +462,9 @@ minetest.register_chatcommand("treeform",
 {
 	params = "",
 	description = "Open L-system tree builder formular.",
-	privs = {privs=false},
+	privs = {},
 	func = function(playername, param)
-		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
-		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
+		ltool.show_treeform(playername)
 	end
 })
 
