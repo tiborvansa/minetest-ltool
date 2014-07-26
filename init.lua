@@ -350,7 +350,7 @@ minetest.register_chatcommand("treeform",
 			"button[0.6,6.5;2,1;edit_save;Save]"..
 		end
 ]]
-		minetest.show_formspec(player_name, "ltool:treeform", formspec)
+		minetest.show_formspec(player_name, "ltool:treeform_edit", formspec)
 	end
 })
 
@@ -361,28 +361,33 @@ end
 function ltool.process_form(player,formname,fields)
 	local playername = player:get_player_name()
 	local seltree = ltool.get_selected_tree(playername)
-	if(formname == "ltool:treeform") then
+	if(formname == "ltool:treeform_edit" or formname == "ltool:treeform_database" or formname == "ltool:treeform_plant" or formname == "ltool:treeform_cheat_sheet") then
 		if fields.ltool_tab ~= nil then
 			local tab = tonumber(fields.ltool_tab)
-			local formspec, contents
+			local formspec, subformname, contents
 			if(tab==1) then
 				contents = ltool.edit()
+				subformname = "edit"
 			elseif(tab==2) then
 				contents = ltool.database(ltool.playerinfos[playername].dbsel, playername)
+				subformname = "database"
 			elseif(tab==3) then
 				if(ltool.number_of_trees > 0) then
 					contents = ltool.plant(seltree)
 				else
 					contents = ltool.plant()
 				end
+				subformname = "plant"
 			elseif(tab==4) then
 				contents = ltool.cheat_sheet()
+				subformname = "cheat_sheet"
 			end
 			formspec = ltool.loadtreeform..ltool.header(tab)..contents
-			minetest.show_formspec(playername, "ltool:treeform", formspec)
+			minetest.show_formspec(playername, "ltool:treeform_" .. subformname, formspec)
 			return
 		end
-			
+	end
+	if(formname == "ltool:treeform_plant") then
 		if(fields.plant_plant) then
 			if(seltree ~= nil) then
 				minetest.log("action","[ltool] Planting tree")
@@ -430,7 +435,9 @@ function ltool.process_form(player,formname,fields)
 				local leftover = player:get_inventory():add_item("main", sapling)
 				-- TODO: Open error dialog if item could not be given to player
 			end
-		elseif(fields.edit_save) then
+		end
+	elseif(formname == "ltool:treeform_edit") then
+		if(fields.edit_save) then
 			local param1, param2
 			param1, param2 = ltool.evaluate_edit_fields(fields)
 		
@@ -444,25 +451,27 @@ function ltool.process_form(player,formname,fields)
 				"button[2,1.5;2,1;okay;OK]"
 				minetest.show_formspec(playername, "ltool:treeform_error_badtreedef", formspec)
 			end
-		elseif(fields.treelist) then
+		end
+	elseif(formname == "ltool:treeform_database") then
+		if(fields.treelist) then
 			local event = minetest.explode_textlist_event(fields.treelist)
 			if(event.type == "CHG") then
 				ltool.playerinfos[playername].dbsel = event.index
 				local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(event.index, playername)
-				minetest.show_formspec(playername, "ltool:treeform", formspec)
+				minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 			end
 		elseif(fields.database_copy) then
 			if(seltree ~= nil) then
 				if(ltool.playerinfos[playername] ~= nil) then
 					local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(seltree)
-					minetest.show_formspec(playername, "ltool:treeform", formspec)
+					minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 				else
 					-- TODO: fail
 				end
 			end
 		elseif(fields.database_update) then
 			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
-			minetest.show_formspec(playername, "ltool:treeform", formspec)
+			minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 
 		elseif(fields.database_delete) then
 			if(seltree ~= nil) then
@@ -482,7 +491,7 @@ function ltool.process_form(player,formname,fields)
 							end
 						end
 						local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
-						minetest.show_formspec(playername, "ltool:treeform", formspec)
+						minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 					else
 						-- TODO: fail
 					end
@@ -508,19 +517,19 @@ function ltool.process_form(player,formname,fields)
 		if(fields.newname ~= "") then
 			seltree.name = fields.newname
 			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
-			minetest.show_formspec(playername, "ltool:treeform", formspec)
+			minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 		else
 			-- TODO: fail
 		end
 	elseif(formname == "ltool:treeform_error_badtreedef") then
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit()
-		minetest.show_formspec(playername, "ltool:treeform", formspec)
+		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_error_badplantfields") then
 		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
-		minetest.show_formspec(playername, "ltool:treeform", formspec)
+		minetest.show_formspec(playername, "ltool:treeform_plant", formspec)
 	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename") then
 		local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
-		minetest.show_formspec(playername, "ltool:treeform", formspec)
+		minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 	end
 end
 
