@@ -85,6 +85,21 @@ function ltool.add_tree(name, author, treedef)
 	return id
 end
 
+function ltool.remove_tree(tree_id)
+	ltool.trees[tree_id] = nil
+	ltool.number_of_trees = ltool.number_of_trees - 1
+	for k,v in pairs(ltool.playerinfos) do
+		if(v.dbsel ~= nil) then
+			if(v.dbsel > ltool.number_of_trees) then
+				v.dbsel = ltool.number_of_trees
+			end
+			if(v.dbsel < 1) then
+				v.dbsel = 1
+			end
+		end
+	end
+end
+
 ltool.seed = os.time()
 
 ltool.loadtreeform = "size[6,7]"
@@ -550,18 +565,7 @@ function ltool.process_form(player,formname,fields)
 				if(playername == seltree.author) then
 					local remove_id = ltool.get_selected_tree_id(playername)
 					if(remove_id ~= nil) then
-						ltool.trees[remove_id] = nil
-						ltool.number_of_trees = ltool.number_of_trees - 1
-						for k,v in pairs(ltool.playerinfos) do
-							if(v.dbsel ~= nil) then
-								if(v.dbsel > ltool.number_of_trees) then
-									v.dbsel = ltool.number_of_trees
-								end
-								if(v.dbsel < 1) then
-									v.dbsel = 1
-								end
-							end
-						end
+						ltool.remove_tree(remove_id)
 						local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 						minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 					end
