@@ -142,6 +142,7 @@ function ltool.database(index, playername)
 		ltool.playerinfos[playername].treeform.database.textlist = tree_ids
 		return ""..
 		"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
+		"button[0,6;2,1;database_rename;Rename tree]"..
 		"button[2.1,6;2,1;database_delete;Delete tree]"..
 		"button[0,6.5;2,1;database_copy;Copy to editor]"..
 		"button[2.1,6.5;2,1;database_update;Reload database]"
@@ -491,6 +492,25 @@ function ltool.process_form(player,formname,fields)
 					minetest.show_formspec(playername, "ltool:treeform_error_delete", formspec)
 				end
 			end
+		elseif(fields.database_rename) then
+			if(seltree ~= nil) then
+				if(playername == seltree.author) then
+					local formspec = "field[newname;New name:;"..minetest.formspec_escape(seltree.name).."]"
+					minetest.show_formspec(playername, "ltool:treeform_rename", formspec)
+				else
+					local formspec = "size[6,2;]label[0,0.2;Error: This tree is not your own. You may only rename your own trees.]"..
+					"button[2,1.5;2,1;okay;OK]"
+					minetest.show_formspec(playername, "ltool:treeform_error_rename", formspec)
+				end
+			end
+		end
+	elseif(formname == "ltool:treeform_rename") then
+		if(fields.newname ~= "") then
+			seltree.name = fields.newname
+			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
+			minetest.show_formspec(playername, "ltool:treeform", formspec)
+		else
+			-- TODO: fail
 		end
 	elseif(formname == "ltool:treeform_error_badtreedef") then
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit()
@@ -498,7 +518,7 @@ function ltool.process_form(player,formname,fields)
 	elseif(formname == "ltool:treeform_error_badplantfields") then
 		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
 		minetest.show_formspec(playername, "ltool:treeform", formspec)
-	elseif(formname == "ltool:treeform_error_delete") then
+	elseif(formname == "ltool:treeform_error_delete" or "ltool:treeform_error_rename") then
 		local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 		minetest.show_formspec(playername, "ltool:treeform", formspec)
 	end
