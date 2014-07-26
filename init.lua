@@ -428,6 +428,7 @@ function ltool.process_form(player,formname,fields)
 				local x,y,z = tonumber(fields.x), tonumber(fields.y), tonumber(fields.z)
 				local tree_pos
 				local fail = function()
+					ltool.save_fields(playername, formname, fields)
 					local formspec = "size[6,2;]label[0,0.2;Error: The coordinates must be numbers.]"..
 					"button[2,1.5;2,1;okay;OK]"
 					minetest.show_formspec(playername, "ltool:treeform_error_badplantfields", formspec)
@@ -478,6 +479,7 @@ function ltool.process_form(player,formname,fields)
 				local name = param2
 				ltool.add_tree(name, playername, treedef)
 			else
+				ltool.save_fields(playername, formname, fields)
 				local formspec = "size[6,2;]label[0,0.2;Error: The tree definition is invalid.]"..
 				"label[0,0.4;"..minetest.formspec_escape(param2).."]"..
 				"button[2,1.5;2,1;okay;OK]"
