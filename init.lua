@@ -244,7 +244,7 @@ function ltool.plant(tree)
 		"button[0,6.5;2,1;plant_plant;Plant]"..
 		"button[2.1,6.5;2,1;sapling;Give me a sapling]"
 	else
-		return "label[0,0;No tree selected to plant. Please select a tree in the database first.]"
+		return "label[0,0;No tree in database selected or database is empty.]"
 	end
 end
 
@@ -369,7 +369,7 @@ function ltool.process_form(player,formname,fields)
 			elseif(tab==2) then
 				contents = ltool.database(ltool.playerinfos[playername].dbsel, playername)
 			elseif(tab==3) then
-				if(#ltool.get_tree_ids() > 0) then
+				if(ltool.number_of_trees > 0) then
 					contents = ltool.plant(seltree)
 				else
 					contents = ltool.plant()
