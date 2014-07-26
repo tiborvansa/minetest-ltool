@@ -179,11 +179,24 @@ end
 
 function ltool.evaluate_edit_fields(fields)
 	local treedef = {}
-	treedef.axiom = fields.axiom
-	treedef.rules_a = fields.rules_a
-	treedef.rules_b = fields.rules_b
-	treedef.rules_c = fields.rules_c
-	treedef.rules_d = fields.rules_d
+	-- Validation helper: Checks for invalid characters for the fields “axiom” and the 4 rule sets
+	local v = function(str)
+		local match = string.match(str, "[^][abcdfABCDFGTR+-/*&^]")
+		if(match==nil) then
+			return true
+		else
+			return false
+		end
+	end
+	if(v(fields.axiom) and v(fields.rules_a) and v(fields.rules_b) and v(fields.rules_c) and v(fields.rules_d)) then
+		treedef.rules_a = fields.rules_a
+		treedef.rules_b = fields.rules_b
+		treedef.rules_c = fields.rules_c
+		treedef.rules_d = fields.rules_d
+		treedef.axiom = fields.axiom
+	else
+		return nil, "The axiom or one of the rule sets contains at least one invalid character.\nSee the cheat sheet for a list of allowed characters."
+	end
 	treedef.trunk = fields.trunk
 	treedef.leaves = fields.leaves
 	treedef.leaves2 = fields.leaves2
