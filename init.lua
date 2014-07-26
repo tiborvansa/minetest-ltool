@@ -1,7 +1,7 @@
 ltool = {}
 
 ltool.playerinfos = {}
-ltool.emptytreedef = {
+ltool.default_edit_fields = {
 	axiom="",
 	rules_a="",
 	rules_b="",
@@ -18,6 +18,7 @@ ltool.emptytreedef = {
 	random_level="",
 	trunk_type="",
 	thin_branches="",
+	name = "",
 }
 
 minetest.register_node("ltool:sapling", {
@@ -91,14 +92,9 @@ function ltool.header(index)
 	return "tabheader[0,0;ltool_tab;Edit,Database,Plant,Cheat sheet;"..tostring(index)..";true;false]"
 end
 
-function ltool.edit(tree)
-	local treedef, name
-	if(tree==nil) then
-		treedef = ltool.emptytreedef
-		name = ""
-	else
-		treedef = tree.treedef
-		name = tree.name
+function ltool.edit(fields)
+	if(fields==nil) then
+		fields = ltool.default_edit_fields
 	end
 	local s = function(input)
 		if(input==nil) then
@@ -109,24 +105,24 @@ function ltool.edit(tree)
 		return ret
 	end
 	return ""..
-	"field[0.2,-4;6,10;axiom;Axiom;"..s(treedef.axiom).."]"..
-	"field[0.2,-3.4;6,10;rules_a;Rules set A;"..s(treedef.rules_a).."]"..
-	"field[0.2,-2.7;6,10;rules_b;Rules set B;"..s(treedef.rules_b).."]"..
-	"field[0.2,-2.1;6,10;rules_c;Rules set C;"..s(treedef.rules_c).."]"..
-	"field[0.2,-1.5;6,10;rules_d;Rules set D;"..s(treedef.rules_d).."]"..
-	"field[0.2,-0.9;3,10;trunk;Trunk node name;"..s(treedef.trunk).."]"..
-	"field[0.2,-0.3;3,10;leaves;Leaves node name;"..s(treedef.leaves).."]"..
-	"field[0.2,0.3;3,10;leaves2;Secondary leaves node name;"..s(treedef.leaves2).."]"..
-	"field[0.2,0.9;3,10;leaves2_chance;Secondary leaves chance (in percent);"..s(treedef.leaves2_chance).."]"..
-	"field[0.2,1.5;3,10;fruit;Fruit node name;"..s(treedef.fruit).."]"..
-	"field[0.2,2.1;3,10;fruit_chance;Fruit chance (in percent);"..s(treedef.fruit_chance).."]"..
+	"field[0.2,-4;6,10;axiom;Axiom;"..s(fields.axiom).."]"..
+	"field[0.2,-3.4;6,10;rules_a;Rules set A;"..s(fields.rules_a).."]"..
+	"field[0.2,-2.7;6,10;rules_b;Rules set B;"..s(fields.rules_b).."]"..
+	"field[0.2,-2.1;6,10;rules_c;Rules set C;"..s(fields.rules_c).."]"..
+	"field[0.2,-1.5;6,10;rules_d;Rules set D;"..s(fields.rules_d).."]"..
+	"field[0.2,-0.9;3,10;trunk;Trunk node name;"..s(fields.trunk).."]"..
+	"field[0.2,-0.3;3,10;leaves;Leaves node name;"..s(fields.leaves).."]"..
+	"field[0.2,0.3;3,10;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
+	"field[0.2,0.9;3,10;leaves2_chance;Secondary leaves chance (in percent);"..s(fields.leaves2_chance).."]"..
+	"field[0.2,1.5;3,10;fruit;Fruit node name;"..s(fields.fruit).."]"..
+	"field[0.2,2.1;3,10;fruit_chance;Fruit chance (in percent);"..s(fields.fruit_chance).."]"..
 
-	"field[3.2,-0.9;3,10;angle;Angle (in degrees);"..s(treedef.angle).."]"..
-	"field[3.2,-0.3;3,10;iterations;Iterations;"..s(treedef.iterations).."]"..
-	"field[3.2,0.3;3,10;random_level;Randomness level;"..s(treedef.random_level).."]"..
-	"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..s(treedef.trunk_type).."]"..
-	"field[3.2,1.5;3,10;thin_branches;Thin branches? (true/false);"..s(treedef.thin_branches).."]"..
-	"field[3.2,2.1;3,10;name;Name;"..s(name).."]"..
+	"field[3.2,-0.9;3,10;angle;Angle (in degrees);"..s(fields.angle).."]"..
+	"field[3.2,-0.3;3,10;iterations;Iterations;"..s(fields.iterations).."]"..
+	"field[3.2,0.3;3,10;random_level;Randomness level;"..s(fields.random_level).."]"..
+	"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
+	"field[3.2,1.5;3,10;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
+	"field[3.2,2.1;3,10;name;Name;"..s(fields.name).."]"..
 	"button[0,6.5;2,1;edit_save;Save]"
 end
 
@@ -233,15 +229,66 @@ function ltool.evaluate_edit_fields(fields)
 	return treedef, name
 end
 
-function ltool.plant(tree)
+function ltool.tree_to_fields(tree)
+	local s = function(i)
+		if(i==nil) then
+			return ""
+		else
+			return tostring(i)
+		end
+	end
+	local fields = {}
+	fields.axiom = s(tree.treedef.axiom)
+	fields.rules_a = s(tree.treedef.rules_a)
+	fields.rules_b = s(tree.treedef.rules_b)
+	fields.rules_c = s(tree.treedef.rules_c)
+	fields.rules_d = s(tree.treedef.rules_d)
+	fields.trunk = s(tree.treedef.trunk)
+	fields.leaves = s(tree.treedef.leaves)
+	fields.leaves2 = s(tree.treedef.leaves2)
+	fields.leaves2_chance = s(tree.treedef.leaves2)
+	fields.fruit = s(tree.treedef.leaves2)
+	fields.fruit_chance = s(tree.treedef.fruit_chance)
+	fields.angle = s(tree.treedef.angle)
+	fields.iterations = s(tree.treedef.iterations)
+	fields.random_level = s(tree.treedef.random_level)
+	fields.trunk_type = s(tree.treedef.trunk_type)
+	fields.thin_branches = s(tree.treedef.thin_branches)
+	fields.name = s(tree.name)
+	return fields
+end
+
+function ltool.plant(tree, fields)
 	if(tree ~= nil) then
+		if(fields==nil) then
+			fields = {}
+		end
+		local s = function(i)
+			if(i==nil) then return ""
+			else return tostring(minetest.formspec_escape(i))
+			end
+		end
+		local seed
+		if(fields.seed == nil) then
+			seed = tostring(ltool.seed)
+		else
+			seed = fields.seed
+		end
+		local dropdownindex
+		if(fields.plantmode == "Absolute coordinates") then
+			dropdownindex = 1
+		elseif(fields.plantmode == "Relative coordinates") then
+			dropdownindex = 2
+		else
+			dropdownindex = 1
+		end
 		return ""..
 		"label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
-		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates;1]"..
-		"field[0.2,-2.7;6,10;x;x;]"..
-		"field[0.2,-2.1;6,10;y;y;]"..
-		"field[0.2,-1.5;6,10;z;z;]"..
-		"field[0.2,0;6,10;seed;Seed;"..ltool.seed.."]"..
+		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates;"..dropdownindex.."]"..
+		"field[0.2,-2.7;6,10;x;x;"..s(fields.x).."]"..
+		"field[0.2,-2.1;6,10;y;y;"..s(fields.y).."]"..
+		"field[0.2,-1.5;6,10;z;z;"..s(fields.z).."]"..
+		"field[0.2,0;6,10;seed;Seed;"..seed.."]"..
 		"button[0,6.5;2,1;plant_plant;Plant]"..
 		"button[2.1,6.5;2,1;sapling;Give me a sapling]"
 	else
@@ -314,6 +361,7 @@ function ltool.get_selected_tree_id(playername)
 	return nil
 end
 
+
 ltool.treeform = ltool.loadtreeform..ltool.header(1)..ltool.edit()
 
 minetest.register_chatcommand("treeform",
@@ -321,36 +369,9 @@ minetest.register_chatcommand("treeform",
 	params = "",
 	description = "Open L-system tree builder formular.",
 	privs = {privs=false},
-	func = function(player_name, param)
-		local player = minetest.get_player_by_name(player_name)
-		local formspec
---		if(ltool.playerinfos[player] == nil) then
-			formspec = ltool.treeform
---[[		else
-			local i = ltool.playerinfos[player]
-			formspec = 
-			"size[6,7]"..
-			"field[0.2,-4;6,10;axiom;Axiom;"..i.axiom.."]"..
-			"field[0.2,-3.4;6,10;rules_a;Rules set A;"..i.rules_a.."]"..
-			"field[0.2,-2.7;6,10;rules_b;Rules set B;"..i.rules_b.."]"..
-			"field[0.2,-2.1;6,10;rules_c;Rules set C;"..i.rules_c.."]"..
-			"field[0.2,-1.5;6,10;rules_d;Rules set D;"..i.ruled_d.."]"..
-			"field[0.2,-0.9;3,10;trunk;Trunk node name;"..i.trunk.."]"..
-			"field[0.2,-0.3;3,10;leaves;Leaves node name;"..i.leaves.."]"..
-			"field[0.2,0.3;3,10;leaves2;Secondary leaves node name;"..i.leaves2.."]"..
-			"field[0.2,0.9;3,10;leaves2_chance;Secondary leaves chance;"..i.leaves2_chance.."]"..
-			"field[0.2,1.5;3,10;fruit;Fruit node name;"..i.fruit.."]"..
-			"field[0.2,2.1;3,10;fruit_chance;Fruit chance;"..i.fruit_chance.."]"..
-		
-			"field[3.2,-0.9;3,10;angle;Angle;"..i.angle.."]"..
-			"field[3.2,-0.3;3,10;iterations;Iterations;"..i.iterations.."]"..
-			"field[3.2,0.3;3,10;random_level;Randomness level;"..i.random_level.."]"..
-			"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..i.trunk_type.."]"..
-			"field[3.2,1.5;3,10;thin_branches;Thin branches? (true/false);"..i.thin_branches.."]"..
-			"button[0.6,6.5;2,1;edit_save;Save]"..
-		end
-]]
-		minetest.show_formspec(player_name, "ltool:treeform_edit", formspec)
+	func = function(playername, param)
+		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
+		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	end
 })
 
@@ -358,24 +379,35 @@ function ltool.dbsel_to_tree(dbsel, playername)
 	return ltool.trees[ltool.playerinfos[playername].treeform.database.textlist[dbsel]]
 end
 
+function ltool.save_fields(playername,formname,fields)
+	if(formname=="ltool:treeform_edit") then
+		ltool.playerinfos[playername].treeform.edit.fields = fields
+	elseif(formname=="ltool:treeform_database") then
+		ltool.playerinfos[playername].treeform.database.fields = fields
+	elseif(formname=="ltool:treeform_plant") then
+		ltool.playerinfos[playername].treeform.plant.fields = fields
+	end
+end
+
 function ltool.process_form(player,formname,fields)
 	local playername = player:get_player_name()
 	local seltree = ltool.get_selected_tree(playername)
 	if(formname == "ltool:treeform_edit" or formname == "ltool:treeform_database" or formname == "ltool:treeform_plant" or formname == "ltool:treeform_cheat_sheet") then
 		if fields.ltool_tab ~= nil then
+			ltool.save_fields(playername, formname, fields)
 			local tab = tonumber(fields.ltool_tab)
 			local formspec, subformname, contents
 			if(tab==1) then
-				contents = ltool.edit()
+				contents = ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
 				subformname = "edit"
 			elseif(tab==2) then
 				contents = ltool.database(ltool.playerinfos[playername].dbsel, playername)
 				subformname = "database"
 			elseif(tab==3) then
 				if(ltool.number_of_trees > 0) then
-					contents = ltool.plant(seltree)
+					contents = ltool.plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
 				else
-					contents = ltool.plant()
+					contents = ltool.plant(nil)
 				end
 				subformname = "plant"
 			elseif(tab==4) then
@@ -463,7 +495,7 @@ function ltool.process_form(player,formname,fields)
 		elseif(fields.database_copy) then
 			if(seltree ~= nil) then
 				if(ltool.playerinfos[playername] ~= nil) then
-					local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(seltree)
+					local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.tree_to_fields(seltree))
 					minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 				else
 					-- TODO: fail
@@ -522,10 +554,10 @@ function ltool.process_form(player,formname,fields)
 			-- TODO: fail
 		end
 	elseif(formname == "ltool:treeform_error_badtreedef") then
-		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit()
+		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_error_badplantfields") then
-		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
+		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
 		minetest.show_formspec(playername, "ltool:treeform_plant", formspec)
 	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename") then
 		local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
@@ -545,6 +577,13 @@ function ltool.join(player)
 	--[[ This table stores a mapping of the textlist IDs in the database formspec and the tree IDs.
 	It is updated each time ltool.database is called. ]]
 	infotable.treeform.database.textlist = nil
+	--[[ the “fields” tables store the values of the input fields of a formspec. It is updated
+	whenever the formspec is changed, i.e. on tab change ]]
+	infotable.treeform.database.fields = {}
+	infotable.treeform.plant = {}
+	infotable.treeform.plant.fields = {}
+	infotable.treeform.edit = {}
+	infotable.treeform.edit.fields = {}
 	ltool.playerinfos[player:get_player_name()] = infotable
 end
 
