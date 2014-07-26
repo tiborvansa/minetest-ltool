@@ -518,7 +518,7 @@ function ltool.process_form(player,formname,fields)
 	elseif(formname == "ltool:treeform_error_badplantfields") then
 		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
 		minetest.show_formspec(playername, "ltool:treeform", formspec)
-	elseif(formname == "ltool:treeform_error_delete" or "ltool:treeform_error_rename") then
+	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename") then
 		local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 		minetest.show_formspec(playername, "ltool:treeform", formspec)
 	end
