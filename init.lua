@@ -21,6 +21,7 @@ ltool.default_edit_fields = {
 	name = "",
 }
 
+--[[ This registers the sapling for planting the trees ]]
 minetest.register_node("ltool:sapling", {
 	description = "custom L-system tree sapling",
 	stack_max = 1,
@@ -51,6 +52,7 @@ minetest.register_node("ltool:sapling", {
 	end,
 })
 
+--[[ Load previously saved data from file or initialize an empty tree table ]]
 do
 	local filepath = minetest.get_worldpath().."/ltool.mt"
 	local file = io.open(filepath, "r")
@@ -71,12 +73,21 @@ do
 			minetest.log("error", "[ltool] Failed to load tree data from "..filepath..".")
 		end
 	else
+		--[[ table of all trees ]]
 		ltool.trees = {}
+		--[[ helper variables to ensure unique IDs ]]
 		ltool.number_of_trees = 0
 		ltool.next_tree_id = 1
 	end
 end
 
+--[[ Adds a tree to the tree table.
+	name: The tree’s name.
+	author: The author’s / owners’ name
+	treedef: The full tree definition, see lua_api.txt
+
+	returns the tree ID of the new tree
+]]
 function ltool.add_tree(name, author, treedef)
 	local id = ltool.next_tree_id
 	ltool.trees[id] = {name = name, author = author, treedef = treedef}
@@ -85,6 +96,11 @@ function ltool.add_tree(name, author, treedef)
 	return id
 end
 
+--[[ Removes a tree from the database
+	tree_id: ID of the tree to be removed
+
+	returns nil
+]]
 function ltool.remove_tree(tree_id)
 	ltool.trees[tree_id] = nil
 	ltool.number_of_trees = ltool.number_of_trees - 1
@@ -102,12 +118,19 @@ end
 
 ltool.seed = os.time()
 
+
+--[=[ Here come the functions to build the main formspec.
+They do not build the entire formspec ]=]
+
 ltool.loadtreeform = "size[6,7]"
 
+--[[ This is a part of the main formspec: Tab header ]]
 function ltool.header(index)
 	return "tabheader[0,0;ltool_tab;Edit,Database,Plant,Cheat sheet;"..tostring(index)..";true;false]"
 end
 
+--[[ This creates the edit tab of the formspec
+	fields: A template used to fill the default values of the formspec. ]]
 function ltool.edit(fields)
 	if(fields==nil) then
 		fields = ltool.default_edit_fields
@@ -142,6 +165,10 @@ function ltool.edit(fields)
 	"button[0,6.5;2,1;edit_save;Save]"
 end
 
+--[[ This creates the database tab of the formspec.
+	index: Selected index of the textlist
+	playername: To whom the formspec is shown
+]]
 function ltool.database(index, playername)
 	local treestr, tree_ids = ltool.build_tree_textlist(index, playername)
 	if(treestr ~= nil) then
@@ -164,6 +191,47 @@ function ltool.database(index, playername)
 	end
 end
 
+--[[ This creates the "Plant" tab part of the main formspec ]]
+function ltool.plant(tree, fields)
+	if(tree ~= nil) then
+		if(fields==nil) then
+			fields = {}
+		end
+		local s = function(i)
+			if(i==nil) then return ""
+			else return tostring(minetest.formspec_escape(i))
+			end
+		end
+		local seed
+		if(fields.seed == nil) then
+			seed = tostring(ltool.seed)
+		else
+			seed = fields.seed
+		end
+		local dropdownindex
+		if(fields.plantmode == "Absolute coordinates") then
+			dropdownindex = 1
+		elseif(fields.plantmode == "Relative coordinates") then
+			dropdownindex = 2
+		else
+			dropdownindex = 1
+		end
+		return ""..
+		"label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
+		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates;"..dropdownindex.."]"..
+		"field[0.2,-2.7;6,10;x;x;"..s(fields.x).."]"..
+		"field[0.2,-2.1;6,10;y;y;"..s(fields.y).."]"..
+		"field[0.2,-1.5;6,10;z;z;"..s(fields.z).."]"..
+		"field[0.2,0;6,10;seed;Seed;"..seed.."]"..
+		"button[0,6.5;2,1;plant_plant;Plant]"..
+		"button[2.1,6.5;2,1;sapling;Give me a sapling]"
+	else
+		return "label[0,0;No tree in database selected or database is empty.]"
+	end
+end
+
+
+--[[ This creates the cheat sheet tab ]]
 function ltool.cheat_sheet()
 	return ""..
 	"tablecolumns[text;text]"..
@@ -193,6 +261,49 @@ function ltool.cheat_sheet()
 	"\\],Recover from stack state info]"
 end
 
+--[[ spawns a simple dialog formspec to a player ]]
+function ltool.show_dialog(playername, formname, message)
+	local formspec = "size[6,2;]label[0,0.2;"..message.."]"..
+	"button[2,1.5;2,1;okay;OK]"
+	minetest.show_formspec(playername, formname, formspec)
+
+end
+
+--[[ creates the content of a textlist which contains all trees.
+	index: Selected entry
+	playername: To which the main formspec is shown to. Used for highlighting owned trees
+
+	returns (string to be used in the text list, table of tree IDs)
+]]
+function ltool.build_tree_textlist(index, playername)
+	local string = ""
+	local colorstring
+	if(ltool.number_of_trees == 0) then
+		return nil
+	end
+	local tree_ids = ltool.get_tree_ids()
+	for i=1,#tree_ids do
+		local tree_id = tree_ids[i]
+		local tree = ltool.trees[tree_id]
+		if(tree.author == playername) then
+			colorstring = "#FFFF00"
+		else
+			colorstring = ""
+		end
+		string = string .. colorstring .. tostring(tree_id) .. ": " .. minetest.formspec_escape(tree.name)
+		if(i~=#tree_ids) then
+			string = string .. ","
+		end
+	end
+	return string, tree_ids
+end
+
+
+--[=[ End of formspec building functions ]=]
+
+--[[ This function does a lot of parameter checks and returns (tree, tree_name) on success.
+	If ANY parameter check fails, the whole function fails.
+	On failure, it returns (nil, <error message string>).]]
 function ltool.evaluate_edit_fields(fields)
 	local treedef = {}
 	-- Validation helper: Checks for invalid characters for the fields “axiom” and the 4 rule sets
@@ -258,6 +369,11 @@ function ltool.evaluate_edit_fields(fields)
 	return treedef, name
 end
 
+
+--[=[ Here come several utility functions ]=]
+
+--[[ converts a given tree to field names, as if they were given to a
+minetest.register_on_plyer_receive_fields callback function ]]
 function ltool.tree_to_fields(tree)
 	local s = function(i)
 		if(i==nil) then
@@ -287,73 +403,7 @@ function ltool.tree_to_fields(tree)
 	return fields
 end
 
-function ltool.plant(tree, fields)
-	if(tree ~= nil) then
-		if(fields==nil) then
-			fields = {}
-		end
-		local s = function(i)
-			if(i==nil) then return ""
-			else return tostring(minetest.formspec_escape(i))
-			end
-		end
-		local seed
-		if(fields.seed == nil) then
-			seed = tostring(ltool.seed)
-		else
-			seed = fields.seed
-		end
-		local dropdownindex
-		if(fields.plantmode == "Absolute coordinates") then
-			dropdownindex = 1
-		elseif(fields.plantmode == "Relative coordinates") then
-			dropdownindex = 2
-		else
-			dropdownindex = 1
-		end
-		return ""..
-		"label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
-		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates;"..dropdownindex.."]"..
-		"field[0.2,-2.7;6,10;x;x;"..s(fields.x).."]"..
-		"field[0.2,-2.1;6,10;y;y;"..s(fields.y).."]"..
-		"field[0.2,-1.5;6,10;z;z;"..s(fields.z).."]"..
-		"field[0.2,0;6,10;seed;Seed;"..seed.."]"..
-		"button[0,6.5;2,1;plant_plant;Plant]"..
-		"button[2.1,6.5;2,1;sapling;Give me a sapling]"
-	else
-		return "label[0,0;No tree in database selected or database is empty.]"
-	end
-end
 
-function ltool.show_dialog(playername, formname, message)
-	local formspec = "size[6,2;]label[0,0.2;"..message.."]"..
-	"button[2,1.5;2,1;okay;OK]"
-	minetest.show_formspec(playername, formname, formspec)
-
-end
-
-function ltool.build_tree_textlist(index, playername)
-	local string = ""
-	local colorstring
-	if(ltool.number_of_trees == 0) then
-		return nil
-	end
-	local tree_ids = ltool.get_tree_ids()
-	for i=1,#tree_ids do
-		local tree_id = tree_ids[i]
-		local tree = ltool.trees[tree_id]
-		if(tree.author == playername) then
-			colorstring = "#FFFF00"
-		else
-			colorstring = ""
-		end
-		string = string .. colorstring .. tostring(tree_id) .. ": " .. minetest.formspec_escape(tree.name)
-		if(i~=#tree_ids) then
-			string = string .. ","
-		end
-	end
-	return string, tree_ids
-end
 
 -- returns a simple table of all the tree IDs
 function ltool.get_tree_ids()
@@ -388,6 +438,7 @@ function ltool.get_selected_tree(playername)
 	return nil
 end
 
+-- Returns the ID of the selected tree of the given player
 function ltool.get_selected_tree_id(playername)
 	local sel = ltool.playerinfos[playername].dbsel 
 	if(sel ~= nil) then
@@ -424,9 +475,12 @@ function ltool.save_fields(playername,formname,fields)
 	end
 end
 
+--[=[ Callback functions start here ]=]
+
 function ltool.process_form(player,formname,fields)
 	local playername = player:get_player_name()
 	local seltree = ltool.get_selected_tree(playername)
+	--[[ process clicks on the tab header ]]
 	if(formname == "ltool:treeform_edit" or formname == "ltool:treeform_database" or formname == "ltool:treeform_plant" or formname == "ltool:treeform_cheat_sheet") then
 		if fields.ltool_tab ~= nil then
 			ltool.save_fields(playername, formname, fields)
@@ -454,6 +508,7 @@ function ltool.process_form(player,formname,fields)
 			return
 		end
 	end
+	--[[ "Plant" tab ]]
 	if(formname == "ltool:treeform_plant") then
 		if(fields.plant_plant) then
 			if(seltree ~= nil) then
@@ -505,6 +560,7 @@ function ltool.process_form(player,formname,fields)
 				end
 			end
 		end
+	--[[ "Edit" tab ]]
 	elseif(formname == "ltool:treeform_edit") then
 		if(fields.edit_save) then
 			local param1, param2
@@ -539,6 +595,7 @@ function ltool.process_form(player,formname,fields)
 				minetest.show_formspec(playername, "ltool:treeform_error_badtreedef", formspec)
 			end
 		end
+	--[[ "Database" tab ]]
 	elseif(formname == "ltool:treeform_database") then
 		if(fields.treelist) then
 			local event = minetest.explode_textlist_event(fields.treelist)
@@ -587,6 +644,7 @@ function ltool.process_form(player,formname,fields)
 				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
 			end
 		end
+	--[[ Process "Do you want to replace this tree?" dialog ]]
 	elseif(formname == "ltool:treeform_replace") then
 		local editfields = ltool.playerinfos[playername].treeform.edit.fields
 		local newtreedef, newname = ltool.evaluate_edit_fields(editfields)
@@ -607,6 +665,7 @@ function ltool.process_form(player,formname,fields)
 		end
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(editfields)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
+	--[[ Tree renaming dialog ]]
 	elseif(formname == "ltool:treeform_rename") then
 		if(fields.newname ~= "") then
 			seltree.name = fields.newname
@@ -615,6 +674,7 @@ function ltool.process_form(player,formname,fields)
 		else
 			ltool.show_dialog(playername, "ltool:treeform_error_bad_rename", "Error: This name is empty. The tree name must be non-empty.")
 		end
+	--[[ Here come various error messages to handle ]]
 	elseif(formname == "ltool:treeform_error_badtreedef" or formname == "ltool:treeform_error_nameclash") then
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
@@ -630,6 +690,7 @@ function ltool.process_form(player,formname,fields)
 	end
 end
 
+--[[ These 2 functions are basically just table initializions and cleanups ]]
 function ltool.leave(player)
 	ltool.playerinfos[player:get_player_name()] = nil
 end
