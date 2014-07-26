@@ -497,7 +497,24 @@ function ltool.process_form(player,formname,fields)
 			if(param1 ~= nil) then
 				local treedef = param1
 				local name = param2
-				ltool.add_tree(name, playername, treedef)
+				local add = true
+				for k,v in pairs(ltool.trees) do
+					if(v.name == name) then
+						ltool.save_fields(playername, formname, fields)
+						if(v.author == playername) then
+							local formspec = "size[6,2;]label[0,0.2;You already have a tree with this name. Do you want to replace it?]"..
+							"button[0,1.5;2,1;replace_yes;Yes]"..
+							"button[2,1.5;2,1;replace_no;No]"
+							minetest.show_formspec(playername, "ltool:treeform_replace", formspec)
+						else
+							ltool.show_dialog(playername, "ltool:treeform_error_nameclash", "Error: This name is already taken by someone else.\nPlease choose a different name.")
+						end
+						add = false
+					end
+				end
+				if(add == true) then
+					ltool.add_tree(name, playername, treedef)
+				end
 			else
 				ltool.save_fields(playername, formname, fields)
 				local formspec = "size[6,2;]label[0,0.2;Error: The tree definition is invalid.]"..
@@ -565,6 +582,26 @@ function ltool.process_form(player,formname,fields)
 				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
 			end
 		end
+	elseif(formname == "ltool:treeform_replace") then
+		local editfields = ltool.playerinfos[playername].treeform.edit.fields
+		local newtreedef, newname = ltool.evaluate_edit_fields(editfields)
+		if(fields.replace_yes) then
+			for tree_id,tree in pairs(ltool.trees) do
+				if(tree.name == newname) then
+					--[[ The old tree is deleted and a
+					new one with a new ID is created ]]
+					local new_tree_id = ltool.next_tree_id
+					ltool.trees[new_tree_id] = {}
+					ltool.trees[new_tree_id].treedef = newtreedef
+					ltool.trees[new_tree_id].name = newname
+					ltool.trees[new_tree_id].author = tree.author
+					ltool.next_tree_id = ltool.next_tree_id + 1
+					ltool.trees[tree_id] = nil
+				end
+			end
+		end
+		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(editfields)
+		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_rename") then
 		if(fields.newname ~= "") then
 			seltree.name = fields.newname
@@ -573,7 +610,7 @@ function ltool.process_form(player,formname,fields)
 		else
 			ltool.show_dialog(playername, "ltool:treeform_error_bad_rename", "Error: This name is empty. The tree name must be non-empty.")
 		end
-	elseif(formname == "ltool:treeform_error_badtreedef") then
+	elseif(formname == "ltool:treeform_error_badtreedef" or formname == "ltool:treeform_error_nameclash") then
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_error_badplantfields" or formname == "ltool:treeform_error_sapling") then
