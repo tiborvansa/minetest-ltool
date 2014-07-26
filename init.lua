@@ -296,6 +296,12 @@ function ltool.plant(tree, fields)
 	end
 end
 
+function ltool.show_dialog(playername, formname, message)
+	local formspec = "size[6,2;]label[0,0.2;"..message.."]"..
+	"button[2,1.5;2,1;okay;OK]"
+	minetest.show_formspec(playername, formname, formspec)
+
+end
 
 function ltool.build_tree_textlist(index, playername)
 	local string = ""
@@ -429,9 +435,7 @@ function ltool.process_form(player,formname,fields)
 				local tree_pos
 				local fail = function()
 					ltool.save_fields(playername, formname, fields)
-					local formspec = "size[6,2;]label[0,0.2;Error: The coordinates must be numbers.]"..
-					"button[2,1.5;2,1;okay;OK]"
-					minetest.show_formspec(playername, "ltool:treeform_error_badplantfields", formspec)
+					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", "Error: The coordinates must be numbers.")
 				end
 				if(fields.plantmode == "Absolute coordinates") then
 					if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
@@ -466,7 +470,10 @@ function ltool.process_form(player,formname,fields)
 				-- TODO: Copy the seed into the sapling, too.
 				sapling:set_metadata(minetest.serialize(seltree.treedef))
 				local leftover = player:get_inventory():add_item("main", sapling)
-				-- TODO: Open error dialog if item could not be given to player
+				if(not leftover:is_empty()) then
+					ltool.save_fields(playername, formname, fields)
+					ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
+				end
 			end
 		end
 	elseif(formname == "ltool:treeform_edit") then
@@ -499,9 +506,9 @@ function ltool.process_form(player,formname,fields)
 				if(ltool.playerinfos[playername] ~= nil) then
 					local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.tree_to_fields(seltree))
 					minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
-				else
-					-- TODO: fail
 				end
+			else
+				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
 			end
 		elseif(fields.database_update) then
 			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
@@ -526,14 +533,12 @@ function ltool.process_form(player,formname,fields)
 						end
 						local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 						minetest.show_formspec(playername, "ltool:treeform_database", formspec)
-					else
-						-- TODO: fail
 					end
 				else
-					local formspec = "size[6,2;]label[0,0.2;Error: This tree is not your own. You may only delete your own trees.]"..
-					"button[2,1.5;2,1;okay;OK]"
-					minetest.show_formspec(playername, "ltool:treeform_error_delete", formspec)
+					ltool.show_dialog(playername, "ltool:treeform_error_delete", "Error: This tree is not your own. You may only delete your own trees.")
 				end
+			else
+				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
 			end
 		elseif(fields.database_rename) then
 			if(seltree ~= nil) then
@@ -541,10 +546,10 @@ function ltool.process_form(player,formname,fields)
 					local formspec = "field[newname;New name:;"..minetest.formspec_escape(seltree.name).."]"
 					minetest.show_formspec(playername, "ltool:treeform_rename", formspec)
 				else
-					local formspec = "size[6,2;]label[0,0.2;Error: This tree is not your own. You may only rename your own trees.]"..
-					"button[2,1.5;2,1;okay;OK]"
-					minetest.show_formspec(playername, "ltool:treeform_error_rename", formspec)
+					ltool.show_dialog(playername, "ltool:treeform_error_rename_forbidden", "Error: This tree is not your own. You may only rename your own trees.")
 				end
+			else
+				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
 			end
 		end
 	elseif(formname == "ltool:treeform_rename") then
@@ -553,17 +558,20 @@ function ltool.process_form(player,formname,fields)
 			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 			minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 		else
-			-- TODO: fail
+			ltool.show_dialog(playername, "ltool:treeform_error_bad_rename", "Error: This name is empty. The tree name must be non-empty.")
 		end
 	elseif(formname == "ltool:treeform_error_badtreedef") then
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
-	elseif(formname == "ltool:treeform_error_badplantfields") then
+	elseif(formname == "ltool:treeform_error_badplantfields" or formname == "ltool:treeform_error_sapling") then
 		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
 		minetest.show_formspec(playername, "ltool:treeform_plant", formspec)
-	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename") then
+	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename_forbidden" or formname == "ltool:treeform_error_nodbsel") then
 		local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 		minetest.show_formspec(playername, "ltool:treeform_database", formspec)
+	elseif(formname == "ltool:treeform_error_bad_rename") then
+		local formspec = "field[newname;New name:;"..minetest.formspec_escape(seltree.name).."]"
+		minetest.show_formspec(playername, "ltool:treeform_rename", formspec)
 	end
 end
 
