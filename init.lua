@@ -1,7 +1,6 @@
 ltool = {}
 
 ltool.playerinfos = {}
-ltool.trees = {}
 ltool.emptytreedef = {
 	axiom="",
 	rules_a="",
@@ -50,10 +49,6 @@ minetest.register_node("ltool:sapling", {
 	end,
 })
 
-function ltool.add_tree(name, author, treedef)
-	table.insert(ltool.trees, {name = name, author = author, treedef = treedef})
-end
-
 do
 	local filepath = minetest.get_worldpath().."/ltool.mt"
 	local file = io.open(filepath, "r")
@@ -62,12 +57,30 @@ do
 		io.close(file)
 		if(string ~= nil) then
 			local savetable = minetest.deserialize(string)
-			if(savetable.trees ~= nil) then
+			if(savetable ~= nil) then
 				ltool.trees = savetable.trees
+				ltool.next_tree_id = savetable.next_tree_id
+				ltool.number_of_trees = savetable.number_of_trees
+				minetest.log("action", "[ltool] Tree data loaded from "..filepath..".")
+			else
+				minetest.log("error", "[ltool] Failed to load tree data from "..filepath..".")
 			end
+		else
+			minetest.log("error", "[ltool] Failed to load tree data from "..filepath..".")
 		end
-		minetest.log("action", "[ltool] Tree data loaded from "..filepath..".")
+	else
+		ltool.trees = {}
+		ltool.number_of_trees = 0
+		ltool.next_tree_id = 1
 	end
+end
+
+function ltool.add_tree(name, author, treedef)
+	local id = ltool.next_tree_id
+	ltool.trees[id] = {name = name, author = author, treedef = treedef}
+	ltool.next_tree_id = ltool.next_tree_id + 1
+	ltool.number_of_trees = ltool.number_of_trees + 1
+	return id
 end
 
 ltool.seed = os.time()
@@ -118,8 +131,15 @@ function ltool.edit(tree)
 end
 
 function ltool.database(index, playername)
-	local treestr = ltool.get_tree_names(index, playername)
+	local treestr, tree_ids = ltool.build_tree_textlist(index, playername)
 	if(treestr ~= nil) then
+		local indexstr
+		if(index == nil) then
+			indexstr = ""
+		else
+			indexstr = tostring(index)
+		end
+		ltool.playerinfos[playername].treeform.database.textlist = tree_ids
 		return ""..
 		"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
 		"button[2.1,6;2,1;database_delete;Delete tree]"..
@@ -224,32 +244,74 @@ function ltool.plant(tree)
 		"button[0,6.5;2,1;plant_plant;Plant]"..
 		"button[2.1,6.5;2,1;sapling;Give me a sapling]"
 	else
-		return "label[0,0;There are no trees to plant.]"
+		return "label[0,0;No tree selected to plant. Please select a tree in the database first.]"
 	end
 end
 
 
-function ltool.get_tree_names(index, playername)
+function ltool.build_tree_textlist(index, playername)
 	local string = ""
-	if(#ltool.trees == 0) then
+	local colorstring
+	if(ltool.number_of_trees == 0) then
 		return nil
 	end
-	local colorstring
-	for t=1,#ltool.trees do
-		if(ltool.trees[t].author == playername) then
+	local tree_ids = ltool.get_tree_ids()
+	for i=1,#tree_ids do
+		local tree_id = tree_ids[i]
+		local tree = ltool.trees[tree_id]
+		if(tree.author == playername) then
 			colorstring = "#FFFF00"
 		else
 			colorstring = ""
 		end
-		string = string .. colorstring .. minetest.formspec_escape(ltool.trees[t].name)
-		if(t < #ltool.trees) then
+		string = string .. colorstring .. tostring(tree_id) .. ": " .. minetest.formspec_escape(tree.name)
+		if(i~=#tree_ids) then
 			string = string .. ","
 		end
 	end
-	return string
+	return string, tree_ids
 end
 
+-- returns a simple table of all the tree IDs
+function ltool.get_tree_ids()
+	local ids = {}
+	for tree_id, _ in pairs(ltool.trees) do
+		table.insert(ids, tree_id)
+	end
+	return ids
+end
 
+--[[ In a table of tree IDs (returned by ltool.get_tree_ids, parameter tree_ids), this function
+searches for the first occourance of the value searched_tree_id and returns its index.
+This is basically a reverse lookup utility. ]]
+function ltool.get_tree_id_index(searched_tree_id, tree_ids)
+	for i=1, #tree_ids do
+		local table_tree_id = tree_ids[i]
+		if(searched_tree_id == table_tree_id) then
+			return i
+		end
+	end
+end
+
+-- Returns the selected tree of the given player
+function ltool.get_selected_tree(playername)
+	local sel = ltool.playerinfos[playername].dbsel 
+	if(sel ~= nil) then
+		local tree_id = ltool.playerinfos[playername].treeform.database.textlist[sel]
+		if(tree_id ~= nil) then
+			return ltool.trees[tree_id]
+		end
+	end
+	return nil
+end
+
+function ltool.get_selected_tree_id(playername)
+	local sel = ltool.playerinfos[playername].dbsel 
+	if(sel ~= nil) then
+		return ltool.playerinfos[playername].treeform.database.textlist[sel]
+	end
+	return nil
+end
 
 ltool.treeform = ltool.loadtreeform..ltool.header(1)..ltool.edit()
 
@@ -291,8 +353,13 @@ minetest.register_chatcommand("treeform",
 	end
 })
 
+function ltool.dbsel_to_tree(dbsel, playername)
+	return ltool.trees[ltool.playerinfos[playername].treeform.database.textlist[dbsel]]
+end
+
 function ltool.process_form(player,formname,fields)
 	local playername = player:get_player_name()
+	local seltree = ltool.get_selected_tree(playername)
 	if(formname == "ltool:treeform") then
 		if fields.ltool_tab ~= nil then
 			local tab = tonumber(fields.ltool_tab)
@@ -302,8 +369,8 @@ function ltool.process_form(player,formname,fields)
 			elseif(tab==2) then
 				contents = ltool.database(ltool.playerinfos[playername].dbsel, playername)
 			elseif(tab==3) then
-				if(#ltool.trees > 0) then
-					contents = ltool.plant(ltool.trees[ltool.playerinfos[playername].dbsel])
+				if(#ltool.get_tree_ids() > 0) then
+					contents = ltool.plant(seltree)
 				else
 					contents = ltool.plant()
 				end
@@ -316,49 +383,52 @@ function ltool.process_form(player,formname,fields)
 		end
 			
 		if(fields.plant_plant) then
-			minetest.log("action","[ltool] Planting tree")
-			local tree = ltool.trees[ltool.playerinfos[playername].dbsel]
-			local treedef = tree.treedef
+			if(seltree ~= nil) then
+				minetest.log("action","[ltool] Planting tree")
+				local treedef = seltree.treedef
 
-			local x,y,z = tonumber(fields.x), tonumber(fields.y), tonumber(fields.z)
-			local tree_pos
-			local fail = function()
-				local formspec = "size[6,2;]label[0,0.2;Error: The coordinates must be numbers.]"..
-				"button[2,1.5;2,1;okay;OK]"
-				minetest.show_formspec(playername, "ltool:treeform_error_badplantfields", formspec)
-			end
-			if(fields.plantmode == "Absolute coordinates") then
-				if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
-					fail()
-					return
+				local x,y,z = tonumber(fields.x), tonumber(fields.y), tonumber(fields.z)
+				local tree_pos
+				local fail = function()
+					local formspec = "size[6,2;]label[0,0.2;Error: The coordinates must be numbers.]"..
+					"button[2,1.5;2,1;okay;OK]"
+					minetest.show_formspec(playername, "ltool:treeform_error_badplantfields", formspec)
 				end
-				tree_pos = {x=fields.x, y=fields.y, z=fields.z}
-			elseif(fields.plantmode == "Relative coordinates") then
-				if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
-					fail()
-					return
+				if(fields.plantmode == "Absolute coordinates") then
+					if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
+						fail()
+						return
+					end
+					tree_pos = {x=fields.x, y=fields.y, z=fields.z}
+				elseif(fields.plantmode == "Relative coordinates") then
+					if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
+						fail()
+						return
+					end
+					tree_pos = player:getpos()
+					tree_pos.x = tree_pos.x + fields.x
+					tree_pos.y = tree_pos.y + fields.y
+					tree_pos.z = tree_pos.z + fields.z
+				else
+					minetest.log("error", "[ltool] fields.plantmode = "..tostring(fields.plantmode))
 				end
-				tree_pos = player:getpos()
-				tree_pos.x = tree_pos.x + fields.x
-				tree_pos.y = tree_pos.y + fields.y
-				tree_pos.z = tree_pos.z + fields.z
-			else
-				minetest.log("error", "[ltool] fields.plantmode = "..tostring(fields.plantmode))
+	
+				if(tonumber(fields.seed)~=nil) then
+					treedef.seed = tonumber(fields.seed)
+				end
+	
+				minetest.spawn_tree(tree_pos, treedef)
+	
+				treedef.seed = nil
 			end
-
-			if(tonumber(fields.seed)~=nil) then
-				treedef.seed = tonumber(fields.seed)
-			end
-
-			minetest.spawn_tree(tree_pos, treedef)
-
-			treedef.seed = nil
 		elseif(fields.sapling) then
-			local sapling = ItemStack("ltool:sapling")
-			-- TODO: Copy the seed into the sapling, too.
-			sapling:set_metadata(minetest.serialize(ltool.trees[ltool.playerinfos[playername].dbsel].treedef))
-			local leftover = player:get_inventory():add_item("main", sapling)
-			-- TODO: Open error dialog if item could not be given to player
+			if(seltree ~= nil) then
+				local sapling = ItemStack("ltool:sapling")
+				-- TODO: Copy the seed into the sapling, too.
+				sapling:set_metadata(minetest.serialize(seltree.treedef))
+				local leftover = player:get_inventory():add_item("main", sapling)
+				-- TODO: Open error dialog if item could not be given to player
+			end
 		elseif(fields.edit_save) then
 			local param1, param2
 			param1, param2 = ltool.evaluate_edit_fields(fields)
@@ -381,32 +451,45 @@ function ltool.process_form(player,formname,fields)
 				minetest.show_formspec(playername, "ltool:treeform", formspec)
 			end
 		elseif(fields.database_copy) then
-			if(ltool.playerinfos[playername] ~= nil) then
-				sel = ltool.playerinfos[playername].dbsel
-			else
-				sel = 1
+			if(seltree ~= nil) then
+				if(ltool.playerinfos[playername] ~= nil) then
+					local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(seltree)
+					minetest.show_formspec(playername, "ltool:treeform", formspec)
+				else
+					-- TODO: fail
+				end
 			end
-			local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.trees[sel])
-			minetest.show_formspec(playername, "ltool:treeform", formspec)
 		elseif(fields.database_update) then
 			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 			minetest.show_formspec(playername, "ltool:treeform", formspec)
 
 		elseif(fields.database_delete) then
-			if(playername == ltool.trees[ltool.playerinfos[playername].dbsel].author) then
-				local remove_id = ltool.playerinfos[playername].dbsel
-				table.remove(ltool.trees, remove_id)
-				for k,v in pairs(ltool.playerinfos) do
-					if(v.dbsel >= remove_id) then
-						v.dbsel = v.dbsel - 1
+			if(seltree ~= nil) then
+				if(playername == seltree.author) then
+					local remove_id = ltool.get_selected_tree_id(playername)
+					if(remove_id ~= nil) then
+						ltool.trees[remove_id] = nil
+						ltool.number_of_trees = ltool.number_of_trees - 1
+						for k,v in pairs(ltool.playerinfos) do
+							if(v.dbsel ~= nil) then
+								if(v.dbsel > ltool.number_of_trees) then
+									v.dbsel = ltool.number_of_trees
+								end
+								if(v.dbsel < 1) then
+									v.dbsel = 1
+								end
+							end
+						end
+						local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
+						minetest.show_formspec(playername, "ltool:treeform", formspec)
+					else
+						-- TODO: fail
 					end
+				else
+					local formspec = "size[6,2;]label[0,0.2;Error: This tree is not your own. You may only delete your own trees.]"..
+					"button[2,1.5;2,1;okay;OK]"
+					minetest.show_formspec(playername, "ltool:treeform_error_delete", formspec)
 				end
-				local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
-				minetest.show_formspec(playername, "ltool:treeform", formspec)
-			else
-				local formspec = "size[6,2;]label[0,0.2;Error: This tree is not your own. You may only delete your own trees.]"..
-				"button[2,1.5;2,1;okay;OK]"
-				minetest.show_formspec(playername, "ltool:treeform_error_delete", formspec)
 			end
 		end
 	elseif(formname == "ltool:treeform_error_badtreedef") then
@@ -426,12 +509,21 @@ function ltool.leave(player)
 end
 
 function ltool.join(player)
-	ltool.playerinfos[player:get_player_name()] = { dbsel = 1 }
+	local infotable = {}
+	infotable.dbsel = nil
+	infotable.treeform = {}
+	infotable.treeform.database = {}
+	--[[ This table stores a mapping of the textlist IDs in the database formspec and the tree IDs.
+	It is updated each time ltool.database is called. ]]
+	infotable.treeform.database.textlist = nil
+	ltool.playerinfos[player:get_player_name()] = infotable
 end
 
 function ltool.save_to_file()
 	local savetable = {}
 	savetable.trees = ltool.trees
+	savetable.number_of_trees = ltool.number_of_trees
+	savetable.next_tree_id = ltool.next_tree_id
 	local savestring = minetest.serialize(savetable)
 	local filepath = minetest.get_worldpath().."/ltool.mt"
 	local file = io.open(filepath, "w")
