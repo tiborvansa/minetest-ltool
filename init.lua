@@ -236,7 +236,7 @@ function ltool.cheat_sheet()
 	return ""..
 	"tablecolumns[text;text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.25;5.5,7;cheat_sheet;"..
+	"table[-0.15,0.25;5.5,6;cheat_sheet;"..
 	"Symbol,Action,"..
 	"G,Move forward one unit with the pen up,"..
 	"F,Move forward one unit with the pen down drawing trunks and branches,"..
