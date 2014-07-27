@@ -126,7 +126,7 @@ ltool.loadtreeform = "size[6,7]"
 
 --[[ This is a part of the main formspec: Tab header ]]
 function ltool.header(index)
-	return "tabheader[0,0;ltool_tab;Edit,Database,Plant,Cheat sheet;"..tostring(index)..";true;false]"
+	return "tabheader[0,0;ltool_tab;Edit,Database,Plant,Help;"..tostring(index)..";true;false]"
 end
 
 --[[ This creates the edit tab of the formspec
@@ -236,7 +236,7 @@ function ltool.cheat_sheet()
 	return ""..
 	"tablecolumns[text;text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[0,0;6,7;cheat_sheet;"..
+	"table[-0.15,0.25;5.5,7;cheat_sheet;"..
 	"Symbol,Action,"..
 	"G,Move forward one unit with the pen up,"..
 	"F,Move forward one unit with the pen down drawing trunks and branches,"..
@@ -259,6 +259,98 @@ function ltool.cheat_sheet()
 	"*,Roll the turtle to the left by angle parameter,"..
 	"\\[,Save in stack current state info,"..
 	"\\],Recover from stack state info]"
+end
+
+function ltool.help_intro()
+	return ""..
+	"tablecolumns[text]"..
+	"tableoptions[background=#000000;highlight=#000000;border=false]"..
+	"table[-0.15,0.25;5.5,4.5;help_intro;"..
+	"You are using the L-System Tree Utility mod version 0.2.0,"..
+	","..
+	"The purpose of this mod is to aid with the creation of L-system trees.,"..
+	"With this mod you can create\\, save\\, manage and plant L-system trees.,"..
+	"All trees are saved into <world path>/ltool.mt on server shutdown.,"..
+	"This mod assumes you already understand the concept of L-systems\\;,"..
+	"this mod is mainly aimed towards modders.,"..
+	","..
+	"The usual workflow in this mod goes like this:,"..
+	","..
+	"1. Create a new tree in the \"Edit\" tab and save it,"..
+	"2. Select it in the database,"..
+	"3. Plant it,"..
+	","..
+	"To help you get started\\, you can create an example tree for the \"Edit\" tab,"..
+	"by pressing this button:]"..
+	"button[2,5;2,1;create_template;Create template]"
+end
+
+function ltool.help_edit()
+	return ""..
+	"tablecolumns[text]"..
+	"tableoptions[background=#000000;highlight=#000000;border=false]"..
+	"table[-0.15,0.25;5.5,6;help_edit;"..
+	"To create a L-system tree\\, switch to the \"Edit\" tab.,"..
+	"When you are done\\, hit \"Save\".,"..
+	"To understand the meaning of the fields\\, read the introduction to L-systems.,"..
+	"All trees must have an unique name. You are notified in case there is a name,"..
+	"clash. If the name clash is with one of your own trees\\, you can choose to,"..
+	"replace it.]"
+end
+
+function ltool.help_database()
+	return ""..
+	"tablecolumns[text]"..
+	"tableoptions[background=#000000;highlight=#000000;border=false]"..
+	"table[-0.15,0.25;5.5,6;help_database;"..
+	"The database contains a server-wide list of all created trees.,"..
+	"Each tree has an \"owner\". In this mod\\, the concept of ownership is a very,"..
+	"weak one: The owner may rename\\, change and delete his/her own trees\\,,"..
+	"everyone else is prevented from doing that. In contrast\\, all trees can be,"..
+	"copied freely\\;,"..
+	"To do so\\, simply hit \"Copy tree to editor\"\\, change the name and hit \"Save\","..
+	"If you like someone else's tree definition\\, it is recommended to make a copy,"..
+	"for yourself\\, since the original owner can at any time choose to delete or,"..
+	"edit the tree. The trees which you own are written in a yellow font\\, all,"..
+	"other trees in a white font.,"..
+	"In order to plant a tree\\, you have to select a tree in the database first.]"
+end
+
+function ltool.help_plant()
+	return ""..
+	"tablecolumns[text]"..
+	"tableoptions[background=#000000;highlight=#000000;border=false]"..
+	"table[-0.15,0.25;5.5,6;help_plant;"..
+	"To plant a previously tree from a previous created tree definition\\,,"..
+	"first select it in the database\\, then open the \"Plant\" tab.,"..
+	"In this tab\\, you can directly place the tree or request a sapling.,"..
+	"If you choose to directly place the tree\\, you can either provide absolute,"..
+	"or relative coordinates. Absolute coordinates are the world coordinates.,"..
+	"Relative coordinates are relative to your position.,"..
+	","..
+	"If you got a sapling\\, you can place it practically anywhere you like to.,"..
+	"After placing it\\, the sapling will be replaced by the L-system tree after,"..
+	"5 seconds\\, unless it was destroyed in the meantime.,"..
+	"All requested saplings are independent from the moment they are created.,"..
+	"The sapling will still work\\, even if the original tree definiton has been,"..
+	"deleted.]"
+end
+
+function ltool.help(index)
+	local formspec = "tabheader[0.1,0.5;ltool_help_tab;Introduction,Creating Trees,Managing Trees,Planting Trees,Cheat Sheet;"..tostring(index)..";true;false]"
+	if(index==1) then
+		formspec = formspec .. ltool.help_intro()
+	elseif(index==2) then
+		formspec = formspec .. ltool.help_edit()
+	elseif(index==3) then
+		formspec = formspec .. ltool.help_database()
+	elseif(index==4) then
+		formspec = formspec .. ltool.help_plant()
+	elseif(index==5) then
+		formspec = formspec .. ltool.cheat_sheet()
+	end
+
+	return formspec
 end
 
 --[[ creates the content of a textlist which contains all trees.
@@ -488,7 +580,7 @@ function ltool.process_form(player,formname,fields)
 	local playername = player:get_player_name()
 	local seltree = ltool.get_selected_tree(playername)
 	--[[ process clicks on the tab header ]]
-	if(formname == "ltool:treeform_edit" or formname == "ltool:treeform_database" or formname == "ltool:treeform_plant" or formname == "ltool:treeform_cheat_sheet") then
+	if(formname == "ltool:treeform_edit" or formname == "ltool:treeform_database" or formname == "ltool:treeform_plant" or formname == "ltool:treeform_help") then
 		if fields.ltool_tab ~= nil then
 			ltool.save_fields(playername, formname, fields)
 			local tab = tonumber(fields.ltool_tab)
@@ -507,8 +599,8 @@ function ltool.process_form(player,formname,fields)
 				end
 				subformname = "plant"
 			elseif(tab==4) then
-				contents = ltool.cheat_sheet()
-				subformname = "cheat_sheet"
+				contents = ltool.help(1)
+				subformname = "help"
 			end
 			formspec = ltool.loadtreeform..ltool.header(tab)..contents
 			minetest.show_formspec(playername, "ltool:treeform_" .. subformname, formspec)
@@ -672,6 +764,32 @@ function ltool.process_form(player,formname,fields)
 		end
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(editfields)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
+	elseif(formname == "ltool:treeform_help") then
+		local tab = tonumber(fields.ltool_help_tab)
+		if(tab ~= nil) then
+			local formspec = ltool.loadtreeform..ltool.header(4)..ltool.help(tab)
+			minetest.show_formspec(playername, "ltool:treeform_help", formspec)
+		end
+		if(fields.create_template) then
+			local newfields = {
+				axiom="FFFFFAFFBF",
+				rules_a="[&&&FFFFF&&FFFF][&&&++++FFFFF&&FFFF][&&&----FFFFF&&FFFF]",
+				rules_b="[&&&++FFFFF&&FFFF][&&&--FFFFF&&FFFF][&&&------FFFFF&&FFFF]",
+				trunk="default:tree",
+				leaves="default:leaves",
+				angle="30",
+				iterations="2",
+				random_level="0",
+				trunk_type="single",
+				thin_branches="true",
+				fruit_chance="10",
+				fruit="default:apple",
+				name = "Example Tree "..ltool.next_tree_id
+			}
+			ltool.save_fields(playername, formname, newfields)
+			local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(newfields)
+			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
+		end
 	--[[ Tree renaming dialog ]]
 	elseif(formname == "ltool:treeform_rename") then
 		if(fields.newname ~= "") then
