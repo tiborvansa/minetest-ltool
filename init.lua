@@ -599,7 +599,7 @@ function ltool.process_form(player,formname,fields)
 				end
 				subformname = "plant"
 			elseif(tab==4) then
-				contents = ltool.help(1)
+				contents = ltool.help(ltool.playerinfos[playername].treeform.help.tab)
 				subformname = "help"
 			end
 			formspec = ltool.loadtreeform..ltool.header(tab)..contents
@@ -767,6 +767,7 @@ function ltool.process_form(player,formname,fields)
 	elseif(formname == "ltool:treeform_help") then
 		local tab = tonumber(fields.ltool_help_tab)
 		if(tab ~= nil) then
+			ltool.playerinfos[playername].treeform.help.tab = tab
 			local formspec = ltool.loadtreeform..ltool.header(4)..ltool.help(tab)
 			minetest.show_formspec(playername, "ltool:treeform_help", formspec)
 		end
@@ -835,6 +836,8 @@ function ltool.join(player)
 	infotable.treeform.plant.fields = {}
 	infotable.treeform.edit = {}
 	infotable.treeform.edit.fields = {}
+	infotable.treeform.help = {}
+	infotable.treeform.help.tab = 1
 	ltool.playerinfos[player:get_player_name()] = infotable
 end
 
