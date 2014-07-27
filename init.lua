@@ -162,7 +162,8 @@ function ltool.edit(fields)
 	"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
 	"field[3.2,1.5;3,10;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
 	"field[3.2,2.1;3,10;name;Name;"..s(fields.name).."]"..
-	"button[0,6.5;2,1;edit_save;Save]"
+	"button[0,6.5;2,1;edit_save;Save]"..
+	"button[2.1,6.5;2,1;edit_clear;Clear]"
 end
 
 --[[ This creates the database tab of the formspec.
@@ -291,7 +292,8 @@ function ltool.help_edit()
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
 	"table[-0.15,0.25;5.5,6;help_edit;"..
 	"To create a L-system tree\\, switch to the \"Edit\" tab.,"..
-	"When you are done\\, hit \"Save\".,"..
+	"When you are done\\, hit \"Save\". The tree will be stored in the database.,"..
+	"The \"Clear\" button empties all the input fields.,"..
 	"To understand the meaning of the fields\\, read the introduction to L-systems.,"..
 	"All trees must have an unique name. You are notified in case there is a name,"..
 	"clash. If the name clash is with one of your own trees\\, you can choose to,"..
@@ -693,6 +695,9 @@ function ltool.process_form(player,formname,fields)
 				"button[2,1.5;2,1;okay;OK]"
 				minetest.show_formspec(playername, "ltool:treeform_error_badtreedef", formspec)
 			end
+		elseif(fields.edit_clear) then
+			local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit()
+			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		end
 	--[[ "Database" tab ]]
 	elseif(formname == "ltool:treeform_database") then
