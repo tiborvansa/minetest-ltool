@@ -162,8 +162,8 @@ function ltool.edit(fields)
 	"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
 	"field[3.2,1.5;3,10;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
 	"field[3.2,2.1;3,10;name;Name;"..s(fields.name).."]"..
-	"button[0,6.5;2,1;edit_save;Save]"..
-	"button[2.1,6.5;2,1;edit_clear;Clear]"
+	"button[0,6.5;2,1;edit_save;Save tree to database]"..
+	"button[2.1,6.5;2,1;edit_clear;Clear fields]"
 end
 
 --[[ This creates the database tab of the formspec.
@@ -184,7 +184,7 @@ function ltool.database(index, playername)
 		"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
 		"button[0,6;2,1;database_rename;Rename tree]"..
 		"button[2.1,6;2,1;database_delete;Delete tree]"..
-		"button[0,6.5;2,1;database_copy;Copy to editor]"..
+		"button[0,6.5;2,1;database_copy;Copy tree to editor]"..
 		"button[2.1,6.5;2,1;database_update;Reload database]"
 	else
 		return "label[0,0;The tree database is empty.]"..
@@ -224,7 +224,7 @@ function ltool.plant(tree, fields)
 		"field[0.2,-2.1;6,10;y;y;"..s(fields.y).."]"..
 		"field[0.2,-1.5;6,10;z;z;"..s(fields.z).."]"..
 		"field[0.2,0;6,10;seed;Seed;"..seed.."]"..
-		"button[0,6.5;2,1;plant_plant;Plant]"..
+		"button[0,6.5;2,1;plant_plant;Plant tree]"..
 		"button[2.1,6.5;2,1;sapling;Give me a sapling]"
 	else
 		return "label[0,0;No tree in database selected or database is empty.]"
@@ -292,8 +292,8 @@ function ltool.help_edit()
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
 	"table[-0.15,0.25;5.5,6;help_edit;"..
 	"To create a L-system tree\\, switch to the \"Edit\" tab.,"..
-	"When you are done\\, hit \"Save\". The tree will be stored in the database.,"..
-	"The \"Clear\" button empties all the input fields.,"..
+	"When you are done\\, hit \"Save tree to database\". The tree will be stored in,"..
+	"the database. The \"Clear fields\" button empties all the input fields.,"..
 	"To understand the meaning of the fields\\, read the introduction to L-systems.,"..
 	"All trees must have an unique name. You are notified in case there is a name,"..
 	"clash. If the name clash is with one of your own trees\\, you can choose to,"..
@@ -310,11 +310,11 @@ function ltool.help_database()
 	"weak one: The owner may rename\\, change and delete his/her own trees\\,,"..
 	"everyone else is prevented from doing that. In contrast\\, all trees can be,"..
 	"copied freely\\;,"..
-	"To do so\\, simply hit \"Copy tree to editor\"\\, change the name and hit \"Save\","..
-	"If you like someone else's tree definition\\, it is recommended to make a copy,"..
-	"for yourself\\, since the original owner can at any time choose to delete or,"..
-	"edit the tree. The trees which you own are written in a yellow font\\, all,"..
-	"other trees in a white font.,"..
+	"To do so\\, simply hit \"Copy tree to editor\"\\, change the name and hit,"..
+	"\"Save tree to database\". If you like someone else's tree definition\\,,"..
+	"it is recommended to make a copy for yourself\\, since the original owner,"..
+	"can at any time choose to delete or edit the tree. The trees which you \"own\","..
+	"are written in a yellow font\\, all other trees in a white font.,"..
 	"In order to plant a tree\\, you have to select a tree in the database first.]"
 end
 
@@ -695,7 +695,8 @@ function ltool.process_form(player,formname,fields)
 				"button[2,1.5;2,1;okay;OK]"
 				minetest.show_formspec(playername, "ltool:treeform_error_badtreedef", formspec)
 			end
-		elseif(fields.edit_clear) then
+		end
+		if(fields.edit_clear) then
 			local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit()
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		end
