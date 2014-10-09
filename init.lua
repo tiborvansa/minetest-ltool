@@ -129,6 +129,16 @@ function ltool.remove_tree(tree_id)
 	end
 end
 
+--[[ Renames a tree in the database
+	tree_id: ID of the tree to be renamed
+	new_name: The name of the tree
+
+	returns nil
+]]
+function ltool.rename_tree(tree_id, new_name)
+	ltool.trees[tree_id].name = new_name
+end
+
 ltool.seed = os.time()
 
 
@@ -854,7 +864,7 @@ function ltool.process_form(player,formname,fields)
 			return
 		end
 		if(fields.newname ~= "") then
-			seltree.name = fields.newname
+			ltool.rename_tree(ltool.get_selected_tree_id(playername), fields.newname)
 			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 			minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 		else
