@@ -139,6 +139,20 @@ function ltool.rename_tree(tree_id, new_name)
 	ltool.trees[tree_id].name = new_name
 end
 
+--[[ Copies a tree in the database
+	tree_id: ID of the tree to be copied
+
+	returns: the ID of the copy on success;
+	         false on failure (tree does not exist)
+]]
+function ltool.copy_tree(tree_id)
+	local tree = ltool.trees[tree_id]
+	if(tree == nil) then
+		return false
+	end
+	return ltool.add_tree(tree.name, tree.author, tree.treedef)
+end
+
 --[[ Generates a sapling as an ItemStack to mess around later with
 	tree_id: ID of tree the sapling will grow
 	
