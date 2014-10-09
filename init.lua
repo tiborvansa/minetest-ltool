@@ -139,6 +139,33 @@ function ltool.rename_tree(tree_id, new_name)
 	ltool.trees[tree_id].name = new_name
 end
 
+--[[ Gives a L-system tree sapling to a player
+	tree_id: ID of tree the sapling will grow
+	playername: name of the player to which
+	ignore_priv: if true, player’s lplant privilige is not checked (optional argument; default: false)
+
+	returns:
+		true on success
+		false, 1 if privilege is not sufficient
+		false, 2 if player’s inventory is full
+]]
+function ltool.give_sapling(tree_id, player_name, ignore_priv)
+	if(ignore_priv == nil) then ignore_priv = false end
+	if(ignore_priv == false and privs.lplant ~= true) then
+		return false, 1
+	end
+	local sapling = ItemStack("ltool:sapling")
+	local player = minetest.get_player_by_name(player_name)
+	-- TODO: Copy the seed into the sapling, too.
+	sapling:set_metadata(minetest.serialize(ltool.trees[tree_id].treedef))
+	local leftover = player:get_inventory():add_item("main", sapling)
+	if(not leftover:is_empty()) then
+		return false, 2
+	else
+		return true
+	end
+end
+
 ltool.seed = os.time()
 
 
@@ -604,6 +631,7 @@ end
 function ltool.process_form(player,formname,fields)
 	local playername = player:get_player_name()
 	local seltree = ltool.get_selected_tree(playername)
+	local seltree_id = ltool.get_selected_tree_id(playername)
 	local privs = minetest.get_player_privs(playername)
 	--[[ process clicks on the tab header ]]
 	if(formname == "ltool:treeform_edit" or formname == "ltool:treeform_database" or formname == "ltool:treeform_plant" or formname == "ltool:treeform_help") then
@@ -687,11 +715,8 @@ function ltool.process_form(player,formname,fields)
 					ltool.show_dialog(playername, "ltool:treeform_error_sapling", message)
 					return
 				end
-				local sapling = ItemStack("ltool:sapling")
-				-- TODO: Copy the seed into the sapling, too.
-				sapling:set_metadata(minetest.serialize(seltree.treedef))
-				local leftover = player:get_inventory():add_item("main", sapling)
-				if(not leftover:is_empty()) then
+				local ret, ret2 = ltool.give_sapling(seltree_id, playername, true)
+				if(ret==false and ret2==2) then
 					ltool.save_fields(playername, formname, fields)
 					ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
 				end
