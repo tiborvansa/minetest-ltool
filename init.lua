@@ -171,6 +171,19 @@ function ltool.give_sapling(tree_id, player_name, ignore_priv)
 	end
 end
 
+--[[ Plants a tree as the specified position
+	tree_id: ID of tree to be planted
+
+	returns false on failure, nil otherwise
+]]
+function ltool.plant_tree(tree_id, pos)
+	local tree = ltool.trees[tree_id]
+	if(tree==nil) then
+		return false
+	end
+	minetest.spawn_tree(pos, tree.treedef)
+end
+
 --[[ Generates a sapling as an ItemStack to mess around later with
 	tree_id: ID of tree the sapling will grow
 	
@@ -725,7 +738,7 @@ function ltool.process_form(player,formname,fields)
 					treedef.seed = tonumber(fields.seed)
 				end
 	
-				minetest.spawn_tree(tree_pos, treedef)
+				ltool.plant_tree(seltree_id, tree_pos)
 	
 				treedef.seed = nil
 			end
