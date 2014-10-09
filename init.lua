@@ -52,6 +52,16 @@ minetest.register_node("ltool:sapling", {
 	end,
 })
 
+--[[ Register privileges ]]
+minetest.register_privilege("ledit", {
+	description = "Can add, edit, rename and delete own L-system tree definitions of the ltool mod",
+	give_to_singleplayer = false,
+})
+minetest.register_privilege("lplant", {
+	description = "Can place L-system trees and get L-system tree samplings of the ltool mod",
+	give_to_singleplayer = false,
+})
+
 --[[ Load previously saved data from file or initialize an empty tree table ]]
 do
 	local filepath = minetest.get_worldpath().."/ltool.mt"
@@ -581,6 +591,7 @@ end
 function ltool.process_form(player,formname,fields)
 	local playername = player:get_player_name()
 	local seltree = ltool.get_selected_tree(playername)
+	local privs = minetest.get_player_privs(playername)
 	--[[ process clicks on the tab header ]]
 	if(formname == "ltool:treeform_edit" or formname == "ltool:treeform_database" or formname == "ltool:treeform_plant" or formname == "ltool:treeform_help") then
 		if fields.ltool_tab ~= nil then
@@ -666,7 +677,12 @@ function ltool.process_form(player,formname,fields)
 		if(fields.edit_save) then
 			local param1, param2
 			param1, param2 = ltool.evaluate_edit_fields(fields)
-		
+			if(privs.ledit ~= true) then
+				ltool.save_fields(playername, formname, fields)
+				local message = "You can't save trees, you need to have the \"ledit\" privilege."
+				ltool.show_dialog(playername, "ltool:treeform_error_ledit", message)
+				return
+			end
 			if(param1 ~= nil) then
 				local treedef = param1
 				local name = param2
@@ -723,6 +739,12 @@ function ltool.process_form(player,formname,fields)
 			minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 
 		elseif(fields.database_delete) then
+			if(privs.ledit ~= true) then
+				ltool.save_fields(playername, formname, fields)
+				local message = "You can't delete trees, you need to have the \"ledit\" privilege."
+				ltool.show_dialog(playername, "ltool:treeform_error_ledit_db", message)
+				return
+			end
 			if(seltree ~= nil) then
 				if(playername == seltree.author) then
 					local remove_id = ltool.get_selected_tree_id(playername)
@@ -739,6 +761,12 @@ function ltool.process_form(player,formname,fields)
 			end
 		elseif(fields.database_rename) then
 			if(seltree ~= nil) then
+				if(privs.ledit ~= true) then
+					ltool.save_fields(playername, formname, fields)
+					local message = "You can't rename trees, you need to have the \"ledit\" privilege."
+					ltool.show_dialog(playername, "ltool:treeform_error_ledit_db", message)
+					return
+				end
 				if(playername == seltree.author) then
 					local formspec = "field[newname;New name:;"..minetest.formspec_escape(seltree.name).."]"
 					minetest.show_formspec(playername, "ltool:treeform_rename", formspec)
@@ -753,6 +781,11 @@ function ltool.process_form(player,formname,fields)
 	elseif(formname == "ltool:treeform_replace") then
 		local editfields = ltool.playerinfos[playername].treeform.edit.fields
 		local newtreedef, newname = ltool.evaluate_edit_fields(editfields)
+		if(privs.ledit ~= true) then
+			local message = "You can't overwrite trees, you need to have the \"ledit\" privilege."
+			minetest.show_dialog(playername, "ltool:treeform_error_ledit", message)
+			return
+		end
 		if(fields.replace_yes) then
 			for tree_id,tree in pairs(ltool.trees) do
 				if(tree.name == newname) then
@@ -799,6 +832,12 @@ function ltool.process_form(player,formname,fields)
 		end
 	--[[ Tree renaming dialog ]]
 	elseif(formname == "ltool:treeform_rename") then
+		if(privs.ledit ~= true) then
+			ltool.save_fields(playername, formname, fields)
+			local message = "You can't delete trees, you need to have the \"ledit\" privilege."
+			ltool.show_dialog(playername, "ltool:treeform_error_ledit_delete", message)
+			return
+		end
 		if(fields.newname ~= "") then
 			seltree.name = fields.newname
 			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
@@ -807,13 +846,13 @@ function ltool.process_form(player,formname,fields)
 			ltool.show_dialog(playername, "ltool:treeform_error_bad_rename", "Error: This name is empty. The tree name must be non-empty.")
 		end
 	--[[ Here come various error messages to handle ]]
-	elseif(formname == "ltool:treeform_error_badtreedef" or formname == "ltool:treeform_error_nameclash") then
+	elseif(formname == "ltool:treeform_error_badtreedef" or formname == "ltool:treeform_error_nameclash" or formname == "ltool:treeform_error_ledit") then
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_error_badplantfields" or formname == "ltool:treeform_error_sapling") then
 		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
 		minetest.show_formspec(playername, "ltool:treeform_plant", formspec)
-	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename_forbidden" or formname == "ltool:treeform_error_nodbsel") then
+	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename_forbidden" or formname == "ltool:treeform_error_nodbsel" or formname == "ltool:treeform_error_ledit_db") then
 		local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
 		minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 	elseif(formname == "ltool:treeform_error_bad_rename") then
