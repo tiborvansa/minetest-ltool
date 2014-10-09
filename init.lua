@@ -139,6 +139,23 @@ function ltool.rename_tree(tree_id, new_name)
 	ltool.trees[tree_id].name = new_name
 end
 
+--[[ Generates a sapling as an ItemStack to mess around later with
+	tree_id: ID of tree the sapling will grow
+	
+	returns: an ItemStack which contains one sapling of the specified tree, on success
+		 false on failure (if tree does not exist)
+]]
+function ltool.generate_sapling(tree_id)
+	local tree = ltool.trees[tree_id]
+	if(tree == nil) then
+		return false
+	end
+	local sapling = ItemStack("ltool:sapling")
+	-- TODO: Copy the seed into the sapling, too.
+	sapling:set_metadata(minetest.serialize(tree.treedef))
+	return sapling
+end
+
 --[[ Gives a L-system tree sapling to a player
 	tree_id: ID of tree the sapling will grow
 	playername: name of the player to which
@@ -184,22 +201,6 @@ function ltool.plant_tree(tree_id, pos)
 	minetest.spawn_tree(pos, tree.treedef)
 end
 
---[[ Generates a sapling as an ItemStack to mess around later with
-	tree_id: ID of tree the sapling will grow
-	
-	returns: an ItemStack which contains one sapling of the specified tree, on success
-		 false on failure (if tree does not exist)
-]]
-function ltool.generate_sapling(tree_id)
-	local tree = ltool.trees[tree_id]
-	if(tree == nil) then
-		return false
-	end
-	local sapling = ItemStack("ltool:sapling")
-	-- TODO: Copy the seed into the sapling, too.
-	sapling:set_metadata(minetest.serialize(tree.treedef))
-	return sapling
-end
 
 ltool.seed = os.time()
 
