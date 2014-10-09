@@ -50,6 +50,9 @@ minetest.register_node("ltool:sapling", {
 		minetest.remove_node(pos)
 		minetest.spawn_tree(pos, treedef)
 	end,
+	can_dig = function(pos, player)
+		return minetest.get_player_privs(player:get_player_name()).lplant
+	end,
 })
 
 --[[ Register privileges ]]
@@ -624,6 +627,12 @@ function ltool.process_form(player,formname,fields)
 	if(formname == "ltool:treeform_plant") then
 		if(fields.plant_plant) then
 			if(seltree ~= nil) then
+				if(privs.lplant ~= true) then
+					ltool.save_fields(playername, formname, fields)
+					local message = "You can't plant trees, you need to have the \"lplant\" privilege."
+					ltool.show_dialog(playername, "ltool:treeform_error_lplant", message)
+					return
+				end
 				minetest.log("action","[ltool] Planting tree")
 				local treedef = seltree.treedef
 
@@ -662,6 +671,12 @@ function ltool.process_form(player,formname,fields)
 			end
 		elseif(fields.sapling) then
 			if(seltree ~= nil) then
+				if(privs.lplant ~= true) then
+					ltool.save_fields(playername, formname, fields)
+					local message = "You can't request saplings, you need to have the \"lplant\" privilege."
+					ltool.show_dialog(playername, "ltool:treeform_error_sapling", message)
+					return
+				end
 				local sapling = ItemStack("ltool:sapling")
 				-- TODO: Copy the seed into the sapling, too.
 				sapling:set_metadata(minetest.serialize(seltree.treedef))
@@ -849,7 +864,7 @@ function ltool.process_form(player,formname,fields)
 	elseif(formname == "ltool:treeform_error_badtreedef" or formname == "ltool:treeform_error_nameclash" or formname == "ltool:treeform_error_ledit") then
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
-	elseif(formname == "ltool:treeform_error_badplantfields" or formname == "ltool:treeform_error_sapling") then
+	elseif(formname == "ltool:treeform_error_badplantfields" or formname == "ltool:treeform_error_sapling" or formname == "ltool:treeform_error_lplant") then
 		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
 		minetest.show_formspec(playername, "ltool:treeform_plant", formspec)
 	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename_forbidden" or formname == "ltool:treeform_error_nodbsel" or formname == "ltool:treeform_error_ledit_db") then
