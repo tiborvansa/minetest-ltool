@@ -148,6 +148,7 @@ end
 		true on success
 		false, 1 if privilege is not sufficient
 		false, 2 if player’s inventory is full
+		false, 3 if tree does not exist
 ]]
 function ltool.give_sapling(tree_id, player_name, ignore_priv)
 	if(ignore_priv == nil) then ignore_priv = false end
@@ -157,13 +158,34 @@ function ltool.give_sapling(tree_id, player_name, ignore_priv)
 	local sapling = ItemStack("ltool:sapling")
 	local player = minetest.get_player_by_name(player_name)
 	-- TODO: Copy the seed into the sapling, too.
-	sapling:set_metadata(minetest.serialize(ltool.trees[tree_id].treedef))
+	local tree = ltool.trees[tree_id]
+	if(tree == nil) then
+		return false, 3
+	end
+	sapling:set_metadata(minetest.serialize(tree.treedef))
 	local leftover = player:get_inventory():add_item("main", sapling)
 	if(not leftover:is_empty()) then
 		return false, 2
 	else
 		return true
 	end
+end
+
+--[[ Generates a sapling as an ItemStack to mess around later with
+	tree_id: ID of tree the sapling will grow
+	
+	returns: an ItemStack which contains one sapling of the specified tree, on success
+		 false on failure (if tree does not exist)
+]]
+function ltool.generate_sapling(tree_id)
+	local tree = ltool.trees[tree_id]
+	if(tree == nil) then
+		return false
+	end
+	local sapling = ItemStack("ltool:sapling")
+	-- TODO: Copy the seed into the sapling, too.
+	sapling:set_metadata(minetest.serialize(tree.treedef))
+	return sapling
 end
 
 ltool.seed = os.time()
