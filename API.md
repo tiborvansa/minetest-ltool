@@ -2,6 +2,14 @@
 The L-System Tree Utility provides a set of simple functions to mess around with the tree database, generate trees from saplings and more.
 
 
+## Variables
+The table `ltool.VERSION` exports version information. This mod uses [Semantic Versioning](http://semver.org/).
+This information comes in handle if you need to do some compability work.
+
+* `ltool.VERSION.STRING`: Full version as string
+* `ltool.VERSION.MAJOR`: Major (=first) version number, as number
+* `ltool.VERSION.MINOR`: Minor (=second) version number, as number
+* `ltool.VERSION.PATCH`: Patch (=third) version number, as number
 
 ## Data structures
 ### `treedef`

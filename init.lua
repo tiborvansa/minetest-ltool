@@ -1,5 +1,11 @@
 ltool = {}
 
+ltool.VERSION = {}
+ltool.VERSION.MAJOR = 1
+ltool.VERSION.MINOR = 0
+ltool.VERSION.PATCH = 0
+ltool.VERSION.STRING = "1.0.0"
+
 ltool.playerinfos = {}
 ltool.default_edit_fields = {
 	axiom="",
@@ -386,7 +392,7 @@ function ltool.tab_help_intro()
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
 	"table[-0.15,0.25;5.5,4.5;help_intro;"..
-	"You are using the L-System Tree Utility mod version 0.2.0,"..
+	string.format("You are using the L-System Tree Utility mod version %s.,", ltool.VERSION.STRING)..
 	","..
 	"The purpose of this mod is to aid with the creation of L-system trees.,"..
 	"With this mod you can create\\, save\\, manage and plant L-system trees.,"..
