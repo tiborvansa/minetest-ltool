@@ -339,15 +339,19 @@ function ltool.tab_plant(tree, fields)
 			dropdownindex = 1
 		elseif(fields.plantmode == "Relative coordinates") then
 			dropdownindex = 2
+		elseif(fields.plantmode == "Distance in viewing direction") then
+			dropdownindex = 3
 		else
 			dropdownindex = 1
 		end
+
 		return ""..
 		"label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
-		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates;"..dropdownindex.."]"..
+		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates,Distance in viewing direction;"..dropdownindex.."]"..
 		"field[0.2,-2.7;6,10;x;x;"..s(fields.x).."]"..
 		"field[0.2,-2.1;6,10;y;y;"..s(fields.y).."]"..
 		"field[0.2,-1.5;6,10;z;z;"..s(fields.z).."]"..
+		"field[0.2,-0.9;6,10;distance;Distance;"..s(fields.distance).."]"..
 		"field[0.2,0;6,10;seed;Seed;"..seed.."]"..
 		"button[0,6.5;2,1;plant_plant;Plant tree]"..
 		"button[2.1,6.5;2,1;sapling;Give me a sapling]"
@@ -451,9 +455,15 @@ function ltool.tab_help_plant()
 	"To plant a previously tree from a previous created tree definition\\,,"..
 	"first select it in the database\\, then open the \"Plant\" tab.,"..
 	"In this tab\\, you can directly place the tree or request a sapling.,"..
-	"If you choose to directly place the tree\\, you can either provide absolute,"..
-	"or relative coordinates. Absolute coordinates are the world coordinates.,"..
-	"Relative coordinates are relative to your position.,"..
+	"If you choose to directly place the tree\\, you can either specify absolute,"..
+	"or relative coordinates or specify that the tree should be planted in your,"..
+	"viewing direction. Absolute coordinates are the world coordinates as specified,"..
+	"by the \"x\"\\, \"y\"\\, and \"z\" fields. Relative coordinates are relative,"..
+	"to your position and use the same fields. When you choose to plant the tree,"..
+	"based on your viewing direction\\, the tree will be planted at a distance,"..
+	"specified by the field \"distance\" away from you in the direction you look to.,"..
+	"When using coordinates\\, the \"distance\" field is ignored\\, when using,"..
+	"direction\\, the coordinate fields are ignored.,"..
 	","..
 	"If you got a sapling\\, you can place it practically anywhere you like to.,"..
 	"After placing it\\, the sapling will be replaced by the L-system tree after,"..
@@ -751,26 +761,37 @@ function ltool.process_form(player,formname,fields)
 				local treedef = seltree.treedef
 
 				local x,y,z = tonumber(fields.x), tonumber(fields.y), tonumber(fields.z)
+				local distance = tonumber(fields.distance)
 				local tree_pos
-				local fail = function()
+				local fail_coordinates = function()
 					ltool.save_fields(playername, formname, fields)
-					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", "Error: The coordinates must be numbers.")
+					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", "Error: When using coordinates, you have to specifiy numbers in the fields \"x\", \"y\", \"z\".")
+				end
+				local fail_distance = function()
+					ltool.save_fields(playername, formname, fields)
+					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", "Error: When using viewing direction for planting trees,\nyou must specify how far away you want the tree to be placed in the field \"Distance\".")
 				end
 				if(fields.plantmode == "Absolute coordinates") then
 					if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
-						fail()
+						fail_coordinates()
 						return
 					end
-					tree_pos = {x=fields.x, y=fields.y, z=fields.z}
+					tree_pos = {x=x, y=y, z=z}
 				elseif(fields.plantmode == "Relative coordinates") then
 					if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
-						fail()
+						fail_coordinates()
 						return
 					end
 					tree_pos = player:getpos()
-					tree_pos.x = tree_pos.x + fields.x
-					tree_pos.y = tree_pos.y + fields.y
-					tree_pos.z = tree_pos.z + fields.z
+					tree_pos.x = tree_pos.x + x
+					tree_pos.y = tree_pos.y + y
+					tree_pos.z = tree_pos.z + z
+				elseif(fields.plantmode == "Distance in viewing direction") then
+					if(type(distance)~="number") then
+						fail_distance()
+						return
+					end
+					tree_pos = vector.round(vector.add(player:getpos(), vector.multiply(player:get_look_dir(), distance)))
 				else
 					minetest.log("error", "[ltool] fields.plantmode = "..tostring(fields.plantmode))
 				end
