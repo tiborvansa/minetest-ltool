@@ -24,7 +24,18 @@ The name of the player who created the `tree`. The author is also the â€œownerâ€
 
 
 ## Functions
-### `ltool.get_tree_ids`
+### `ltool.get_tree(tree_id)`
+Tries to return a `tree` for a given `tree_id`.
+
+#### Parameter
+* `tree_id`: Identifier of `tree` to be received.
+
+#### Return value
+A `tree` on success, `false` on success (happens if no tree with this `tree_id` exists).
+
+
+
+### `ltool.get_tree_ids()`
 Returns a sorted table containing all tree IDs.
 
 #### Parameters

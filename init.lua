@@ -220,6 +220,20 @@ function ltool.plant_tree(tree_id, pos)
 	minetest.spawn_tree(pos, tree.treedef)
 end
 
+--[[ Tries to return a tree data structure for a given tree_id
+
+	tree_id: ID of tee to be returned
+
+	returns false on failure, a tree otherwise
+]]
+function ltool.get_tree(tree_id)
+	local tree = ltool.trees[tree_id]
+	if(tree==nil) then
+		return false
+	end
+	return tree
+end
+
 
 ltool.seed = os.time()
 
