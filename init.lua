@@ -275,7 +275,7 @@ end
 	index: Selected index of the textlist
 	playername: To whom the formspec is shown
 ]]
-function ltool.database(index, playername)
+function ltool.tab_database(index, playername)
 	local treestr, tree_ids = ltool.build_tree_textlist(index, playername)
 	if(treestr ~= nil) then
 		local indexstr
@@ -298,7 +298,7 @@ function ltool.database(index, playername)
 end
 
 --[[ This creates the "Plant" tab part of the main formspec ]]
-function ltool.plant(tree, fields)
+function ltool.tab_plant(tree, fields)
 	if(tree ~= nil) then
 		if(fields==nil) then
 			fields = {}
@@ -338,7 +338,7 @@ end
 
 
 --[[ This creates the cheat sheet tab ]]
-function ltool.cheat_sheet()
+function ltool.tab_cheat_sheet()
 	return ""..
 	"tablecolumns[text;text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
@@ -367,7 +367,7 @@ function ltool.cheat_sheet()
 	"\\],Recover from stack state info]"
 end
 
-function ltool.help_intro()
+function ltool.tab_help_intro()
 	return ""..
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
@@ -391,7 +391,7 @@ function ltool.help_intro()
 	"button[2,5;2,1;create_template;Create template]"
 end
 
-function ltool.help_edit()
+function ltool.tab_help_edit()
 	return ""..
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
@@ -405,7 +405,7 @@ function ltool.help_edit()
 	"replace it.]"
 end
 
-function ltool.help_database()
+function ltool.tab_help_database()
 	return ""..
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
@@ -423,7 +423,7 @@ function ltool.help_database()
 	"In order to plant a tree\\, you have to select a tree in the database first.]"
 end
 
-function ltool.help_plant()
+function ltool.tab_help_plant()
 	return ""..
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
@@ -443,18 +443,18 @@ function ltool.help_plant()
 	"deleted.]"
 end
 
-function ltool.help(index)
+function ltool.tab_help(index)
 	local formspec = "tabheader[0.1,0.5;ltool_help_tab;Introduction,Creating Trees,Managing Trees,Planting Trees,Cheat Sheet;"..tostring(index)..";true;false]"
 	if(index==1) then
-		formspec = formspec .. ltool.help_intro()
+		formspec = formspec .. ltool.tab_help_intro()
 	elseif(index==2) then
-		formspec = formspec .. ltool.help_edit()
+		formspec = formspec .. ltool.tab_help_edit()
 	elseif(index==3) then
-		formspec = formspec .. ltool.help_database()
+		formspec = formspec .. ltool.tab_help_database()
 	elseif(index==4) then
-		formspec = formspec .. ltool.help_plant()
+		formspec = formspec .. ltool.tab_help_plant()
 	elseif(index==5) then
-		formspec = formspec .. ltool.cheat_sheet()
+		formspec = formspec .. ltool.tab_cheat_sheet()
 	end
 
 	return formspec
@@ -699,17 +699,17 @@ function ltool.process_form(player,formname,fields)
 				contents = ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
 				subformname = "edit"
 			elseif(tab==2) then
-				contents = ltool.database(ltool.playerinfos[playername].dbsel, playername)
+				contents = ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
 				subformname = "database"
 			elseif(tab==3) then
 				if(ltool.number_of_trees > 0) then
-					contents = ltool.plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
+					contents = ltool.tab_plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
 				else
-					contents = ltool.plant(nil)
+					contents = ltool.tab_plant(nil)
 				end
 				subformname = "plant"
 			elseif(tab==4) then
-				contents = ltool.help(ltool.playerinfos[playername].treeform.help.tab)
+				contents = ltool.tab_help(ltool.playerinfos[playername].treeform.help.tab)
 				subformname = "help"
 			end
 			formspec = ltool.loadtreeform..ltool.header(tab)..contents
@@ -832,7 +832,7 @@ function ltool.process_form(player,formname,fields)
 			local event = minetest.explode_textlist_event(fields.treelist)
 			if(event.type == "CHG") then
 				ltool.playerinfos[playername].dbsel = event.index
-				local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(event.index, playername)
+				local formspec = ltool.loadtreeform..ltool.header(2)..ltool.tab_database(event.index, playername)
 				minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 			end
 		elseif(fields.database_copy) then
@@ -845,7 +845,7 @@ function ltool.process_form(player,formname,fields)
 				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
 			end
 		elseif(fields.database_update) then
-			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
+			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
 			minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 
 		elseif(fields.database_delete) then
@@ -860,7 +860,7 @@ function ltool.process_form(player,formname,fields)
 					local remove_id = ltool.get_selected_tree_id(playername)
 					if(remove_id ~= nil) then
 						ltool.remove_tree(remove_id)
-						local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
+						local formspec = ltool.loadtreeform..ltool.header(2)..ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
 						minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 					end
 				else
@@ -918,7 +918,7 @@ function ltool.process_form(player,formname,fields)
 		local tab = tonumber(fields.ltool_help_tab)
 		if(tab ~= nil) then
 			ltool.playerinfos[playername].treeform.help.tab = tab
-			local formspec = ltool.loadtreeform..ltool.header(4)..ltool.help(tab)
+			local formspec = ltool.loadtreeform..ltool.header(4)..ltool.tab_help(tab)
 			minetest.show_formspec(playername, "ltool:treeform_help", formspec)
 		end
 		if(fields.create_template) then
@@ -951,7 +951,7 @@ function ltool.process_form(player,formname,fields)
 		end
 		if(fields.newname ~= "") then
 			ltool.rename_tree(ltool.get_selected_tree_id(playername), fields.newname)
-			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
+			local formspec = ltool.loadtreeform..ltool.header(2)..ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
 			minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 		else
 			ltool.show_dialog(playername, "ltool:treeform_error_bad_rename", "Error: This name is empty. The tree name must be non-empty.")
@@ -961,10 +961,10 @@ function ltool.process_form(player,formname,fields)
 		local formspec = ltool.loadtreeform..ltool.header(1)..ltool.edit(ltool.playerinfos[playername].treeform.edit.fields)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_error_badplantfields" or formname == "ltool:treeform_error_sapling" or formname == "ltool:treeform_error_lplant") then
-		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
+		local formspec = ltool.loadtreeform..ltool.header(3)..ltool.tab_plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
 		minetest.show_formspec(playername, "ltool:treeform_plant", formspec)
 	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename_forbidden" or formname == "ltool:treeform_error_nodbsel" or formname == "ltool:treeform_error_ledit_db") then
-		local formspec = ltool.loadtreeform..ltool.header(2)..ltool.database(ltool.playerinfos[playername].dbsel, playername)
+		local formspec = ltool.loadtreeform..ltool.header(2)..ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
 		minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 	elseif(formname == "ltool:treeform_error_bad_rename") then
 		local formspec = "field[newname;New name:;"..minetest.formspec_escape(seltree.name).."]"
@@ -983,7 +983,7 @@ function ltool.join(player)
 	infotable.treeform = {}
 	infotable.treeform.database = {}
 	--[[ This table stores a mapping of the textlist IDs in the database formspec and the tree IDs.
-	It is updated each time ltool.database is called. ]]
+	It is updated each time ltool.tab_database is called. ]]
 	infotable.treeform.database.textlist = nil
 	--[[ the “fields” tables store the values of the input fields of a formspec. It is updated
 	whenever the formspec is changed, i.e. on tab change ]]
