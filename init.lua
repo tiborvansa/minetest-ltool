@@ -208,6 +208,7 @@ end
 
 --[[ Plants a tree as the specified position
 	tree_id: ID of tree to be planted
+	pos: Position of tree, in format {x=?, y=?, z=?}
 
 	returns false on failure, nil otherwise
 ]]
