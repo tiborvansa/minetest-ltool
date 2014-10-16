@@ -24,15 +24,15 @@ The name of the player who created the `tree`. The author is also the “owner�
 
 
 ## Functions
-### `ltool.plant_tree(tree_id, pos)`
-Plants a tree as the specified position.
+### `ltool.get_tree_ids`
+Returns a sorted table containing all tree IDs.
 
 #### Parameters
-* `tree_id`: ID of tree to be planted
-* `pos`: Position of tree, in the format `{x=?, y=?, z=?}`
+None.
 
 #### Return value
-`false` on failure, `nil` otherwise.
+A sorted table containing all tree IDs, sorted by ID.
+
 
 
 ### `ltool.add_tree(name, author, treedef)`
@@ -45,6 +45,7 @@ Adds a tree to the tree table.
 
 #### Return value
 The tree ID of the new tree.
+
 
 
 ### `ltool.remove_tree(tree_id)`
@@ -94,7 +95,7 @@ Returns `false` on failure (happens if tree does not exist).
 
 
 
-### `function ltool.give_sapling(tree_id, seed, player_name, ignore_priv)`
+### `ltool.give_sapling(tree_id, seed, player_name, ignore_priv)`
 Gives a L-system tree sapling to a player.
 
 #### Parameters
@@ -110,3 +111,26 @@ It depends:
 * `false, 1` if player does not have `lplant` privilege
 * `false, 2` if player’s inventory is full
 * `false, 3` if `tree` does not exist
+
+
+
+### `ltool.plant_tree(tree_id, pos)`
+Plants a tree as the specified position.
+
+#### Parameters
+* `tree_id`: ID of tree to be planted
+* `pos`: Position of tree, in the format `{x=?, y=?, z=?}`
+
+#### Return value
+`false` on failure, `nil` otherwise.
+
+
+
+### `ltool.show_treeform(playername)`
+Shows the main tree formular to the given player, starting with the "Edit" tab.
+
+#### Parameters
+* `playername`: Name of the player to whom the formspec should be shown to
+
+#### Return value
+Always `nil.`
