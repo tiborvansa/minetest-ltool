@@ -166,9 +166,9 @@ function ltool.generate_sapling(tree_id, seed)
 		return false
 	end
 	local sapling = ItemStack("ltool:sapling")
-	tree.treedef = seed
+	tree.treedef.seed = seed
 	sapling:set_metadata(minetest.serialize(tree.treedef))
-	tree.treedef = nil
+	tree.treedef.seed = nil
 	return sapling
 end
 
