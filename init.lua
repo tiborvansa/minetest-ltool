@@ -613,6 +613,7 @@ function ltool.get_tree_ids()
 	for tree_id, _ in pairs(ltool.trees) do
 		table.insert(ids, tree_id)
 	end
+	table.sort(ids)
 	return ids
 end
 
@@ -898,6 +899,7 @@ function ltool.process_form(player,formname,fields)
 					ltool.trees[new_tree_id].author = tree.author
 					ltool.next_tree_id = ltool.next_tree_id + 1
 					ltool.trees[tree_id] = nil
+					ltool.playerinfos[playername].dbsel = ltool.number_of_trees
 				end
 			end
 		end
