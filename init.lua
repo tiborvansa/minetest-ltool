@@ -247,7 +247,7 @@ ltool.seed = os.time()
 --[=[ Here come the functions to build the main formspec.
 They do not build the entire formspec ]=]
 
-ltool.formspec_size = "size[6,7]"
+ltool.formspec_size = "size[12,9]"
 
 --[[ This is a part of the main formspec: Tab header ]]
 function ltool.formspec_header(index)
@@ -269,26 +269,26 @@ function ltool.tab_edit(fields)
 		return ret
 	end
 	return ""..
-	"field[0.2,-4;6,10;axiom;Axiom;"..s(fields.axiom).."]"..
-	"field[0.2,-3.4;6,10;rules_a;Rules set A;"..s(fields.rules_a).."]"..
-	"field[0.2,-2.7;6,10;rules_b;Rules set B;"..s(fields.rules_b).."]"..
-	"field[0.2,-2.1;6,10;rules_c;Rules set C;"..s(fields.rules_c).."]"..
-	"field[0.2,-1.5;6,10;rules_d;Rules set D;"..s(fields.rules_d).."]"..
-	"field[0.2,-0.9;3,10;trunk;Trunk node name;"..s(fields.trunk).."]"..
-	"field[0.2,-0.3;3,10;leaves;Leaves node name;"..s(fields.leaves).."]"..
-	"field[0.2,0.3;3,10;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
-	"field[0.2,0.9;3,10;leaves2_chance;Secondary leaves chance (in percent);"..s(fields.leaves2_chance).."]"..
-	"field[0.2,1.5;3,10;fruit;Fruit node name;"..s(fields.fruit).."]"..
-	"field[0.2,2.1;3,10;fruit_chance;Fruit chance (in percent);"..s(fields.fruit_chance).."]"..
+	"field[0.2,-3.5;6,10;axiom;Axiom;"..s(fields.axiom).."]"..
+	"field[0.2,-2.5;6,10;rules_a;Rules set A;"..s(fields.rules_a).."]"..
+	"field[0.2,-1.5;6,10;rules_b;Rules set B;"..s(fields.rules_b).."]"..
+	"field[0.2,-0.5;6,10;rules_c;Rules set C;"..s(fields.rules_c).."]"..
+	"field[0.2,0.5;6,10;rules_d;Rules set D;"..s(fields.rules_d).."]"..
+	"field[6.2,-3.5;3,10;trunk;Trunk node name;"..s(fields.trunk).."]"..
+	"field[6.2,-2.5;3,10;leaves;Leaves node name;"..s(fields.leaves).."]"..
+	"field[6.2,-1.5;3,10;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
+	"field[6.2,-0.5;3,10;leaves2_chance;Secondary leaves chance (in percent);"..s(fields.leaves2_chance).."]"..
+	"field[6.2,0.5;3,10;fruit;Fruit node name;"..s(fields.fruit).."]"..
+	"field[6.2,1.5;3,10;fruit_chance;Fruit chance (in percent);"..s(fields.fruit_chance).."]"..
 
-	"field[3.2,-0.9;3,10;angle;Angle (in degrees);"..s(fields.angle).."]"..
-	"field[3.2,-0.3;3,10;iterations;Iterations;"..s(fields.iterations).."]"..
-	"field[3.2,0.3;3,10;random_level;Randomness level;"..s(fields.random_level).."]"..
-	"field[3.2,0.9;3,10;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
-	"field[3.2,1.5;3,10;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
-	"field[3.2,2.1;3,10;name;Name;"..s(fields.name).."]"..
-	"button[0,6.5;2,1;edit_save;Save tree to database]"..
-	"button[2.1,6.5;2,1;edit_clear;Clear fields]"
+	"field[9.2,-3.5;3,10;angle;Angle (in degrees);"..s(fields.angle).."]"..
+	"field[9.2,-2.5;3,10;iterations;Iterations;"..s(fields.iterations).."]"..
+	"field[9.2,-1.5;3,10;random_level;Randomness level;"..s(fields.random_level).."]"..
+	"field[9.2,-0.5;3,10;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
+	"field[9.2,0.5;3,10;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
+	"field[9.2,1.5;3,10;name;Name;"..s(fields.name).."]"..
+	"button[3.5,8.5;3,1;edit_save;Save tree to database]"..
+	"button[6.5,8.5;3,1;edit_clear;Clear fields]"
 end
 
 --[[ This creates the database tab of the formspec.
@@ -306,11 +306,11 @@ function ltool.tab_database(index, playername)
 		end
 		ltool.playerinfos[playername].treeform.database.textlist = tree_ids
 		return ""..
-		"textlist[0,0;5,6;treelist;"..treestr..";"..tostring(index)..";false]"..
-		"button[0,6;2,1;database_rename;Rename tree]"..
-		"button[2.1,6;2,1;database_delete;Delete tree]"..
-		"button[0,6.5;2,1;database_copy;Copy tree to editor]"..
-		"button[2.1,6.5;2,1;database_update;Reload database]"
+		"textlist[0,0;11,7;treelist;"..treestr..";"..tostring(index)..";false]"..
+		"button[3.5,7.5;3,1;database_rename;Rename tree]"..
+		"button[6.5,7.5;3,1;database_delete;Delete tree]"..
+		"button[3.5,8.5;3,1;database_copy;Copy tree to editor]"..
+		"button[6.5,8.5;3,1;database_update;Reload database]"
 	else
 		return "label[0,0;The tree database is empty.]"..
 		"button[2.1,6.5;2,1;database_update;Reload database]"
@@ -348,13 +348,13 @@ function ltool.tab_plant(tree, fields)
 		return ""..
 		"label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
 		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates,Distance in viewing direction;"..dropdownindex.."]"..
-		"field[0.2,-2.7;6,10;x;x;"..s(fields.x).."]"..
-		"field[0.2,-2.1;6,10;y;y;"..s(fields.y).."]"..
-		"field[0.2,-1.5;6,10;z;z;"..s(fields.z).."]"..
-		"field[0.2,-0.9;6,10;distance;Distance;"..s(fields.distance).."]"..
-		"field[0.2,0;6,10;seed;Seed;"..seed.."]"..
-		"button[0,6.5;2,1;plant_plant;Plant tree]"..
-		"button[2.1,6.5;2,1;sapling;Give me a sapling]"
+		"field[0.2,-2;6,10;x;x;"..s(fields.x).."]"..
+		"field[0.2,-1;6,10;y;y;"..s(fields.y).."]"..
+		"field[0.2,0;6,10;z;z;"..s(fields.z).."]"..
+		"field[0.2,1;6,10;distance;Distance;"..s(fields.distance).."]"..
+		"field[0.2,2;6,10;seed;Seed;"..seed.."]"..
+		"button[3.5,8;3,1;plant_plant;Plant tree]"..
+		"button[6.5,8;3,1;sapling;Give me a sapling]"
 	else
 		return "label[0,0;No tree in database selected or database is empty.]"
 	end
@@ -366,7 +366,7 @@ function ltool.tab_cheat_sheet()
 	return ""..
 	"tablecolumns[text;text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.25;5.5,6;cheat_sheet;"..
+	"table[-0.15,0.75;12,8;cheat_sheet;"..
 	"Symbol,Action,"..
 	"G,Move forward one unit with the pen up,"..
 	"F,Move forward one unit with the pen down drawing trunks and branches,"..
@@ -395,7 +395,7 @@ function ltool.tab_help_intro()
 	return ""..
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.25;5.5,4.5;help_intro;"..
+	"table[-0.15,0.75;12,7;help_intro;"..
 	string.format("You are using the L-System Tree Utility mod version %s.,", ltool.VERSION.STRING)..
 	","..
 	"The purpose of this mod is to aid with the creation of L-system trees.,"..
@@ -412,14 +412,14 @@ function ltool.tab_help_intro()
 	","..
 	"To help you get started\\, you can create an example tree for the \"Edit\" tab,"..
 	"by pressing this button:]"..
-	"button[2,5;2,1;create_template;Create template]"
+	"button[4,8;4,1;create_template;Create template]"
 end
 
 function ltool.tab_help_edit()
 	return ""..
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.25;5.5,6;help_edit;"..
+	"table[-0.15,0.75;12,8;help_edit;"..
 	"To create a L-system tree\\, switch to the \"Edit\" tab.,"..
 	"When you are done\\, hit \"Save tree to database\". The tree will be stored in,"..
 	"the database. The \"Clear fields\" button empties all the input fields.,"..
@@ -433,7 +433,7 @@ function ltool.tab_help_database()
 	return ""..
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.25;5.5,6;help_database;"..
+	"table[-0.15,0.75;12,8;help_database;"..
 	"The database contains a server-wide list of all created trees.,"..
 	"Each tree has an \"owner\". In this mod\\, the concept of ownership is a very,"..
 	"weak one: The owner may rename\\, change and delete his/her own trees\\,,"..
@@ -451,7 +451,7 @@ function ltool.tab_help_plant()
 	return ""..
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.25;5.5,6;help_plant;"..
+	"table[-0.15,0.75;12,8;help_plant;"..
 	"To plant a previously tree from a previous created tree definition\\,,"..
 	"first select it in the database\\, then open the \"Plant\" tab.,"..
 	"In this tab\\, you can directly place the tree or request a sapling.,"..
@@ -474,7 +474,7 @@ function ltool.tab_help_plant()
 end
 
 function ltool.tab_help(index)
-	local formspec = "tabheader[0.1,0.5;ltool_help_tab;Introduction,Creating Trees,Managing Trees,Planting Trees,Cheat Sheet;"..tostring(index)..";true;false]"
+	local formspec = "tabheader[0.1,1;ltool_help_tab;Introduction,Creating Trees,Managing Trees,Planting Trees,Cheat Sheet;"..tostring(index)..";true;false]"
 	if(index==1) then
 		formspec = formspec .. ltool.tab_help_intro()
 	elseif(index==2) then
@@ -529,8 +529,8 @@ end
 
 --[[ spawns a simple dialog formspec to a player ]]
 function ltool.show_dialog(playername, formname, message)
-	local formspec = "size[6,2;]label[0,0.2;"..message.."]"..
-	"button[2,1.5;2,1;okay;OK]"
+	local formspec = "size[12,2;]label[0,0.2;"..message.."]"..
+	"button[4.5,1.5;3,1;okay;OK]"
 	minetest.show_formspec(playername, formname, formspec)
 
 end
@@ -842,9 +842,9 @@ function ltool.process_form(player,formname,fields)
 					if(v.name == name) then
 						ltool.save_fields(playername, formname, fields)
 						if(v.author == playername) then
-							local formspec = "size[6,2;]label[0,0.2;You already have a tree with this name. Do you want to replace it?]"..
-							"button[0,1.5;2,1;replace_yes;Yes]"..
-							"button[2,1.5;2,1;replace_no;No]"
+							local formspec = "size[6,2;]label[0,0.2;You already have a tree with this name.\nDo you want to replace it?]"..
+							"button[0,1.5;3,1;replace_yes;Yes]"..
+							"button[3,1.5;3,1;replace_no;No]"
 							minetest.show_formspec(playername, "ltool:treeform_replace", formspec)
 						else
 							ltool.show_dialog(playername, "ltool:treeform_error_nameclash", "Error: This name is already taken by someone else.\nPlease choose a different name.")
@@ -857,10 +857,9 @@ function ltool.process_form(player,formname,fields)
 				end
 			else
 				ltool.save_fields(playername, formname, fields)
-				local formspec = "size[6,2;]label[0,0.2;Error: The tree definition is invalid.]"..
-				"label[0,0.4;"..minetest.formspec_escape(param2).."]"..
-				"button[2,1.5;2,1;okay;OK]"
-				minetest.show_formspec(playername, "ltool:treeform_error_badtreedef", formspec)
+				local message = "Error: The tree definition is invalid.\n"..
+				minetest.formspec_escape(param2)
+				ltool.show_dialog(playername, "ltool:treeform_error_badtreedef", message)
 			end
 		end
 		if(fields.edit_clear) then
