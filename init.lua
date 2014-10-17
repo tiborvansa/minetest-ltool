@@ -323,7 +323,7 @@ function ltool.tab_database(index, playername)
 		"button[6.5,8.5;3,1;database_update;Reload database]"
 	else
 		return "label[0,0;The tree database is empty.]"..
-		"button[2.1,6.5;2,1;database_update;Reload database]"
+		"button[6.5,8.5;3,1;database_update;Reload database]"
 	end
 end
 
