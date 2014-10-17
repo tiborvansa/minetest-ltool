@@ -281,14 +281,21 @@ function ltool.tab_edit(fields)
 	"field[9.2,1.5;3,10;fruit;Fruit node name;"..s(fields.fruit).."]"..
 
 	"field[0.2,2.5;3,10;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
+	"tooltip[trunk_type;This field specifies the shape of the tree trunk. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
 	"field[3.2,2.5;3,10;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
+	"tooltip[thin_branches;\"true\": All branches are just 1 node wide. \"false\": Branches can be larger.]"..
 	"field[6.2,2.5;3,10;leaves2_chance;Secondary leaves chance (in percent);"..s(fields.leaves2_chance).."]"..
+	"tooltip[leaves2_chance;Chance (in percent) to replace a leaves node by a secondary leaves node]"..
 	"field[9.2,2.5;3,10;fruit_chance;Fruit chance (in percent);"..s(fields.fruit_chance).."]"..
+	"tooltip[fruit_chance;Change (in percent) to replace a leaves node by a fruit node.]"..
 
 	"field[0.2,3.5;3,10;iterations;Iterations;"..s(fields.iterations).."]"..
+	"tooltip[iterations;Maximum number of iterations, usually between 2 and 5.]"..
 	"field[3.2,3.5;3,10;random_level;Randomness level;"..s(fields.random_level).."]"..
+	"tooltip[random_level;Factor to lower number of iterations, usually between 0 and 3.]"..
 	"field[6.2,3.5;3,10;angle;Angle (in degrees);"..s(fields.angle).."]"..
 	"field[9.2,3.5;3,10;name;Name;"..s(fields.name).."]"..
+	"tooltip[name;An unique name for this tree, only used for convenience.]"..
 
 	"button[3.5,8.5;3,1;edit_save;Save tree to database]"..
 	"button[6.5,8.5;3,1;edit_clear;Clear fields]"
@@ -351,13 +358,27 @@ function ltool.tab_plant(tree, fields)
 		return ""..
 		"label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
 		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates,Distance in viewing direction;"..dropdownindex.."]"..
+--[[ NOTE: This tooltip does not work for the dropdown list in 0.4.10,
+but it is added anyways in case this gets fixed in later Minetest versions. ]]
+		"tooltip[plantmode;"..
+		"- \"Absolute coordinates\": Fields \"x\", \"y\" and \"z\" specify the absolute world coordinates where to plant the tree\n"..
+		"- \"Relative coordinates\": Fields \"x\", \"y\" and \"z\" specify the relative position from your position\n"..
+		"- \"Distance in viewing direction\": Plant tree relative from your position in the direction you look to, at the specified distance"..
+		"]"..
 		"field[0.2,-2;6,10;x;x;"..s(fields.x).."]"..
+		"tooltip[x;Field is only used by absolute and relative coordinates.]"..
 		"field[0.2,-1;6,10;y;y;"..s(fields.y).."]"..
+		"tooltip[y;Field is only used by absolute and relative coordinates.]"..
 		"field[0.2,0;6,10;z;z;"..s(fields.z).."]"..
+		"tooltip[z;Field is only used by absolute and relative coordinates.]"..
 		"field[0.2,1;6,10;distance;Distance;"..s(fields.distance).."]"..
-		"field[0.2,2;6,10;seed;Seed;"..seed.."]"..
+		"tooltip[distance;This field is used to specify the distance (in node lengths) from your position\nin the viewing direction. It is ignored if you use coordinates.]"..
+		"field[0.2,2;6,10;seed;Randomness seed;"..seed.."]"..
+		"tooltip[seed;A number used for the random number generators. Identical randomness seeds will produce identical trees. This field is optional.]"..
 		"button[3.5,8;3,1;plant_plant;Plant tree]"..
-		"button[6.5,8;3,1;sapling;Give me a sapling]"
+		"tooltip[plant_plant;Immediately place the tree at the specified position]"..
+		"button[6.5,8;3,1;sapling;Give me a sapling]"..
+		"tooltip[sapling;This gives you an item which you can place manually in the world later..]"
 	else
 		return "label[0,0;No tree in database selected or database is empty.]"
 	end
