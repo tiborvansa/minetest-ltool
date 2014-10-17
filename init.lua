@@ -524,6 +524,66 @@ function ltool.tab_help(index)
 	return formspec
 end
 
+function ltool.formspec_editplus(fragment)
+	local formspec = ""..
+	"size[12,8]"..
+	"textarea[0.2,0.5;12,3;"..fragment.."]"..
+	"label[0,3.625;Draw:]"..
+	"button[2,3.5;1,1;editplus_c_G;G]"..
+	"tooltip[editplus_c_G;Move forward one unit with the pen up]"..
+	"button[3,3.5;1,1;editplus_c_F;F]"..
+	"tooltip[editplus_c_F;Move forward one unit with the pen down drawing trunks and branches]"..
+	"button[4,3.5;1,1;editplus_c_f;f]"..
+	"tooltip[editplus_c_f;Move forward one unit with the pen down drawing leaves (100% chance)]"..
+	"button[5,3.5;1,1;editplus_c_T;T]"..
+	"tooltip[editplus_c_T;Move forward one unit with the pen down drawing trunks only)]"..
+	"button[6,3.5;1,1;editplus_c_R;R]"..
+	"tooltip[editplus_c_R;Move forward one unit with the pen down placing fruit)]"..
+
+	"label[0,4.625;Rules:]"..
+	"button[2,4.5;1,1;editplus_c_A;A]"..
+	"tooltip[editplus_c_A;Replace with rules set A]"..
+	"button[3,4.5;1,1;editplus_c_B;B]"..
+	"tooltip[editplus_c_B;Replace with rules set B]"..
+	"button[4,4.5;1,1;editplus_c_C;C]"..
+	"tooltip[editplus_c_C;Replace with rules set C]"..
+	"button[5,4.5;1,1;editplus_c_D;D]"..
+	"tooltip[editplus_c_D;Replace with rules set D]"..
+	"button[6.5,4.5;1,1;editplus_c_a;a]"..
+	"tooltip[editplus_c_a;Replace with rules set A, chance 90%]"..
+	"button[7.5,4.5;1,1;editplus_c_b;b]"..
+	"tooltip[editplus_c_b;Replace with rules set B, chance 80%]"..
+	"button[8.5,4.5;1,1;editplus_c_c;c]"..
+	"tooltip[editplus_c_c;Replace with rules set C, chance 70%]"..
+	"button[9.5,4.5;1,1;editplus_c_d;d]"..
+	"tooltip[editplus_c_d;Replace with rules set D, chance 60%]"..
+
+	"label[0,5.625;Rotate:]"..
+	"button[3,5.5;1,1;editplus_c_+;+]"..
+	"tooltip[editplus_c_+;Yaw the turtle right by the value specified in \"Angle\"]"..
+	"button[2,5.5;1,1;editplus_c_-;-]"..
+	"tooltip[editplus_c_-;Yaw the turtle left by the value specified in \"Angle\"]"..
+	"button[4.5,5.5;1,1;editplus_c_&;&]"..
+	"tooltip[editplus_c_&;Pitch the turtle down by the value specified in \"Angle\"]"..
+	"button[5.5,5.5;1,1;editplus_c_^;^]"..
+	"tooltip[editplus_c_^;Pitch the turtle up by the value specified in \"Angle\"]"..
+	"button[8,5.5;1,1;editplus_c_/;/]"..
+	"tooltip[editplus_c_/;Roll the turtle to the right by the value specified in \"Angle\"]"..
+	"button[7,5.5;1,1;editplus_c_*;*]"..
+	"tooltip[editplus_c_*;Roll the turtle to the left by the value specified in \"Angle\"]"..
+
+	"label[0,6.625;Stack:]"..
+	"button[2,6.5;1,1;editplus_c_P;\\[]"..
+	"tooltip[editplus_c_P;Save current state info into stack]"..
+	"button[3,6.5;1,1;editplus_c_p;\\]]"..
+	"tooltip[editplus_c_p;Recover from current stack state info]"..
+
+	"button[2.5,7.5;3,1;editplus_save;Save]"..
+	"button[5.5,7.5;3,1;editplus_cancel;Cancel]"
+
+	return formspec
+end
+
 --[[ creates the content of a textlist which contains all trees.
 	index: Selected entry
 	playername: To which the main formspec is shown to. Used for highlighting owned trees
@@ -923,16 +983,30 @@ function ltool.process_form(player,formname,fields)
 			end
 
 			ltool.save_fields(playername, formname, fields)
-			local formspec = ""..
-			"size[12,4]"..
-			"textarea[0.2,0.5;12,3;"..fragment.."]"..
-			"button[2.5,3.5;3,1;editplus_save;Save]"..
-			"button[6.5,3.5;3,1;editplus_cancel;Cancel]"
+			local formspec = ltool.formspec_editplus(fragment)
 			minetest.show_formspec(playername, "ltool:treeform_editplus", formspec)
 		end
 	--[[ Larger edit fields for axiom and rules fields ]]
 	elseif(formname == "ltool:treeform_editplus") then
 		local editfields = ltool.playerinfos[playername].treeform.edit.fields
+		local function addchar(c)
+			local fragment
+			if(c=="P") then c = "[" end
+			if(c=="p") then c = "]" end
+			if(fields.axiom) then
+				fragment = "axiom;Axiom;"..s(fields.axiom..c)
+			elseif(fields.rules_a) then
+				fragment = "rules_a;Rules set A;"..s(fields.rules_a..c)
+			elseif(fields.rules_b) then
+				fragment = "rules_b;Rules set B;"..s(fields.rules_b..c)
+			elseif(fields.rules_c) then
+				fragment = "rules_c;Rules set C;"..s(fields.rules_c..c)
+			elseif(fields.rules_d) then
+				fragment = "rules_d;Rules set D;"..s(fields.rules_d..c)
+			end
+			local formspec = ltool.formspec_editplus(fragment)
+			minetest.show_formspec(playername, "ltool:treeform_editplus", formspec)
+		end
 		if(fields.editplus_save) then
 			local function o(writed, writer)
 				if(writer~=nil) then
@@ -951,6 +1025,13 @@ function ltool.process_form(player,formname,fields)
 		elseif(fields.editplus_cancel) then
 			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
+		else
+			for id, field in pairs(fields) do
+				if(string.sub(id,1,11) == "editplus_c_") then
+					local char = string.sub(id,12,12)
+					addchar(char)
+				end
+			end
 		end
 	--[[ "Database" tab ]]
 	elseif(formname == "ltool:treeform_database") then
