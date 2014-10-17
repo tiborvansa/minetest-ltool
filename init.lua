@@ -269,24 +269,27 @@ function ltool.tab_edit(fields)
 		return ret
 	end
 	return ""..
-	"field[0.2,-3.5;6,10;axiom;Axiom;"..s(fields.axiom).."]"..
-	"field[0.2,-2.5;6,10;rules_a;Rules set A;"..s(fields.rules_a).."]"..
-	"field[0.2,-1.5;6,10;rules_b;Rules set B;"..s(fields.rules_b).."]"..
-	"field[0.2,-0.5;6,10;rules_c;Rules set C;"..s(fields.rules_c).."]"..
-	"field[0.2,0.5;6,10;rules_d;Rules set D;"..s(fields.rules_d).."]"..
-	"field[6.2,-3.5;3,10;trunk;Trunk node name;"..s(fields.trunk).."]"..
-	"field[6.2,-2.5;3,10;leaves;Leaves node name;"..s(fields.leaves).."]"..
-	"field[6.2,-1.5;3,10;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
-	"field[6.2,-0.5;3,10;leaves2_chance;Secondary leaves chance (in percent);"..s(fields.leaves2_chance).."]"..
-	"field[6.2,0.5;3,10;fruit;Fruit node name;"..s(fields.fruit).."]"..
-	"field[6.2,1.5;3,10;fruit_chance;Fruit chance (in percent);"..s(fields.fruit_chance).."]"..
+	"field[0.2,-3.5;12,10;axiom;Axiom;"..s(fields.axiom).."]"..
+	"field[0.2,-2.5;12,10;rules_a;Rules set A;"..s(fields.rules_a).."]"..
+	"field[0.2,-1.5;12,10;rules_b;Rules set B;"..s(fields.rules_b).."]"..
+	"field[0.2,-0.5;12,10;rules_c;Rules set C;"..s(fields.rules_c).."]"..
+	"field[0.2,0.5;12,10;rules_d;Rules set D;"..s(fields.rules_d).."]"..
 
-	"field[9.2,-3.5;3,10;angle;Angle (in degrees);"..s(fields.angle).."]"..
-	"field[9.2,-2.5;3,10;iterations;Iterations;"..s(fields.iterations).."]"..
-	"field[9.2,-1.5;3,10;random_level;Randomness level;"..s(fields.random_level).."]"..
-	"field[9.2,-0.5;3,10;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
-	"field[9.2,0.5;3,10;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
-	"field[9.2,1.5;3,10;name;Name;"..s(fields.name).."]"..
+	"field[0.2,1.5;3,10;trunk;Trunk node name;"..s(fields.trunk).."]"..
+	"field[3.2,1.5;3,10;leaves;Leaves node name;"..s(fields.leaves).."]"..
+	"field[6.2,1.5;3,10;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
+	"field[9.2,1.5;3,10;fruit;Fruit node name;"..s(fields.fruit).."]"..
+
+	"field[0.2,2.5;3,10;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
+	"field[3.2,2.5;3,10;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
+	"field[6.2,2.5;3,10;leaves2_chance;Secondary leaves chance (in percent);"..s(fields.leaves2_chance).."]"..
+	"field[9.2,2.5;3,10;fruit_chance;Fruit chance (in percent);"..s(fields.fruit_chance).."]"..
+
+	"field[0.2,3.5;3,10;iterations;Iterations;"..s(fields.iterations).."]"..
+	"field[3.2,3.5;3,10;random_level;Randomness level;"..s(fields.random_level).."]"..
+	"field[6.2,3.5;3,10;angle;Angle (in degrees);"..s(fields.angle).."]"..
+	"field[9.2,3.5;3,10;name;Name;"..s(fields.name).."]"..
+
 	"button[3.5,8.5;3,1;edit_save;Save tree to database]"..
 	"button[6.5,8.5;3,1;edit_clear;Clear fields]"
 end
