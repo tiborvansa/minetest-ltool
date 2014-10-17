@@ -269,11 +269,21 @@ function ltool.tab_edit(fields)
 		return ret
 	end
 	return ""..
-	"field[0.2,-3.5;12,10;axiom;Axiom;"..s(fields.axiom).."]"..
-	"field[0.2,-2.5;12,10;rules_a;Rules set A;"..s(fields.rules_a).."]"..
-	"field[0.2,-1.5;12,10;rules_b;Rules set B;"..s(fields.rules_b).."]"..
-	"field[0.2,-0.5;12,10;rules_c;Rules set C;"..s(fields.rules_c).."]"..
-	"field[0.2,0.5;12,10;rules_d;Rules set D;"..s(fields.rules_d).."]"..
+	"field[0.2,-3.5;11,10;axiom;Axiom;"..s(fields.axiom).."]"..
+	"button[11,0.2;1,1;edit_axiom;+]"..
+	"tooltip[edit_axiom;Opens larger text field for Axiom]"..
+	"field[0.2,-2.5;11,10;rules_a;Rules set A;"..s(fields.rules_a).."]"..
+	"button[11,1.2;1,1;edit_rules_a;+]"..
+	"tooltip[edit_rules_a;Opens larger text field for Rules set A]"..
+	"field[0.2,-1.5;11,10;rules_b;Rules set B;"..s(fields.rules_b).."]"..
+	"button[11,2.2;1,1;edit_rules_b;+]"..
+	"tooltip[edit_rules_b;Opens larger text field for Rules set B]"..
+	"field[0.2,-0.5;11,10;rules_c;Rules set C;"..s(fields.rules_c).."]"..
+	"button[11,3.2;1,1;edit_rules_c;+]"..
+	"tooltip[edit_rules_c;Opens larger text field for Rules set C]"..
+	"field[0.2,0.5;11,10;rules_d;Rules set D;"..s(fields.rules_d).."]"..
+	"button[11,4.2;1,1;edit_rules_d;+]"..
+	"tooltip[edit_rules_d;Opens larger text field for Rules set D]"..
 
 	"field[0.2,1.5;3,10;trunk;Trunk node name;"..s(fields.trunk).."]"..
 	"field[3.2,1.5;3,10;leaves;Leaves node name;"..s(fields.leaves).."]"..
@@ -743,6 +753,14 @@ function ltool.process_form(player,formname,fields)
 	local seltree = ltool.get_selected_tree(playername)
 	local seltree_id = ltool.get_selected_tree_id(playername)
 	local privs = minetest.get_player_privs(playername)
+	local s = function(input)
+		if(input==nil) then
+			ret = ""
+		else
+			ret = minetest.formspec_escape(tostring(input))
+		end
+		return ret
+	end
 	--[[ process clicks on the tab header ]]
 	if(formname == "ltool:treeform_edit" or formname == "ltool:treeform_database" or formname == "ltool:treeform_plant" or formname == "ltool:treeform_help") then
 		if fields.ltool_tab ~= nil then
@@ -888,6 +906,50 @@ function ltool.process_form(player,formname,fields)
 		end
 		if(fields.edit_clear) then
 			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit()
+			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
+		end
+		if(fields.edit_axiom or fields.edit_rules_a or fields.edit_rules_b or fields.edit_rules_c or fields.edit_rules_d) then
+			local fragment
+			if(fields.edit_axiom) then
+				fragment = "axiom;Axiom;"..s(fields.axiom)
+			elseif(fields.edit_rules_a) then
+				fragment = "rules_a;Rules set A;"..s(fields.rules_a)
+			elseif(fields.edit_rules_b) then
+				fragment = "rules_b;Rules set B;"..s(fields.rules_b)
+			elseif(fields.edit_rules_c) then
+				fragment = "rules_c;Rules set C;"..s(fields.rules_c)
+			elseif(fields.edit_rules_d) then
+				fragment = "rules_d;Rules set D;"..s(fields.rules_d)
+			end
+
+			ltool.save_fields(playername, formname, fields)
+			local formspec = ""..
+			"size[12,4]"..
+			"textarea[0.2,0.5;12,3;"..fragment.."]"..
+			"button[2.5,3.5;3,1;editplus_save;Save]"..
+			"button[6.5,3.5;3,1;editplus_cancel;Cancel]"
+			minetest.show_formspec(playername, "ltool:treeform_editplus", formspec)
+		end
+	--[[ Larger edit fields for axiom and rules fields ]]
+	elseif(formname == "ltool:treeform_editplus") then
+		local editfields = ltool.playerinfos[playername].treeform.edit.fields
+		if(fields.editplus_save) then
+			local function o(writed, writer)
+				if(writer~=nil) then
+					return writer
+				else
+					return writed
+				end
+			end
+			editfields.axiom = o(editfields.axiom, fields.axiom)
+			editfields.rules_a = o(editfields.rules_a, fields.rules_a)
+			editfields.rules_b = o(editfields.rules_b, fields.rules_b)
+			editfields.rules_c = o(editfields.rules_c, fields.rules_c)
+			editfields.rules_d = o(editfields.rules_d, fields.rules_d)
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields)
+			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
+		elseif(fields.editplus_cancel) then
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		end
 	--[[ "Database" tab ]]
