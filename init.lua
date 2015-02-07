@@ -3,8 +3,8 @@ ltool = {}
 ltool.VERSION = {}
 ltool.VERSION.MAJOR = 1
 ltool.VERSION.MINOR = 0
-ltool.VERSION.PATCH = 0
-ltool.VERSION.STRING = "1.0.0"
+ltool.VERSION.PATCH = 1
+ltool.VERSION.STRING = "1.0.1"
 
 ltool.playerinfos = {}
 ltool.default_edit_fields = {
