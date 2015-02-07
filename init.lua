@@ -261,6 +261,7 @@ function ltool.tab_edit(fields)
 		fields = ltool.default_edit_fields
 	end
 	local s = function(input)
+		local ret
 		if(input==nil) then
 			ret = ""
 		else
