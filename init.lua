@@ -815,6 +815,7 @@ function ltool.process_form(player,formname,fields)
 	local seltree_id = ltool.get_selected_tree_id(playername)
 	local privs = minetest.get_player_privs(playername)
 	local s = function(input)
+		local ret
 		if(input==nil) then
 			ret = ""
 		else
