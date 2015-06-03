@@ -537,9 +537,9 @@ function ltool.formspec_editplus(fragment)
 	"button[4,3.5;1,1;editplus_c_f;f]"..
 	"tooltip[editplus_c_f;Move forward one unit with the pen down drawing leaves (100% chance)]"..
 	"button[5,3.5;1,1;editplus_c_T;T]"..
-	"tooltip[editplus_c_T;Move forward one unit with the pen down drawing trunks only)]"..
+	"tooltip[editplus_c_T;Move forward one unit with the pen down drawing trunks only]"..
 	"button[6,3.5;1,1;editplus_c_R;R]"..
-	"tooltip[editplus_c_R;Move forward one unit with the pen down placing fruit)]"..
+	"tooltip[editplus_c_R;Move forward one unit with the pen down placing fruit]"..
 
 	"label[0,4.625;Rules:]"..
 	"button[2,4.5;1,1;editplus_c_A;A]"..
