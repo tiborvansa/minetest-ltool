@@ -269,47 +269,48 @@ function ltool.tab_edit(fields)
 		end
 		return ret
 	end
+
 	return ""..
-	"field[0.2,-3.5;11,10;axiom;Axiom;"..s(fields.axiom).."]"..
-	"button[11,0.2;1,1;edit_axiom;+]"..
+	"field[0.2,1;11,0;axiom;Axiom;"..s(fields.axiom).."]"..
+	"button[11,0.7;1,0;edit_axiom;+]"..
 	"tooltip[edit_axiom;Opens larger text field for Axiom]"..
-	"field[0.2,-2.5;11,10;rules_a;Rules set A;"..s(fields.rules_a).."]"..
-	"button[11,1.2;1,1;edit_rules_a;+]"..
+	"field[0.2,2;11,0;rules_a;Rules set A;"..s(fields.rules_a).."]"..
+	"button[11,1.7;1,0;edit_rules_a;+]"..
 	"tooltip[edit_rules_a;Opens larger text field for Rules set A]"..
-	"field[0.2,-1.5;11,10;rules_b;Rules set B;"..s(fields.rules_b).."]"..
-	"button[11,2.2;1,1;edit_rules_b;+]"..
+	"field[0.2,3;11,0;rules_b;Rules set B;"..s(fields.rules_b).."]"..
+	"button[11,2.7;1,0;edit_rules_b;+]"..
 	"tooltip[edit_rules_b;Opens larger text field for Rules set B]"..
-	"field[0.2,-0.5;11,10;rules_c;Rules set C;"..s(fields.rules_c).."]"..
-	"button[11,3.2;1,1;edit_rules_c;+]"..
+	"field[0.2,4;11,0;rules_c;Rules set C;"..s(fields.rules_c).."]"..
+	"button[11,3.7;1,0;edit_rules_c;+]"..
 	"tooltip[edit_rules_c;Opens larger text field for Rules set C]"..
-	"field[0.2,0.5;11,10;rules_d;Rules set D;"..s(fields.rules_d).."]"..
-	"button[11,4.2;1,1;edit_rules_d;+]"..
+	"field[0.2,5;11,0;rules_d;Rules set D;"..s(fields.rules_d).."]"..
+	"button[11,4.7;1,0;edit_rules_d;+]"..
 	"tooltip[edit_rules_d;Opens larger text field for Rules set D]"..
 
-	"field[0.2,1.5;3,10;trunk;Trunk node name;"..s(fields.trunk).."]"..
-	"field[3.2,1.5;3,10;leaves;Leaves node name;"..s(fields.leaves).."]"..
-	"field[6.2,1.5;3,10;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
-	"field[9.2,1.5;3,10;fruit;Fruit node name;"..s(fields.fruit).."]"..
+	"field[0.2,6;3,0;trunk;Trunk node name;"..s(fields.trunk).."]"..
+	"field[3.2,6;3,0;leaves;Leaves node name;"..s(fields.leaves).."]"..
+	"field[6.2,6;3,0;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
+	"field[9.2,6;3,0;fruit;Fruit node name;"..s(fields.fruit).."]"..
 
-	"field[0.2,2.5;3,10;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
+	"field[0.2,7;3,0;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
 	"tooltip[trunk_type;This field specifies the shape of the tree trunk. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
-	"field[3.2,2.5;3,10;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
+	"field[3.2,7;3,0;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
 	"tooltip[thin_branches;\"true\": All branches are just 1 node wide. \"false\": Branches can be larger.]"..
-	"field[6.2,2.5;3,10;leaves2_chance;Secondary leaves chance (in percent);"..s(fields.leaves2_chance).."]"..
+	"field[6.2,7;3,0;leaves2_chance;Secondary leaves chance (in percent);"..s(fields.leaves2_chance).."]"..
 	"tooltip[leaves2_chance;Chance (in percent) to replace a leaves node by a secondary leaves node]"..
-	"field[9.2,2.5;3,10;fruit_chance;Fruit chance (in percent);"..s(fields.fruit_chance).."]"..
+	"field[9.2,7;3,0;fruit_chance;Fruit chance (in percent);"..s(fields.fruit_chance).."]"..
 	"tooltip[fruit_chance;Change (in percent) to replace a leaves node by a fruit node.]"..
 
-	"field[0.2,3.5;3,10;iterations;Iterations;"..s(fields.iterations).."]"..
+	"field[0.2,8;3,0;iterations;Iterations;"..s(fields.iterations).."]"..
 	"tooltip[iterations;Maximum number of iterations, usually between 2 and 5.]"..
-	"field[3.2,3.5;3,10;random_level;Randomness level;"..s(fields.random_level).."]"..
+	"field[3.2,8;3,0;random_level;Randomness level;"..s(fields.random_level).."]"..
 	"tooltip[random_level;Factor to lower number of iterations, usually between 0 and 3.]"..
-	"field[6.2,3.5;3,10;angle;Angle (in degrees);"..s(fields.angle).."]"..
-	"field[9.2,3.5;3,10;name;Name;"..s(fields.name).."]"..
+	"field[6.2,8;3,0;angle;Angle (in degrees);"..s(fields.angle).."]"..
+	"field[9.2,8;3,0;name;Name;"..s(fields.name).."]"..
 	"tooltip[name;An unique name for this tree, only used for convenience.]"..
 
-	"button[3.5,8.5;3,1;edit_save;Save tree to database]"..
-	"button[6.5,8.5;3,1;edit_clear;Clear fields]"
+	"button[3.5,8.7;3,0;edit_save;Save tree to database]"..
+	"button[6.5,8.7;3,0;edit_clear;Clear fields]"
 end
 
 --[[ This creates the database tab of the formspec.
