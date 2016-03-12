@@ -309,8 +309,8 @@ function ltool.tab_edit(fields)
 	"field[9.2,8;3,0;name;Name;"..s(fields.name).."]"..
 	"tooltip[name;An unique name for this tree, only used for convenience.]"..
 
-	"button[3.5,8.7;3,0;edit_save;Save tree to database]"..
-	"button[6.5,8.7;3,0;edit_clear;Clear fields]"
+	"button[2,8.7;4,0;edit_save;Save tree to database]"..
+	"button[6,8.7;4,0;edit_clear;Clear fields]"
 end
 
 --[[ This creates the database tab of the formspec.
