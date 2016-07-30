@@ -787,7 +787,7 @@ ltool.treeform = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit()
 minetest.register_chatcommand("treeform",
 {
 	params = "",
-	description = "Open L-system tree builder formular.",
+	description = "Open L-System Tree Utility.",
 	privs = {},
 	func = function(playername, param)
 		ltool.show_treeform(playername)
@@ -1232,3 +1232,14 @@ minetest.register_on_leaveplayer(ltool.leave)
 minetest.register_on_joinplayer(ltool.join)
 
 minetest.register_on_shutdown(ltool.save_to_file)
+
+if minetest.get_modpath("unified_inventory") ~= nil then
+	unified_inventory.register_button("ltool", {
+		type = "image",
+		image = "ltool_sapling.png",
+		tooltip = "L-System Tree Utility",
+		action = function(player)
+			ltool.show_treeform(player:get_player_name())
+		end,
+	})
+end
