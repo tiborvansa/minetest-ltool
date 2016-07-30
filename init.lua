@@ -296,16 +296,16 @@ function ltool.tab_edit(fields)
 	"tooltip[trunk_type;This field specifies the shape of the tree trunk. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
 	"field[3.2,7;3,0;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
 	"tooltip[thin_branches;\"true\": All branches are just 1 node wide. \"false\": Branches can be larger.]"..
-	"field[6.2,7;3,0;leaves2_chance;Secondary leaves chance (in percent);"..s(fields.leaves2_chance).."]"..
+	"field[6.2,7;3,0;leaves2_chance;Secondary leaves chance (in %);"..s(fields.leaves2_chance).."]"..
 	"tooltip[leaves2_chance;Chance (in percent) to replace a leaves node by a secondary leaves node]"..
-	"field[9.2,7;3,0;fruit_chance;Fruit chance (in percent);"..s(fields.fruit_chance).."]"..
-	"tooltip[fruit_chance;Change (in percent) to replace a leaves node by a fruit node.]"..
+	"field[9.2,7;3,0;fruit_chance;Fruit chance (in %);"..s(fields.fruit_chance).."]"..
+	"tooltip[fruit_chance;Chance (in percent) to replace a leaves node by a fruit node.]"..
 
 	"field[0.2,8;3,0;iterations;Iterations;"..s(fields.iterations).."]"..
 	"tooltip[iterations;Maximum number of iterations, usually between 2 and 5.]"..
 	"field[3.2,8;3,0;random_level;Randomness level;"..s(fields.random_level).."]"..
 	"tooltip[random_level;Factor to lower number of iterations, usually between 0 and 3.]"..
-	"field[6.2,8;3,0;angle;Angle (in degrees);"..s(fields.angle).."]"..
+	"field[6.2,8;3,0;angle;Angle (in °);"..s(fields.angle).."]"..
 	"field[9.2,8;3,0;name;Name;"..s(fields.name).."]"..
 	"tooltip[name;An unique name for this tree, only used for convenience.]"..
 
