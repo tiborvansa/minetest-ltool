@@ -1136,15 +1136,15 @@ function ltool.process_form(player,formname,fields)
 				axiom="FFFFFAFFBF",
 				rules_a="[&&&FFFFF&&FFFF][&&&++++FFFFF&&FFFF][&&&----FFFFF&&FFFF]",
 				rules_b="[&&&++FFFFF&&FFFF][&&&--FFFFF&&FFFF][&&&------FFFFF&&FFFF]",
-				trunk="default:tree",
-				leaves="default:leaves",
+				trunk="mapgen_tree",
+				leaves="mapgen_leaves",
 				angle="30",
 				iterations="2",
 				random_level="0",
 				trunk_type="single",
 				thin_branches="true",
 				fruit_chance="10",
-				fruit="default:apple",
+				fruit="mapgen_apple",
 				name = "Example Tree "..ltool.next_tree_id
 			}
 			ltool.save_fields(playername, formname, newfields)
