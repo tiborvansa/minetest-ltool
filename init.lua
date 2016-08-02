@@ -488,8 +488,8 @@ function ltool.tab_help_plant()
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
 	"table[-0.15,0.75;12,8;help_plant;"..
-	"To plant a previously tree from a previous created tree definition\\,,"..
-	"first select it in the database\\, then open the \"Plant\" tab.,"..
+	"To plant a tree from a previously created tree definition\\, first select,"..
+	"it in the database\\, then open the \"Plant\" tab.,"..
 	"In this tab\\, you can directly place the tree or request a sapling.,"..
 	"If you choose to directly place the tree\\, you can either specify absolute,"..
 	"or relative coordinates or specify that the tree should be planted in your,"..
