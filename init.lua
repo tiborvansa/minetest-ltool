@@ -191,6 +191,7 @@ end
 		false, 3 if tree does not exist
 ]]
 function ltool.give_sapling(tree_id, seed, player_name, ignore_priv)
+	local privs = minetest.get_player_privs(player_name)
 	if(ignore_priv == nil) then ignore_priv = false end
 	if(ignore_priv == false and privs.lplant ~= true) then
 		return false, 1
