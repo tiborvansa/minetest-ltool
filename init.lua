@@ -257,7 +257,7 @@ end
 
 --[[ This creates the edit tab of the formspec
 	fields: A template used to fill the default values of the formspec. ]]
-function ltool.tab_edit(fields)
+function ltool.tab_edit(fields, has_priv)
 	if(fields==nil) then
 		fields = ltool.default_edit_fields
 	end
@@ -269,6 +269,16 @@ function ltool.tab_edit(fields)
 			ret = minetest.formspec_escape(tostring(input))
 		end
 		return ret
+	end
+
+	-- Show save/clear buttons depending on privs
+	local leditbuttons
+	if has_priv then
+		leditbuttons = "button[2,8.7;4,0;edit_save;Save tree to database]"..
+		"button[6,8.7;4,0;edit_clear;Clear fields]"
+
+	else
+		leditbuttons = "label[0,8.3;Read-only mode. You need the “ledit” privilege to save trees to the database.]"
 	end
 
 	return ""..
@@ -309,9 +319,7 @@ function ltool.tab_edit(fields)
 	"field[6.2,8;3,0;angle;Angle (in °);"..s(fields.angle).."]"..
 	"field[9.2,8;3,0;name;Name;"..s(fields.name).."]"..
 	"tooltip[name;An unique name for this tree, only used for convenience.]"..
-
-	"button[2,8.7;4,0;edit_save;Save tree to database]"..
-	"button[6,8.7;4,0;edit_clear;Clear fields]"
+	leditbuttons
 end
 
 --[[ This creates the database tab of the formspec.
@@ -328,10 +336,18 @@ function ltool.tab_database(index, playername)
 			indexstr = tostring(index)
 		end
 		ltool.playerinfos[playername].treeform.database.textlist = tree_ids
+
+		local leditbuttons
+		if minetest.get_player_privs(playername).ledit then
+			leditbuttons = "button[3.5,7.5;3,1;database_rename;Rename tree]"..
+			"button[6.5,7.5;3,1;database_delete;Delete tree]"
+		else
+			leditbuttons = "label[0.2,7.2;Read-only mode. You need the “ledit” privilege to edit trees.]"
+		end
+
 		return ""..
 		"textlist[0,0;11,7;treelist;"..treestr..";"..tostring(index)..";false]"..
-		"button[3.5,7.5;3,1;database_rename;Rename tree]"..
-		"button[6.5,7.5;3,1;database_delete;Delete tree]"..
+		leditbuttons..
 		"button[3.5,8.5;3,1;database_copy;Copy tree to editor]"..
 		"button[6.5,8.5;3,1;database_update;Reload database]"
 	else
@@ -620,7 +636,8 @@ end
 
 --[[ Shows the main tree formular to the given player, starting with the "Edit" tab ]]
 function ltool.show_treeform(playername)
-	local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields)
+	local has_ledit = minetest.get_player_privs(playername)["ledit"]
+	local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, has_ledit)
 	minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 end
 
@@ -832,7 +849,7 @@ function ltool.process_form(player,formname,fields)
 			local tab = tonumber(fields.ltool_tab)
 			local formspec, subformname, contents
 			if(tab==1) then
-				contents = ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields)
+				contents = ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, privs.ledit)
 				subformname = "edit"
 			elseif(tab==2) then
 				contents = ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
@@ -1024,10 +1041,10 @@ function ltool.process_form(player,formname,fields)
 			editfields.rules_b = o(editfields.rules_b, fields.rules_b)
 			editfields.rules_c = o(editfields.rules_c, fields.rules_c)
 			editfields.rules_d = o(editfields.rules_d, fields.rules_d)
-			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields)
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		elseif(fields.editplus_cancel) then
-			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields)
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		else
 			for id, field in pairs(fields) do
@@ -1049,7 +1066,7 @@ function ltool.process_form(player,formname,fields)
 		elseif(fields.database_copy) then
 			if(seltree ~= nil) then
 				if(ltool.playerinfos[playername] ~= nil) then
-					local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.tree_to_fields(seltree))
+					local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.tree_to_fields(seltree), privs.ledit)
 					minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 				end
 			else
@@ -1123,7 +1140,7 @@ function ltool.process_form(player,formname,fields)
 				end
 			end
 		end
-		local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields)
+		local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_help") then
 		local tab = tonumber(fields.ltool_help_tab)
@@ -1149,7 +1166,7 @@ function ltool.process_form(player,formname,fields)
 				name = "Example Tree "..ltool.next_tree_id
 			}
 			ltool.save_fields(playername, formname, newfields)
-			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(newfields)
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(newfields, privs.ledit)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		end
 	--[[ Tree renaming dialog ]]
@@ -1169,7 +1186,7 @@ function ltool.process_form(player,formname,fields)
 		end
 	--[[ Here come various error messages to handle ]]
 	elseif(formname == "ltool:treeform_error_badtreedef" or formname == "ltool:treeform_error_nameclash" or formname == "ltool:treeform_error_ledit") then
-		local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields)
+		local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, privs.ledit)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_error_badplantfields" or formname == "ltool:treeform_error_sapling" or formname == "ltool:treeform_error_lplant") then
 		local formspec = ltool.formspec_size..ltool.formspec_header(3)..ltool.tab_plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
