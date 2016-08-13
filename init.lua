@@ -339,8 +339,8 @@ function ltool.tab_database(index, playername)
 
 		local leditbuttons
 		if minetest.get_player_privs(playername).ledit then
-			leditbuttons = "button[3.5,7.5;3,1;database_rename;Rename tree]"..
-			"button[6.5,7.5;3,1;database_delete;Delete tree]"
+			leditbuttons = "button[3,7.5;3,1;database_rename;Rename tree]"..
+			"button[6,7.5;3,1;database_delete;Delete tree]"
 		else
 			leditbuttons = "label[0.2,7.2;Read-only mode. You need the “ledit” privilege to edit trees.]"
 		end
@@ -348,8 +348,8 @@ function ltool.tab_database(index, playername)
 		return ""..
 		"textlist[0,0;11,7;treelist;"..treestr..";"..tostring(index)..";false]"..
 		leditbuttons..
-		"button[3.5,8.5;3,1;database_copy;Copy tree to editor]"..
-		"button[6.5,8.5;3,1;database_update;Reload database]"
+		"button[3,8.5;3,1;database_copy;Copy tree to editor]"..
+		"button[6,8.5;3,1;database_update;Reload database]"
 	else
 		return "label[0,0;The tree database is empty.]"..
 		"button[6.5,8.5;3,1;database_update;Reload database]"
