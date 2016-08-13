@@ -29,7 +29,7 @@ ltool.default_edit_fields = {
 
 --[[ This registers the sapling for planting the trees ]]
 minetest.register_node("ltool:sapling", {
-	description = "custom L-system tree sapling",
+	description = "Custom L-system tree sapling",
 	stack_max = 1,
 	drawtype = "plantlike",
 	tiles = { "ltool_sapling.png" },
@@ -39,7 +39,7 @@ minetest.register_node("ltool:sapling", {
 	paramtype2= "wallmounted",
 	walkable = false,
 	buildable_to = true,
-	groups = { dig_immediate = 3, not_in_creative_inventory=1 },
+	groups = { dig_immediate = 3, not_in_creative_inventory=1, in_doc=1 },
 	drop = "",
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 		-- Transfer metadata and start timer
@@ -1269,5 +1269,14 @@ if minetest.get_modpath("unified_inventory") ~= nil then
 		action = function(player)
 			ltool.show_treeform(player:get_player_name())
 		end,
+	})
+end
+
+if minetest.get_modpath("doc_items") ~= nil then
+	doc.sub.items.set_items_longdesc({
+		["ltool:sapling"] = "This artificial sapling does not come from nature and contains the genome of a genetically engineered L-system tree. Every sapling of this kind is unique. Who knows what might grow from it when you plant it?",
+	})
+        doc.sub.items.set_items_usagehelp({
+		["ltool:sapling"] = "Place the sapling on any floor and wait 5 seconds for the tree to appear. To create your own saplings, you need to have the “lplant” privilege and pick a tree from the L-System Tree Utility (accessed with the server command “treeform”)."
 	})
 end
