@@ -391,7 +391,7 @@ but it is added anyways in case this gets fixed in later Minetest versions. ]]
 		"button[3.5,8;3,1;plant_plant;Plant tree]"..
 		"tooltip[plant_plant;Immediately place the tree at the specified position]"..
 		"button[6.5,8;3,1;sapling;Give me a sapling]"..
-		"tooltip[sapling;This gives you an item which you can place manually in the world later..]"
+		"tooltip[sapling;This gives you an item which you can place manually in the world later]"
 	else
 		return "label[0,0;No tree in database selected or database is empty.]"
 	end
