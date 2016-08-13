@@ -357,8 +357,13 @@ function ltool.tab_database(index, playername)
 end
 
 --[[ This creates the "Plant" tab part of the main formspec ]]
-function ltool.tab_plant(tree, fields)
+function ltool.tab_plant(tree, fields, has_priv)
 	if(tree ~= nil) then
+		local seltree = "label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"
+		if not has_priv then
+			return seltree..
+			"label[0,0.3;Planting of trees is not allowed. You need to have the “ledit” privilege.]"
+		end
 		if(fields==nil) then
 			fields = {}
 		end
@@ -385,7 +390,7 @@ function ltool.tab_plant(tree, fields)
 		end
 
 		return ""..
-		"label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"..
+		seltree..
 		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates,Distance in viewing direction;"..dropdownindex.."]"..
 --[[ NOTE: This tooltip does not work for the dropdown list in 0.4.10,
 but it is added anyways in case this gets fixed in later Minetest versions. ]]
@@ -409,7 +414,12 @@ but it is added anyways in case this gets fixed in later Minetest versions. ]]
 		"button[6.5,8;3,1;sapling;Give me a sapling]"..
 		"tooltip[sapling;This gives you an item which you can place manually in the world later]"
 	else
-		return "label[0,0;No tree in database selected or database is empty.]"
+		local notreestr = "No tree in database selected or database is empty."
+		if has_priv then
+			return "label[0,0;"..notreestr.."]"
+		else
+			return "label[0,0;"..notreestr.."\nYou are not allowed to plant trees anyway as you don't have the “lplant” privilege.]"
+		end
 	end
 end
 
@@ -856,7 +866,7 @@ function ltool.process_form(player,formname,fields)
 				subformname = "database"
 			elseif(tab==3) then
 				if(ltool.number_of_trees > 0) then
-					contents = ltool.tab_plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
+					contents = ltool.tab_plant(seltree, ltool.playerinfos[playername].treeform.plant.fields, privs.lplant)
 				else
 					contents = ltool.tab_plant(nil)
 				end
@@ -1189,7 +1199,7 @@ function ltool.process_form(player,formname,fields)
 		local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, privs.ledit)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_error_badplantfields" or formname == "ltool:treeform_error_sapling" or formname == "ltool:treeform_error_lplant") then
-		local formspec = ltool.formspec_size..ltool.formspec_header(3)..ltool.tab_plant(seltree, ltool.playerinfos[playername].treeform.plant.fields)
+		local formspec = ltool.formspec_size..ltool.formspec_header(3)..ltool.tab_plant(seltree, ltool.playerinfos[playername].treeform.plant.fields, privs.lplant)
 		minetest.show_formspec(playername, "ltool:treeform_plant", formspec)
 	elseif(formname == "ltool:treeform_error_delete" or formname == "ltool:treeform_error_rename_forbidden" or formname == "ltool:treeform_error_nodbsel" or formname == "ltool:treeform_error_ledit_db") then
 		local formspec = ltool.formspec_size..ltool.formspec_header(2)..ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
