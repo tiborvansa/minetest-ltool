@@ -999,7 +999,8 @@ function ltool.process_form(player,formname,fields)
 			end
 		end
 		if(fields.edit_clear) then
-			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit()
+			local has_ledit = minetest.get_player_privs(playername)["ledit"]
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(nil, has_ledit)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		end
 		if(fields.edit_axiom or fields.edit_rules_a or fields.edit_rules_b or fields.edit_rules_c or fields.edit_rules_d) then
