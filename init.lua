@@ -647,7 +647,7 @@ end
 
 --[=[ Here come functions which show formspecs to players ]=]
 
---[[ Shows the main tree formular to the given player, starting with the "Edit" tab ]]
+--[[ Shows the main tree form to the given player, starting with the "Edit" tab ]]
 function ltool.show_treeform(playername)
 	local has_ledit = minetest.get_player_privs(playername)["ledit"]
 	local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, has_ledit)
