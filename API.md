@@ -146,7 +146,7 @@ Plants a tree as the specified position.
 
 
 ### `ltool.show_treeform(playername)`
-Shows the main tree formular to the given player, starting with the "Edit" tab.
+Shows the main tree form to the given player, starting with the "Edit" tab.
 
 #### Parameters
 * `playername`: Name of the player to whom the formspec should be shown to
