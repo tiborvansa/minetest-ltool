@@ -1,1 +1,1 @@
-A form to easily spawn L-trees, aimed at mod developers.
+A form to easily spawn L-system trees, aimed at mod developers.
