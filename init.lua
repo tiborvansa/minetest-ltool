@@ -1191,7 +1191,7 @@ function ltool.process_form(player,formname,fields)
 			ltool.show_dialog(playername, "ltool:treeform_error_ledit_delete", message)
 			return
 		end
-		if(fields.newname ~= "") then
+		if(fields.newname ~= "" and fields.newname ~= nil) then
 			ltool.rename_tree(ltool.get_selected_tree_id(playername), fields.newname)
 			local formspec = ltool.formspec_size..ltool.formspec_header(2)..ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
 			minetest.show_formspec(playername, "ltool:treeform_database", formspec)
