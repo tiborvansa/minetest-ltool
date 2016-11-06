@@ -1057,7 +1057,7 @@ function ltool.process_form(player,formname,fields)
 			editfields.rules_d = o(editfields.rules_d, fields.rules_d)
 			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
-		elseif(fields.editplus_cancel) then
+		elseif(fields.editplus_cancel or fields.quit) then
 			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		else
