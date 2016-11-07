@@ -260,7 +260,7 @@ end
 
 --[[ This creates the edit tab of the formspec
 	fields: A template used to fill the default values of the formspec. ]]
-function ltool.tab_edit(fields, has_priv)
+function ltool.tab_edit(fields, has_ledit_priv)
 	if(fields==nil) then
 		fields = ltool.default_edit_fields
 	end
@@ -276,7 +276,7 @@ function ltool.tab_edit(fields, has_priv)
 
 	-- Show save/clear buttons depending on privs
 	local leditbuttons
-	if has_priv then
+	if has_ledit_priv then
 		leditbuttons = "button[2,8.7;4,0;edit_save;Save tree to database]"..
 		"button[6,8.7;4,0;edit_clear;Clear fields]"
 
@@ -360,12 +360,12 @@ function ltool.tab_database(index, playername)
 end
 
 --[[ This creates the "Plant" tab part of the main formspec ]]
-function ltool.tab_plant(tree, fields, has_priv)
+function ltool.tab_plant(tree, fields, has_lplant_priv)
 	if(tree ~= nil) then
 		local seltree = "label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"
-		if not has_priv then
+		if not has_lplant_priv then
 			return seltree..
-			"label[0,0.3;Planting of trees is not allowed. You need to have the “ledit” privilege.]"
+			"label[0,0.3;Planting of trees is not allowed. You need to have the “lplant” privilege.]"
 		end
 		if(fields==nil) then
 			fields = {}
@@ -418,7 +418,7 @@ but it is added anyways in case this gets fixed in later Minetest versions. ]]
 		"tooltip[sapling;This gives you an item which you can place manually in the world later]"
 	else
 		local notreestr = "No tree in database selected or database is empty."
-		if has_priv then
+		if has_lplant_priv then
 			return "label[0,0;"..notreestr.."]"
 		else
 			return "label[0,0;"..notreestr.."\nYou are not allowed to plant trees anyway as you don't have the “lplant” privilege.]"
@@ -871,7 +871,7 @@ function ltool.process_form(player,formname,fields)
 				if(ltool.number_of_trees > 0) then
 					contents = ltool.tab_plant(seltree, ltool.playerinfos[playername].treeform.plant.fields, privs.lplant)
 				else
-					contents = ltool.tab_plant(nil)
+					contents = ltool.tab_plant(nil, nil, privs.lplant)
 				end
 				subformname = "plant"
 			elseif(tab==4) then
