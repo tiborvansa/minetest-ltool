@@ -1,6 +1,8 @@
 This mod provides a form to easily spawn L-system trees, aimed at mod developers
 and power users.
 
+Current version: 1.1.0
+
 Use the server command `/treeform` to open the form. If you use Unified Inventory,
 there's a new button in your inventory menu for this. Usage help for this form is
 provided in the form itself.
