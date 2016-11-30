@@ -43,6 +43,7 @@ minetest.register_node("ltool:sapling", {
 	buildable_to = true,
 	groups = { dig_immediate = 3, not_in_creative_inventory=1, },
 	drop = "",
+	sunlight_propagates = true,
 	is_ground_content = false,
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 		-- Transfer metadata and start timer
