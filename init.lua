@@ -172,25 +172,6 @@ function ltool.copy_tree(tree_id)
 	return ltool.add_tree(tree.name, tree.author, tree.treedef)
 end
 
---[[ Generates a sapling as an ItemStack to mess around later with
-	tree_id: ID of tree the sapling will grow
-	seed: Seed of the tree the sapling will grow (optional, can be nil)
-	
-	returns: an ItemStack which contains one sapling of the specified tree, on success
-		 false on failure (if tree does not exist)
-]]
-function ltool.generate_sapling(tree_id, seed)
-	local tree = ltool.trees[tree_id]
-	if(tree == nil) then
-		return false
-	end
-	local sapling = ItemStack("ltool:sapling")
-	tree.treedef.seed = seed
-	sapling:set_metadata(minetest.serialize(tree.treedef))
-	tree.treedef.seed = nil
-	return sapling
-end
-
 --[[ Gives a L-system tree sapling to a player
 	tree_id: ID of tree the sapling will grow
 	seed: Seed of the tree (optional; can be nil)
@@ -201,9 +182,8 @@ end
 		true on success
 		false, 1 if privilege is not sufficient
 		false, 2 if player’s inventory is full
-		false, 3 if tree does not exist
 ]]
-function ltool.give_sapling(tree_id, seed, player_name, ignore_priv)
+function ltool.give_sapling(treedef, seed, player_name, ignore_priv)
 	local privs = minetest.get_player_privs(player_name)
 	if(ignore_priv == nil) then ignore_priv = false end
 	if(ignore_priv == false and privs.lplant ~= true) then
@@ -211,13 +191,9 @@ function ltool.give_sapling(tree_id, seed, player_name, ignore_priv)
 	end
 	local sapling = ItemStack("ltool:sapling")
 	local player = minetest.get_player_by_name(player_name)
-	local tree = ltool.trees[tree_id]
-	if(tree == nil) then
-		return false, 3
-	end
-	tree.treedef.seed = seed
-	sapling:set_metadata(minetest.serialize(tree.treedef))
-	tree.treedef.seed = nil
+	treedef.seed = seed
+	sapling:set_metadata(minetest.serialize(treedef))
+	treedef.seed = nil
 	local leftover = player:get_inventory():add_item("main", sapling)
 	if(not leftover:is_empty()) then
 		return false, 2
@@ -270,7 +246,7 @@ end
 
 --[[ This creates the edit tab of the formspec
 	fields: A template used to fill the default values of the formspec. ]]
-function ltool.tab_edit(fields, has_ledit_priv)
+function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	if(fields==nil) then
 		fields = ltool.default_edit_fields
 	end
@@ -287,9 +263,11 @@ function ltool.tab_edit(fields, has_ledit_priv)
 	-- Show save/clear buttons depending on privs
 	local leditbuttons
 	if has_ledit_priv then
-		leditbuttons = "button[2,8.7;4,0;edit_save;Save tree to database]"..
-		"button[6,8.7;4,0;edit_clear;Clear fields]"
-
+		leditbuttons = "button[0,8.7;4,0;edit_save;Save tree to database]"..
+		"button[4,8.7;4,0;edit_clear;Clear fields]"
+		if has_lplant_priv then
+			leditbuttons = leditbuttons .. "button[8,8.7;4,0;edit_sapling;Give me a sapling]"
+		end
 	else
 		leditbuttons = "label[0,8.3;Read-only mode. You need the “ledit” privilege to save trees to the database.]"
 	end
@@ -659,8 +637,8 @@ end
 
 --[[ Shows the main tree form to the given player, starting with the "Edit" tab ]]
 function ltool.show_treeform(playername)
-	local has_ledit = minetest.get_player_privs(playername)["ledit"]
-	local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, has_ledit)
+	local privs = minetest.get_player_privs(playername)
+	local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, privs.ledit, privs.lplant)
 	minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 end
 
@@ -678,7 +656,7 @@ end
 --[[ This function does a lot of parameter checks and returns (tree, tree_name) on success.
 	If ANY parameter check fails, the whole function fails.
 	On failure, it returns (nil, <error message string>).]]
-function ltool.evaluate_edit_fields(fields)
+function ltool.evaluate_edit_fields(fields, ignore_name)
 	local treedef = {}
 	-- Validation helper: Checks for invalid characters for the fields “axiom” and the 4 rule sets
 	local v = function(str)
@@ -737,7 +715,7 @@ function ltool.evaluate_edit_fields(fields)
 		return nil, "Field \"Thin branches?\" must be \"true\" or \"false\"."
 	end
 	local name = fields.name
-	if(name == "") then
+	if(ignore_name ~= true and name == "") then
 		return nil, "Name is empty."
 	end
 	return treedef, name
@@ -872,7 +850,7 @@ function ltool.process_form(player,formname,fields)
 			local tab = tonumber(fields.ltool_tab)
 			local formspec, subformname, contents
 			if(tab==1) then
-				contents = ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, privs.ledit)
+				contents = ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, privs.ledit, privs.lplant)
 				subformname = "edit"
 			elseif(tab==2) then
 				contents = ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
@@ -962,7 +940,7 @@ function ltool.process_form(player,formname,fields)
 				if(tonumber(fields.seed)~=nil) then
 					seed = tonumber(fields.seed)
 				end
-				local ret, ret2 = ltool.give_sapling(seltree_id, seed, playername, true)
+				local ret, ret2 = ltool.give_sapling(ltool.trees[seltree_id].treedef, seed, playername, true)
 				if(ret==false and ret2==2) then
 					ltool.save_fields(playername, formname, fields)
 					ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
@@ -971,21 +949,28 @@ function ltool.process_form(player,formname,fields)
 		end
 	--[[ "Edit" tab ]]
 	elseif(formname == "ltool:treeform_edit") then
-		if(fields.edit_save) then
+		if(fields.edit_save or fields.edit_sapling) then
 			local param1, param2
-			param1, param2 = ltool.evaluate_edit_fields(fields)
-			if(privs.ledit ~= true) then
+			param1, param2 = ltool.evaluate_edit_fields(fields, fields.edit_sapling ~= nil)
+			if(fields.edit_save and privs.ledit ~= true) then
 				ltool.save_fields(playername, formname, fields)
 				local message = "You can't save trees, you need to have the \"ledit\" privilege."
 				ltool.show_dialog(playername, "ltool:treeform_error_ledit", message)
 				return
 			end
+			if(fields.edit_sapling and privs.lplant ~= true) then
+				ltool.save_fields(playername, formname, fields)
+				local message = "You can't request saplings, you need to have the \"lplant\" privilege."
+				ltool.show_dialog(playername, "ltool:treeform_error_ledit", message)
+				return
+			end
+			local tree_ok = true
+			local treedef, name
 			if(param1 ~= nil) then
-				local treedef = param1
-				local name = param2
-				local add = true
+				treedef = param1
+				name = param2
 				for k,v in pairs(ltool.trees) do
-					if(v.name == name) then
+					if(fields.edit_save and v.name == name) then
 						ltool.save_fields(playername, formname, fields)
 						if(v.author == playername) then
 							local formspec = "size[6,2;]label[0,0.2;You already have a tree with this name.\nDo you want to replace it?]"..
@@ -995,11 +980,21 @@ function ltool.process_form(player,formname,fields)
 						else
 							ltool.show_dialog(playername, "ltool:treeform_error_nameclash", "Error: This name is already taken by someone else.\nPlease choose a different name.")
 						end
-						add = false
+						return
 					end
 				end
-				if(add == true) then
+			else
+				tree_ok = false
+			end
+			if(tree_ok == true) then
+				if fields.edit_save then
 					ltool.add_tree(name, playername, treedef)
+				elseif fields.edit_sapling then
+					local ret, ret2 = ltool.give_sapling(treedef, tostring(ltool.seed), playername, true)
+					if(ret==false and ret2==2) then
+						ltool.save_fields(playername, formname, fields)
+						ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
+					end
 				end
 			else
 				ltool.save_fields(playername, formname, fields)
@@ -1009,8 +1004,8 @@ function ltool.process_form(player,formname,fields)
 			end
 		end
 		if(fields.edit_clear) then
-			local has_ledit = minetest.get_player_privs(playername)["ledit"]
-			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(nil, has_ledit)
+			local privs = minetest.get_player_privs(playername)
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(nil, privs.ledit, privs.lplant)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		end
 		if(fields.edit_axiom or fields.edit_rules_a or fields.edit_rules_b or fields.edit_rules_c or fields.edit_rules_d) then
@@ -1065,10 +1060,10 @@ function ltool.process_form(player,formname,fields)
 			editfields.rules_b = o(editfields.rules_b, fields.rules_b)
 			editfields.rules_c = o(editfields.rules_c, fields.rules_c)
 			editfields.rules_d = o(editfields.rules_d, fields.rules_d)
-			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit)
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit, privs.lplant)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		elseif(fields.editplus_cancel or fields.quit) then
-			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit)
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit, privs.lplant)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		else
 			for id, field in pairs(fields) do
@@ -1090,7 +1085,7 @@ function ltool.process_form(player,formname,fields)
 		elseif(fields.database_copy) then
 			if(seltree ~= nil) then
 				if(ltool.playerinfos[playername] ~= nil) then
-					local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.tree_to_fields(seltree), privs.ledit)
+					local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.tree_to_fields(seltree), privs.ledit, privs.lplant)
 					minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 				end
 			else
@@ -1164,7 +1159,7 @@ function ltool.process_form(player,formname,fields)
 				end
 			end
 		end
-		local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit)
+		local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(editfields, privs.ledit, privs.lplant)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_help") then
 		local tab = tonumber(fields.ltool_help_tab)
@@ -1190,7 +1185,7 @@ function ltool.process_form(player,formname,fields)
 				name = "Example Tree "..ltool.next_tree_id
 			}
 			ltool.save_fields(playername, formname, newfields)
-			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(newfields, privs.ledit)
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(newfields, privs.ledit, privs.lplant)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		end
 	--[[ Tree renaming dialog ]]
@@ -1210,7 +1205,7 @@ function ltool.process_form(player,formname,fields)
 		end
 	--[[ Here come various error messages to handle ]]
 	elseif(formname == "ltool:treeform_error_badtreedef" or formname == "ltool:treeform_error_nameclash" or formname == "ltool:treeform_error_ledit") then
-		local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, privs.ledit)
+		local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.playerinfos[playername].treeform.edit.fields, privs.ledit, privs.lplant)
 		minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 	elseif(formname == "ltool:treeform_error_badplantfields" or formname == "ltool:treeform_error_sapling" or formname == "ltool:treeform_error_lplant") then
 		local formspec = ltool.formspec_size..ltool.formspec_header(3)..ltool.tab_plant(seltree, ltool.playerinfos[playername].treeform.plant.fields, privs.lplant)
