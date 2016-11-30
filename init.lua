@@ -44,7 +44,6 @@ minetest.register_node("ltool:sapling", {
 	paramtype = "light",
 	paramtype2= "wallmounted",
 	walkable = false,
-	buildable_to = true,
 	groups = { dig_immediate = 3, not_in_creative_inventory=1, },
 	drop = "",
 	sunlight_propagates = true,
