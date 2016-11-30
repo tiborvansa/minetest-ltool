@@ -36,6 +36,10 @@ minetest.register_node("ltool:sapling", {
 	drawtype = "plantlike",
 	tiles = { "ltool_sapling.png" },
 	inventory_image = "ltool_sapling.png",
+	selection_box = {
+		type = "fixed",
+		fixed = { -10/32, -0.5, -10/32, 10/32, 12/32, 10/32 },
+	},
 	wield_image = "ltool_sapling.png",
 	paramtype = "light",
 	paramtype2= "wallmounted",
