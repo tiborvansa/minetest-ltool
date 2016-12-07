@@ -1269,14 +1269,23 @@ minetest.register_on_joinplayer(ltool.join)
 
 minetest.register_on_shutdown(ltool.save_to_file)
 
+local button_action = function(player)
+	ltool.show_treeform(player:get_player_name())
+end
+
 if minetest.get_modpath("unified_inventory") ~= nil then
 	unified_inventory.register_button("ltool", {
 		type = "image",
 		image = "ltool_sapling.png",
 		tooltip = "L-System Tree Utility",
-		action = function(player)
-			ltool.show_treeform(player:get_player_name())
-		end,
+		action = button_action,
 	})
 end
 
+if minetest.get_modpath("sfinv_buttons") ~= nil then
+	sfinv_buttons.register_button("ltool", {
+		title = "L-System Tree Utility",
+		image = "ltool_sapling.png",
+		action = button_action,
+	})
+end
