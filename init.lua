@@ -1285,6 +1285,7 @@ end
 if minetest.get_modpath("sfinv_buttons") ~= nil then
 	sfinv_buttons.register_button("ltool", {
 		title = "L-System Tree Utility",
+		tooltip = "Invent your own trees and plant them"
 		image = "ltool_sapling.png",
 		action = button_action,
 	})
