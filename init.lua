@@ -831,11 +831,6 @@ end
 function ltool.process_form(player,formname,fields)
 	local playername = player:get_player_name()
 
-	if fields.ltool and minetest.get_modpath("inventory_plus") then
-		ltool.show_treeform(playername)
-		return
-	end
-
 	local seltree = ltool.get_selected_tree(playername)
 	local seltree_id = ltool.get_selected_tree_id(playername)
 	local privs = minetest.get_player_privs(playername)
@@ -1221,6 +1216,12 @@ function ltool.process_form(player,formname,fields)
 	elseif(formname == "ltool:treeform_error_bad_rename") then
 		local formspec = "field[newname;New name:;"..minetest.formspec_escape(seltree.name).."]"
 		minetest.show_formspec(playername, "ltool:treeform_rename", formspec)
+	else
+		-- Action for Inventory++ button
+		if fields.ltool and minetest.get_modpath("inventory_plus") then
+			ltool.show_treeform(playername)
+			return
+		end
 	end
 end
 
@@ -1248,6 +1249,7 @@ function ltool.join(player)
 	infotable.treeform.help.tab = 1
 	ltool.playerinfos[player:get_player_name()] = infotable
 
+	-- Add Inventory++ support
 	if minetest.get_modpath("inventory_plus") then
 		inventory_plus.register_button(player, "ltool", "L-System Tree Utility")
 	end
