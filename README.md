@@ -3,9 +3,14 @@ and power users.
 
 Current version: 1.3.0
 
-If you use Minetest Game or Unified Inventory there's a new button in your
-inventory menu for opening the form. Alternatively, you can always Use the
-server command `/treeform`.
+If you use one of the following mods, there's a new button in your inventory
+menu for opening the form:
+
+* Unified Inventory [`unified_inventory`]
+* Simple Fast Inventory Buttons [`sfinv_buttons`]
+* Inventory++ [`inventory_plus`]
+
+Alternatively, you can always use the server command `/treeform`.
 
 Usage help for this form is provided in the form itself.
 
