@@ -518,6 +518,8 @@ function ltool.tab_help_plant()
 	"When using coordinates\\, the \"distance\" field is ignored\\, when using,"..
 	"direction\\, the coordinate fields are ignored.,"..
 	","..
+	"You can also use the “lplant” server command to plant trees.,"..
+	","..
 	"If you got a sapling\\, you can place it practically anywhere you like to.,"..
 	"After placing it\\, the sapling will be replaced by the L-system tree after,"..
 	"5 seconds\\, unless it was destroyed in the meantime.,"..
@@ -809,6 +811,32 @@ minetest.register_chatcommand("treeform",
 	privs = {},
 	func = function(playername, param)
 		ltool.show_treeform(playername)
+	end
+})
+
+minetest.register_chatcommand("lplant",
+{
+	description = "Plant a L-system tree at the specified position",
+	privs = { lplant = true },
+	params = "<tree ID> <x> <y> <z>",
+	func = function(playername, param)
+		local p = {}
+		local tree_id, x, y, z = string.match(param, "^([^ ]+) +([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)$")
+		tree_id, p.x, p.y, p.z = tonumber(tree_id), tonumber(x), tonumber(y), tonumber(z)
+		if not tree_id or not p.x or not p.y or not p.z then
+			return false, "Invalid usage, see /help lplant."
+		end
+		local lm = tonumber(minetest.setting_get("map_generation_limit") or 31000)
+		if p.x < -lm or p.x > lm or p.y < -lm or p.y > lm or p.z < -lm or p.z > lm then
+			return false, "Cannot plant tree out of map bounds!"
+		end
+
+		local success = ltool.plant_tree(tree_id, p)
+		if success == false then
+			return false, "Unknown tree ID!"
+		else
+			return true
+		end
 	end
 })
 
