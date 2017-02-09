@@ -826,7 +826,7 @@ minetest.register_chatcommand("lplant",
 {
 	description = "Plant a L-system tree at the specified position",
 	privs = { lplant = true },
-	params = "<tree ID> <x> <y> <z>",
+	params = "<tree ID> <x> <y> <z> [<seed>]",
 	func = function(playername, param)
 		local p = {}
 		local tree_id, x, y, z, seed = string.match(param, "^([^ ]+) +([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+) *([%d.-]*)")
