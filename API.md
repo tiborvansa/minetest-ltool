@@ -133,12 +133,13 @@ It depends:
 
 
 
-### `ltool.plant_tree(tree_id, pos)`
+### `ltool.plant_tree(tree_id, pos, seed)`
 Plants a tree as the specified position.
 
 #### Parameters
 * `tree_id`: ID of tree to be planted
 * `pos`: Position of tree, in the format `{x=?, y=?, z=?}`
+* `seed`: Optional randomness seed, equal seed creates equal trees
 
 #### Return value
 `false` on failure, `nil` otherwise.

@@ -204,15 +204,23 @@ end
 --[[ Plants a tree as the specified position
 	tree_id: ID of tree to be planted
 	pos: Position of tree, in format {x=?, y=?, z=?}
+	seed: Optional seed for randomness, equal seed makes equal trees
 
 	returns false on failure, nil otherwise
 ]]
-function ltool.plant_tree(tree_id, pos)
+function ltool.plant_tree(tree_id, pos, seed)
 	local tree = ltool.trees[tree_id]
 	if(tree==nil) then
 		return false
 	end
-	minetest.spawn_tree(pos, tree.treedef)
+	local treedef
+	if seed ~= nil then
+		treedef = table.copy(tree.treedef)
+		treedef.seed = seed
+	else
+		treedef = tree.treedef
+	end
+	minetest.spawn_tree(pos, treedef)
 end
 
 --[[ Tries to return a tree data structure for a given tree_id
@@ -821,8 +829,8 @@ minetest.register_chatcommand("lplant",
 	params = "<tree ID> <x> <y> <z>",
 	func = function(playername, param)
 		local p = {}
-		local tree_id, x, y, z = string.match(param, "^([^ ]+) +([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+)$")
-		tree_id, p.x, p.y, p.z = tonumber(tree_id), tonumber(x), tonumber(y), tonumber(z)
+		local tree_id, x, y, z, seed = string.match(param, "^([^ ]+) +([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+) *([%d.-]*)")
+		tree_id, p.x, p.y, p.z, seed = tonumber(tree_id), tonumber(x), tonumber(y), tonumber(z), tonumber(seed)
 		if not tree_id or not p.x or not p.y or not p.z then
 			return false, "Invalid usage, see /help lplant."
 		end
@@ -831,7 +839,7 @@ minetest.register_chatcommand("lplant",
 			return false, "Cannot plant tree out of map bounds!"
 		end
 
-		local success = ltool.plant_tree(tree_id, p)
+		local success = ltool.plant_tree(tree_id, p, seed)
 		if success == false then
 			return false, "Unknown tree ID!"
 		else
