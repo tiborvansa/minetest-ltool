@@ -834,7 +834,7 @@ minetest.register_chatcommand("lplant",
 		if not tree_id or not p.x or not p.y or not p.z then
 			return false, "Invalid usage, see /help lplant."
 		end
-		local lm = tonumber(minetest.setting_get("map_generation_limit") or 31000)
+		local lm = tonumber(minetest.settings:get("map_generation_limit") or 31000)
 		if p.x < -lm or p.x > lm or p.y < -lm or p.y > lm or p.z < -lm or p.z > lm then
 			return false, "Cannot plant tree out of map bounds!"
 		end
