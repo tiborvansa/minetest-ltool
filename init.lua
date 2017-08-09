@@ -333,7 +333,7 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	"tooltip[random_level;Factor to lower number of iterations, usually between 0 and 3.]"..
 	"field[6.2,8;3,0;angle;Angle (in °);"..s(fields.angle).."]"..
 	"field[9.2,8;3,0;name;Name;"..s(fields.name).."]"..
-	"tooltip[name;An unique name for this tree, only used for convenience.]"..
+	"tooltip[name;Descriptive name for this tree, only used for convenience.]"..
 	leditbuttons
 end
 
