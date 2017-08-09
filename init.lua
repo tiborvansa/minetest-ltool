@@ -1067,6 +1067,7 @@ function ltool.process_form(player,formname,fields)
 		end
 		if(fields.edit_clear) then
 			local privs = minetest.get_player_privs(playername)
+			ltool.save_fields(playername, formname, {})
 			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(nil, privs.ledit, privs.lplant)
 			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 		end
