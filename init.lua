@@ -1048,6 +1048,7 @@ function ltool.process_form(player,formname,fields)
 			else
 				tree_ok = false
 			end
+			ltool.save_fields(playername, formname, fields)
 			if(tree_ok == true) then
 				if fields.edit_save then
 					ltool.add_tree(name, playername, treedef)
@@ -1059,7 +1060,6 @@ function ltool.process_form(player,formname,fields)
 					end
 				end
 			else
-				ltool.save_fields(playername, formname, fields)
 				local message = "Error: The tree definition is invalid.\n"..
 				minetest.formspec_escape(param2)
 				ltool.show_dialog(playername, "ltool:treeform_error_badtreedef", message)
