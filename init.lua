@@ -27,9 +27,12 @@ ltool.default_edit_fields = {
 	name = "",
 }
 
+local sapling_base_name = "L-system tree sapling"
+local sapling_format_string = "L-system tree sapling (%s)"
+
 --[[ This registers the sapling for planting the trees ]]
 minetest.register_node("ltool:sapling", {
-	description = "Custom L-system tree sapling",
+	description = sapling_base_name,
 	_doc_items_longdesc = "This artificial sapling does not come from nature and contains the genome of a genetically engineered L-system tree. Every sapling of this kind is unique. Who knows what might grow from it when you plant it?",
 	_doc_items_usagehelp = "Place the sapling on any floor and wait 5 seconds for the tree to appear. If you hold down the sneak key while placing it, you will keep a copy of the sapling in your inventory. To create your own saplings, you need to have the “lplant” privilege and pick a tree from the L-System Tree Utility (accessed with the server command “treeform”).",
 	drawtype = "plantlike",
@@ -180,27 +183,32 @@ function ltool.copy_tree(tree_id)
 end
 
 --[[ Gives a L-system tree sapling to a player
-	tree_id: ID of tree the sapling will grow
+	treedef: L-system tree definition table of tree the sapling will grow
 	seed: Seed of the tree (optional; can be nil)
 	playername: name of the player to which
 	ignore_priv: if true, player’s lplant privilige is not checked (optional argument; default: false)
+	treename: Descriptive name of the tree for the item description (optional, is ignored if nil or empty string)
 
 	returns:
 		true on success
 		false, 1 if privilege is not sufficient
 		false, 2 if player’s inventory is full
 ]]
-function ltool.give_sapling(treedef, seed, player_name, ignore_priv)
+function ltool.give_sapling(treedef, seed, player_name, ignore_priv, treename)
 	local privs = minetest.get_player_privs(player_name)
 	if(ignore_priv == nil) then ignore_priv = false end
 	if(ignore_priv == false and privs.lplant ~= true) then
 		return false, 1
 	end
+
 	local sapling = ItemStack("ltool:sapling")
 	local player = minetest.get_player_by_name(player_name)
 	treedef.seed = seed
 	local smeta = sapling:get_meta()
 	smeta:set_string("treedef", minetest.serialize(treedef))
+	if treename and treename ~= "" then
+		smeta:set_string("description", string.format(sapling_format_string, treename))
+	end
 	treedef.seed = nil
 	local leftover = player:get_inventory():add_item("main", sapling)
 	if(not leftover:is_empty()) then
@@ -985,7 +993,7 @@ function ltool.process_form(player,formname,fields)
 				if(tonumber(fields.seed)~=nil) then
 					seed = tonumber(fields.seed)
 				end
-				local ret, ret2 = ltool.give_sapling(ltool.trees[seltree_id].treedef, seed, playername, true)
+				local ret, ret2 = ltool.give_sapling(ltool.trees[seltree_id].treedef, seed, playername, true, ltool.trees[seltree_id].name)
 				if(ret==false and ret2==2) then
 					ltool.save_fields(playername, formname, fields)
 					ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
@@ -1035,7 +1043,7 @@ function ltool.process_form(player,formname,fields)
 				if fields.edit_save then
 					ltool.add_tree(name, playername, treedef)
 				elseif fields.edit_sapling then
-					local ret, ret2 = ltool.give_sapling(treedef, tostring(ltool.seed), playername, true)
+					local ret, ret2 = ltool.give_sapling(treedef, tostring(ltool.seed), playername, true, fields.name)
 					if(ret==false and ret2==2) then
 						ltool.save_fields(playername, formname, fields)
 						ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
