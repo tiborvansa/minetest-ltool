@@ -457,8 +457,8 @@ function ltool.tab_cheat_sheet()
 	"Symbol,Action,"..
 	"G,Move forward one unit with the pen up,"..
 	"F,Move forward one unit with the pen down drawing trunks and branches,"..
-	"f,Move forward one unit with the pen down drawing leaves (100% chance),"..
-	"T,Move forward one unit with the pen down drawing trunks only,"..
+	"f,Move forward one unit with the pen down drawing leaves,"..
+	"T,Move forward one unit with the pen down drawing trunks,"..
 	"R,Move forward one unit with the pen down placing fruit,"..
 	"A,Replace with rules set A,"..
 	"B,Replace with rules set B,"..
@@ -589,9 +589,9 @@ function ltool.formspec_editplus(fragment)
 	"button[3,3.5;1,1;editplus_c_F;F]"..
 	"tooltip[editplus_c_F;Move forward one unit with the pen down drawing trunks and branches]"..
 	"button[4,3.5;1,1;editplus_c_f;f]"..
-	"tooltip[editplus_c_f;Move forward one unit with the pen down drawing leaves (100% chance)]"..
+	"tooltip[editplus_c_f;Move forward one unit with the pen down drawing leaves]"..
 	"button[5,3.5;1,1;editplus_c_T;T]"..
-	"tooltip[editplus_c_T;Move forward one unit with the pen down drawing trunks only]"..
+	"tooltip[editplus_c_T;Move forward one unit with the pen down drawing trunks]"..
 	"button[6,3.5;1,1;editplus_c_R;R]"..
 	"tooltip[editplus_c_R;Move forward one unit with the pen down placing fruit]"..
 
