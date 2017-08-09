@@ -32,7 +32,6 @@ minetest.register_node("ltool:sapling", {
 	description = "Custom L-system tree sapling",
 	_doc_items_longdesc = "This artificial sapling does not come from nature and contains the genome of a genetically engineered L-system tree. Every sapling of this kind is unique. Who knows what might grow from it when you plant it?",
 	_doc_items_usagehelp = "Place the sapling on any floor and wait 5 seconds for the tree to appear. If you hold down the sneak key while placing it, you will keep a copy of the sapling in your inventory. To create your own saplings, you need to have the “lplant” privilege and pick a tree from the L-System Tree Utility (accessed with the server command “treeform”).",
-	stack_max = 1,
 	drawtype = "plantlike",
 	tiles = { "ltool_sapling.png" },
 	inventory_image = "ltool_sapling.png",
@@ -51,8 +50,17 @@ minetest.register_node("ltool:sapling", {
 	after_place_node = function(pos, placer, itemstack, pointed_thing)
 		-- Transfer metadata and start timer
 		local nodemeta = minetest.get_meta(pos)
-		local itemmeta = itemstack:get_metadata()
-		nodemeta:set_string("treedef", itemmeta)
+		local itemmeta = itemstack:get_meta()
+		local itemtreedef = itemmeta:get_string("treedef")
+
+		-- Legacy support for saplings with legacy metadata
+		if itemtreedef == nil or itemtreedef == "" then
+			itemtreedef = itemstack:get_metadata()
+			if itemtreedef == nil or itemtreedef == "" then
+				return nil
+			end
+		end
+		nodemeta:set_string("treedef", itemtreedef)
 		local timer = minetest.get_node_timer(pos)
 		timer:start(5)
 		if placer:get_player_control().sneak == true then
@@ -191,7 +199,8 @@ function ltool.give_sapling(treedef, seed, player_name, ignore_priv)
 	local sapling = ItemStack("ltool:sapling")
 	local player = minetest.get_player_by_name(player_name)
 	treedef.seed = seed
-	sapling:set_metadata(minetest.serialize(treedef))
+	local smeta = sapling:get_meta()
+	smeta:set_string("treedef", minetest.serialize(treedef))
 	treedef.seed = nil
 	local leftover = player:get_inventory():add_item("main", sapling)
 	if(not leftover:is_empty()) then
