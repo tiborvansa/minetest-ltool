@@ -30,11 +30,19 @@ ltool.default_edit_fields = {
 local sapling_base_name = "L-system tree sapling"
 local sapling_format_string = "L-system tree sapling (%s)"
 
+local place_tree = function(pos)
+	-- Place tree
+	local meta = minetest.get_meta(pos)
+	local treedef = minetest.deserialize(meta:get_string("treedef"))
+	minetest.remove_node(pos)
+	minetest.spawn_tree(pos, treedef)
+end
+
 --[[ This registers the sapling for planting the trees ]]
 minetest.register_node("ltool:sapling", {
 	description = sapling_base_name,
 	_doc_items_longdesc = "This artificial sapling does not come from nature and contains the genome of a genetically engineered L-system tree. Every sapling of this kind is unique. Who knows what might grow from it when you plant it?",
-	_doc_items_usagehelp = "Place the sapling on any floor and wait 5 seconds for the tree to appear. If you hold down the sneak key while placing it, you will keep a copy of the sapling in your inventory. To create your own saplings, you need to have the “lplant” privilege and pick a tree from the L-System Tree Utility (accessed with the server command “treeform”).",
+	_doc_items_usagehelp = "Place the sapling on any floor and wait 5 seconds for the tree to appear. If you have the “lplant” privilege, you can grow it instantly by rightclicking it. If you hold down the sneak key while placing it, you will keep a copy of the sapling in your inventory. To create your own saplings, you need to have the “lplant” privilege and pick a tree from the L-System Tree Utility (accessed with the server command “treeform”).",
 	drawtype = "plantlike",
 	tiles = { "ltool_sapling.png" },
 	inventory_image = "ltool_sapling.png",
@@ -72,13 +80,14 @@ minetest.register_node("ltool:sapling", {
 			return nil
 		end
 	end,
-	on_timer = function(pos, elapsed)
-		-- Place tree
-		local meta = minetest.get_meta(pos)
-		local treedef = minetest.deserialize(meta:get_string("treedef"))
-		minetest.remove_node(pos)
-		minetest.spawn_tree(pos, treedef)
+	-- Insta-grow when sapling got rightclicked
+	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
+		if minetest.get_player_privs(clicker:get_player_name()).lplant then
+			place_tree(pos)
+		end
 	end,
+	-- Grow after timer elapsed
+	on_timer = place_tree,
 	can_dig = function(pos, player)
 		return minetest.get_player_privs(player:get_player_name()).lplant
 	end,
