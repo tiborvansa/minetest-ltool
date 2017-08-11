@@ -17,4 +17,4 @@ Usage help for this form is provided in the form itself.
 This mod also has an API for managing the tree database. See `API.md` for more
 information.
 
-License of this mod: WTFPL.
+License of this mod: MIT License.
