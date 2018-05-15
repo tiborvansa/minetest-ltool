@@ -27,6 +27,8 @@ ltool.default_edit_fields = {
 	name = "",
 }
 
+local mod_select_item = minetest.get_modpath("select_item") ~= nil
+
 local sapling_base_name = "L-system tree sapling"
 local sapling_format_string = "L-system tree sapling (%s)"
 
@@ -322,18 +324,26 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	"button[11,4.7;1,0;edit_rules_d;+]"..
 	"tooltip[edit_rules_d;Opens larger text field for Rules set D]"..
 
-	"field[0.2,6;3,0;trunk;Trunk node name;"..s(fields.trunk).."]"..
-	"field[3.2,6;3,0;leaves;Leaves node name;"..s(fields.leaves).."]"..
-	"field[6.2,6;3,0;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
-	"field[9.2,6;3,0;fruit;Fruit node name;"..s(fields.fruit).."]"..
+	"field[0.2,6;2.6,0;trunk;Trunk node name;"..s(fields.trunk).."]"..
+	"button[2.4,5.7;0.5,0;edit_trunk;>]"..
+	"tooltip[edit_trunk;Select node]"..
+	"field[3.2,6;2.6,0;leaves;Leaves node name;"..s(fields.leaves).."]"..
+	"button[5.4,5.7;0.5,0;edit_leaves;>]"..
+	"tooltip[edit_leaves;Select node]"..
+	"field[6.2,6;2.6,0;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
+	"button[8.4,5.7;0.5,0;edit_leaves2;>]"..
+	"tooltip[edit_leaves2;Select node]"..
+	"field[9.2,6;2.6,0;fruit;Fruit node name;"..s(fields.fruit).."]"..
+	"button[11.4,5.7;0.5,0;edit_fruit;>]"..
+	"tooltip[edit_fruit;Select node]"..
 
 	"field[0.2,7;3,0;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
 	"tooltip[trunk_type;This field specifies the shape of the tree trunk. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
 	"field[3.2,7;3,0;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
 	"tooltip[thin_branches;\"true\": All branches are just 1 node wide. \"false\": Branches can be larger.]"..
-	"field[6.2,7;3,0;leaves2_chance;Secondary leaves chance (in %);"..s(fields.leaves2_chance).."]"..
+	"field[6.2,7;3,0;leaves2_chance;Secondary leaves chance (%);"..s(fields.leaves2_chance).."]"..
 	"tooltip[leaves2_chance;Chance (in percent) to replace a leaves node by a secondary leaves node]"..
-	"field[9.2,7;3,0;fruit_chance;Fruit chance (in %);"..s(fields.fruit_chance).."]"..
+	"field[9.2,7;3,0;fruit_chance;Fruit chance (%);"..s(fields.fruit_chance).."]"..
 	"tooltip[fruit_chance;Chance (in percent) to replace a leaves node by a fruit node.]"..
 
 	"field[0.2,8;3,0;iterations;Iterations;"..s(fields.iterations).."]"..
@@ -1089,6 +1099,14 @@ function ltool.process_form(player,formname,fields)
 			local formspec = ltool.formspec_editplus(fragment)
 			minetest.show_formspec(playername, "ltool:treeform_editplus", formspec)
 		end
+		if(mod_select_item and (fields.edit_trunk or fields.edit_leaves or fields.edit_leaves2 or fields.edit_fruit)) then
+			ltool.save_fields(playername, formname, fields)
+			select_item.show_dialog(playername, function(itemstring)
+				if itemstring ~= "air" and minetest.registered_nodes[itemstring] ~= nil then
+					return true
+				end
+			end)
+		end
 	--[[ Larger edit fields for axiom and rules fields ]]
 	elseif(formname == "ltool:treeform_editplus") then
 		local editfields = ltool.playerinfos[playername].treeform.edit.fields
@@ -1286,6 +1304,22 @@ function ltool.process_form(player,formname,fields)
 			return
 		end
 	end
+end
+
+if mod_select_item then
+	select_item.register_on_select_item(function(playername, itemstring)
+		local f = ltool.playerinfos[playername].treeform.edit.fields
+		if f.edit_trunk then
+			f.trunk = itemstring
+		elseif f.edit_leaves then
+			f.leaves = itemstring
+		elseif f.edit_leaves2 then
+			f.leaves2 = itemstring
+		elseif f.edit_fruit then
+			f.fruit = itemstring
+		end
+		ltool.show_treeform(playername)
+	end)
 end
 
 --[[ These 2 functions are basically just table initializions and cleanups ]]
