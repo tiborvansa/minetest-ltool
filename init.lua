@@ -855,7 +855,7 @@ end
 
 -- Returns the selected tree of the given player
 function ltool.get_selected_tree(playername)
-	local sel = ltool.playerinfos[playername].dbsel 
+	local sel = ltool.playerinfos[playername].dbsel
 	if(sel ~= nil) then
 		local tree_id = ltool.playerinfos[playername].treeform.database.textlist[sel]
 		if(tree_id ~= nil) then
@@ -867,7 +867,7 @@ end
 
 -- Returns the ID of the selected tree of the given player
 function ltool.get_selected_tree_id(playername)
-	local sel = ltool.playerinfos[playername].dbsel 
+	local sel = ltool.playerinfos[playername].dbsel
 	if(sel ~= nil) then
 		return ltool.playerinfos[playername].treeform.database.textlist[sel]
 	end
@@ -1130,10 +1130,54 @@ function ltool.process_form(player,formname,fields)
 		end
 		if(mod_select_item and (fields.edit_trunk or fields.edit_leaves or fields.edit_leaves2 or fields.edit_fruit)) then
 			ltool.save_fields(playername, formname, fields)
+			-- Prepare sorting.
+			-- Move tree, leaves, apple/leafdecay nodes to the beginning
+			local compare_group, fruit
+			if fields.edit_trunk then
+				compare_group = "tree"
+			elseif fields.edit_leaves or fields.edit_leaves2 then
+				compare_group = "leaves"
+			elseif fields.edit_fruit or fields.edit_fruit then
+				compare_group = "leafdecay"
+				local alias = minetest.registered_aliases["mapgen_apple"]
+				if alias and minetest.registered_nodes[alias] then
+					fruit = alias
+				end
+			end
 			select_item.show_dialog(playername, "ltool:node", function(itemstring)
 				if itemstring ~= "air" and minetest.registered_nodes[itemstring] ~= nil then
 					return true
 				end
+			end,
+			function(i1, i2)
+				if fruit and i1 == fruit then
+					return true
+				end
+				if fruit and i2 == fruit then
+					return false
+				end
+				local i1t = minetest.get_item_group(i1, compare_group)
+				local i2t = minetest.get_item_group(i2, compare_group)
+				local i1d = minetest.registered_items[i1].description
+				local i2d = minetest.registered_items[i2].description
+				local i1nici = minetest.get_item_group(i1, "not_in_creative_inventory")
+				local i2nici = minetest.get_item_group(i2, "not_in_creative_inventory")
+				if (i1d == "" and i2d ~= "") then
+					return false
+				elseif (i1d ~= "" and i2d == "") then
+					return true
+				end
+				if (i1nici == 1 and i2nici == 0) then
+					return false
+				elseif (i1nici == 0 and i2nici == 1) then
+					return true
+				end
+				if i1t < i2t then
+					return false
+				elseif i1t > i2t then
+					return true
+				end
+				return i1 < i2
 			end)
 		end
 	--[[ Larger edit fields for axiom and rules fields ]]
