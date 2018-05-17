@@ -1,7 +1,7 @@
 This mod provides a form to easily spawn L-system trees, aimed at mod developers
 and power users.
 
-Current version: 1.4.0
+Current version: 1.4.1
 
 If you use one of the following mods, there's a new button in your inventory
 menu for opening the form:
