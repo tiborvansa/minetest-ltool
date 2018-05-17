@@ -720,12 +720,33 @@ function ltool.evaluate_edit_fields(fields, ignore_name)
 			return false
 		end
 	end
+	-- Validation helper: Checks for balanced brackets
+	local b = function(str)
+		local brackets = 0
+		for c=1, string.len(str) do
+			local char = string.sub(str, c, c)
+			if char == "[" then
+				brackets = brackets + 1
+			elseif char == "]" then
+				brackets = brackets - 1
+				if brackets < 0 then
+					return false
+				end
+			end
+		end
+		return brackets == 0
+	end
+
 	if(v(fields.axiom) and v(fields.rules_a) and v(fields.rules_b) and v(fields.rules_c) and v(fields.rules_d)) then
-		treedef.rules_a = fields.rules_a
-		treedef.rules_b = fields.rules_b
-		treedef.rules_c = fields.rules_c
-		treedef.rules_d = fields.rules_d
-		treedef.axiom = fields.axiom
+		if(b(fields.axiom) and b(fields.rules_a) and b(fields.rules_b) and b(fields.rules_c) and b(fields.rules_d)) then
+			treedef.rules_a = fields.rules_a
+			treedef.rules_b = fields.rules_b
+			treedef.rules_c = fields.rules_c
+			treedef.rules_d = fields.rules_d
+			treedef.axiom = fields.axiom
+		else
+			return nil, "The brackets are unbalanced! For each of the axiom and the rule sets, each opening bracket must be matched by a closing bracket."
+		end
 	else
 		return nil, "The axiom or one of the rule sets contains at least one invalid character.\nSee the cheat sheet for a list of allowed characters."
 	end
