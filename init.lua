@@ -13,17 +13,17 @@ ltool.default_edit_fields = {
 	rules_b="",
 	rules_c="",
 	rules_d="",
-	trunk="",
-	leaves="",
-	leaves2="",
-	leaves2_chance="",
-	fruit="",
-	fruit_chance="",
-	angle="",
-	iterations="",
-	random_level="",
-	trunk_type="",
-	thin_branches="",
+	trunk="mapgen_tree",
+	leaves="mapgen_leaves",
+	leaves2="mapgen_jungleleaves",
+	leaves2_chance="0",
+	fruit="mapgen_apple",
+	fruit_chance="0",
+	angle="45",
+	iterations="2",
+	random_level="0",
+	trunk_type="single",
+	thin_branches="true",
 	name = "",
 }
 
@@ -299,7 +299,7 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	local leditbuttons
 	if has_ledit_priv then
 		leditbuttons = "button[0,8.7;4,0;edit_save;Save tree to database]"..
-		"button[4,8.7;4,0;edit_clear;Clear fields]"
+		"button[4,8.7;4,0;edit_clear;Reset fields]"
 		if has_lplant_priv then
 			leditbuttons = leditbuttons .. "button[8,8.7;4,0;edit_sapling;Give me a sapling]"
 		end
@@ -339,10 +339,10 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	"button[11,4.7;1,0;edit_rules_d;+]"..
 	"tooltip[edit_rules_d;Opens larger text field for Rules set D]"..
 
-	"field[0.2,6;"..nlength..",0;trunk;Trunk node name;"..s(fields.trunk).."]"..
-	"field[3.2,6;"..nlength..",0;leaves;Leaves node name;"..s(fields.leaves).."]"..
-	"field[6.2,6;"..nlength..",0;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
-	"field[9.2,6;"..nlength..",0;fruit;Fruit node name;"..s(fields.fruit).."]"..
+	"field[0.2,6;"..nlength..",0;trunk;Trunk node;"..s(fields.trunk).."]"..
+	"field[3.2,6;"..nlength..",0;leaves;Leaves node;"..s(fields.leaves).."]"..
+	"field[6.2,6;"..nlength..",0;leaves2;Secondary leaves node;"..s(fields.leaves2).."]"..
+	"field[9.2,6;"..nlength..",0;fruit;Fruit node;"..s(fields.fruit).."]"..
 	fields_select_item..
 
 	"field[0.2,7;3,0;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
@@ -358,7 +358,7 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	"tooltip[iterations;Maximum number of iterations, usually between 2 and 5.]"..
 	"field[3.2,8;3,0;random_level;Randomness level;"..s(fields.random_level).."]"..
 	"tooltip[random_level;Factor to lower number of iterations, usually between 0 and 3.]"..
-	"field[6.2,8;3,0;angle;Angle (in °);"..s(fields.angle).."]"..
+	"field[6.2,8;3,0;angle;Angle (°);"..s(fields.angle).."]"..
 	"field[9.2,8;3,0;name;Name;"..s(fields.name).."]"..
 	"tooltip[name;Descriptive name for this tree, only used for convenience.]"..
 	leditbuttons
@@ -527,7 +527,7 @@ function ltool.tab_help_edit()
 	"table[-0.15,0.75;12,8;help_edit;"..
 	"To create a L-system tree\\, switch to the \"Edit\" tab.,"..
 	"When you are done\\, hit \"Save tree to database\". The tree will be stored in,"..
-	"the database. The \"Clear fields\" button empties all the input fields.,"..
+	"the database. The \"Reset fields\" button resets the input fields to defaults.,"..
 	"To understand the meaning of the fields\\, read the introduction to L-systems.,"..
 	"All trees must have an unique name. You are notified in case there is a name,"..
 	"clash. If the name clash is with one of your own trees\\, you can choose to,"..
@@ -1329,6 +1329,7 @@ function ltool.process_form(player,formname,fields)
 				rules_b="[&&&++FFFFF&&FFFF][&&&--FFFFF&&FFFF][&&&------FFFFF&&FFFF]",
 				trunk="mapgen_tree",
 				leaves="mapgen_leaves",
+				leaves2_chance="0",
 				angle="30",
 				iterations="2",
 				random_level="0",
@@ -1419,7 +1420,7 @@ function ltool.join(player)
 	infotable.treeform.plant = {}
 	infotable.treeform.plant.fields = {}
 	infotable.treeform.edit = {}
-	infotable.treeform.edit.fields = {}
+	infotable.treeform.edit.fields = ltool.default_edit_fields
 	infotable.treeform.help = {}
 	infotable.treeform.help.tab = 1
 	ltool.playerinfos[player:get_player_name()] = infotable
