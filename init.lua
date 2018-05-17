@@ -1101,7 +1101,7 @@ function ltool.process_form(player,formname,fields)
 		end
 		if(mod_select_item and (fields.edit_trunk or fields.edit_leaves or fields.edit_leaves2 or fields.edit_fruit)) then
 			ltool.save_fields(playername, formname, fields)
-			select_item.show_dialog(playername, function(itemstring)
+			select_item.show_dialog(playername, "ltool:node", function(itemstring)
 				if itemstring ~= "air" and minetest.registered_nodes[itemstring] ~= nil then
 					return true
 				end
@@ -1307,18 +1307,23 @@ function ltool.process_form(player,formname,fields)
 end
 
 if mod_select_item then
-	select_item.register_on_select_item(function(playername, itemstring)
-		local f = ltool.playerinfos[playername].treeform.edit.fields
-		if f.edit_trunk then
-			f.trunk = itemstring
-		elseif f.edit_leaves then
-			f.leaves = itemstring
-		elseif f.edit_leaves2 then
-			f.leaves2 = itemstring
-		elseif f.edit_fruit then
-			f.fruit = itemstring
+	select_item.register_on_select_item(function(playername, dialogname, itemstring)
+		if dialogname == "ltool:node" then
+			if itemstring then
+				local f = ltool.playerinfos[playername].treeform.edit.fields
+				if f.edit_trunk then
+					f.trunk = itemstring
+				elseif f.edit_leaves then
+					f.leaves = itemstring
+				elseif f.edit_leaves2 then
+					f.leaves2 = itemstring
+				elseif f.edit_fruit then
+					f.fruit = itemstring
+				end
+			end
+			ltool.show_treeform(playername)
+			return false
 		end
-		ltool.show_treeform(playername)
 	end)
 end
 
