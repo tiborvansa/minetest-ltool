@@ -1368,7 +1368,7 @@ function ltool.join(player)
 	infotable.treeform.database = {}
 	--[[ This table stores a mapping of the textlist IDs in the database formspec and the tree IDs.
 	It is updated each time ltool.tab_database is called. ]]
-	infotable.treeform.database.textlist = nil
+	infotable.treeform.database.textlist = {}
 	--[[ the “fields” tables store the values of the input fields of a formspec. It is updated
 	whenever the formspec is changed, i.e. on tab change ]]
 	infotable.treeform.database.fields = {}
