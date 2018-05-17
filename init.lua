@@ -307,6 +307,21 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 		leditbuttons = "label[0,8.3;Read-only mode. You need the “ledit” privilege to save trees to the database.]"
 	end
 
+	local nlength = "3"
+	local fields_select_item = ""
+	if mod_select_item then
+		nlength = "2.6"
+		fields_select_item = ""..
+		"button[2.4,5.7;0.5,0;edit_trunk;>]"..
+		"button[5.4,5.7;0.5,0;edit_leaves;>]"..
+		"button[8.4,5.7;0.5,0;edit_leaves2;>]"..
+		"button[11.4,5.7;0.5,0;edit_fruit;>]"..
+		"tooltip[edit_trunk;Select node]"..
+		"tooltip[edit_leaves;Select node]"..
+		"tooltip[edit_leaves2;Select node]"..
+		"tooltip[edit_fruit;Select node]"
+	end
+
 	return ""..
 	"field[0.2,1;11,0;axiom;Axiom;"..s(fields.axiom).."]"..
 	"button[11,0.7;1,0;edit_axiom;+]"..
@@ -324,18 +339,11 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	"button[11,4.7;1,0;edit_rules_d;+]"..
 	"tooltip[edit_rules_d;Opens larger text field for Rules set D]"..
 
-	"field[0.2,6;2.6,0;trunk;Trunk node name;"..s(fields.trunk).."]"..
-	"button[2.4,5.7;0.5,0;edit_trunk;>]"..
-	"tooltip[edit_trunk;Select node]"..
-	"field[3.2,6;2.6,0;leaves;Leaves node name;"..s(fields.leaves).."]"..
-	"button[5.4,5.7;0.5,0;edit_leaves;>]"..
-	"tooltip[edit_leaves;Select node]"..
-	"field[6.2,6;2.6,0;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
-	"button[8.4,5.7;0.5,0;edit_leaves2;>]"..
-	"tooltip[edit_leaves2;Select node]"..
-	"field[9.2,6;2.6,0;fruit;Fruit node name;"..s(fields.fruit).."]"..
-	"button[11.4,5.7;0.5,0;edit_fruit;>]"..
-	"tooltip[edit_fruit;Select node]"..
+	"field[0.2,6;"..nlength..",0;trunk;Trunk node name;"..s(fields.trunk).."]"..
+	"field[3.2,6;"..nlength..",0;leaves;Leaves node name;"..s(fields.leaves).."]"..
+	"field[6.2,6;"..nlength..",0;leaves2;Secondary leaves node name;"..s(fields.leaves2).."]"..
+	"field[9.2,6;"..nlength..",0;fruit;Fruit node name;"..s(fields.fruit).."]"..
+	fields_select_item..
 
 	"field[0.2,7;3,0;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
 	"tooltip[trunk_type;This field specifies the shape of the tree trunk. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
