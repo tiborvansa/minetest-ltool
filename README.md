@@ -1,7 +1,11 @@
 This mod provides a form to easily spawn L-system trees, aimed at mod developers
 and power users.
 
-Current version: 1.4.1
+Current version: 1.4.2
+
+If you use the following mod, there will be buttons to ease node selection
+
+* Select Item [`select_item`]
 
 If you use one of the following mods, there's a new button in your inventory
 menu for opening the form:
@@ -11,6 +15,8 @@ menu for opening the form:
 * Inventory++ [`inventory_plus`]
 
 Alternatively, you can always use the server command `/treeform`.
+
+This mod also adds the command `/lplant` to plant trees.
 
 Usage help for this form is provided in the form itself.
 
