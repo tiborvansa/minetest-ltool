@@ -1108,7 +1108,23 @@ function ltool.process_form(player,formname,fields)
 			local privs = minetest.get_player_privs(playername)
 			ltool.save_fields(playername, formname, {})
 			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(nil, privs.ledit, privs.lplant)
-			minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
+
+			--[[ hacky_spaces part of a workaround, see comment on hacky_spaces in ltool.join.
+			This workaround will slightly change the formspec by adding 0-5 spaces
+			to the end, changing the number of spaces on each send. This forces
+			Minetest to re-send the formspec.
+			Spaces are completely harmless in a formspec.]]
+			-- BEGIN OF WORKAROUND
+			local hacky_spaces = ltool.playerinfos[playername].treeform.hacky_spaces
+			hacky_spaces = hacky_spaces .. " "
+			if string.len(hacky_spaces) > 5 then
+				hacky_spaces = ""
+			end
+			ltool.playerinfos[playername].treeform.hacky_spaces = hacky_spaces
+			local real_formspec = formspec .. hacky_spaces
+			-- END OF WORKAROUND
+
+			minetest.show_formspec(playername, "ltool:treeform_edit", real_formspec)
 		end
 		if(fields.edit_axiom or fields.edit_rules_a or fields.edit_rules_b or fields.edit_rules_c or fields.edit_rules_d) then
 			local fragment
@@ -1423,6 +1439,14 @@ function ltool.join(player)
 	infotable.treeform.edit.fields = ltool.default_edit_fields
 	infotable.treeform.help = {}
 	infotable.treeform.help.tab = 1
+	--[[ Workaround for annoying bug in Minetest: When you call the identical formspec twice,
+	Minetest does not send the second one. This is an issue when the player has changed the
+	input fields in the meanwhile, resetting fields will fail sometimes.
+	TODO: Remove workaround when not needed anymore. ]]
+	-- BEGIN OF WORKAROUND
+	infotable.treeform.hacky_spaces = ""
+	-- END OF WORKAROUND
+
 	ltool.playerinfos[player:get_player_name()] = infotable
 
 	-- Add Inventory++ support
