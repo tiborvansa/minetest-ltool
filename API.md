@@ -60,7 +60,7 @@ Adds a tree to the tree table.
 #### Parameters
 * `name`: The tree’s name.
 * `author`: The author’s / owners’ name
-* `treedef`: The full tree definition, see lua_api.txt
+* `treedef`: The full tree definition, see `lua_api.txt`
 
 #### Return value
 The tree ID of the new tree.
