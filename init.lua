@@ -95,6 +95,17 @@ minetest.register_node("ltool:sapling", {
 	end,
 })
 
+minetest.register_craftitem("ltool:tool", {
+	description = "L-System Tree Utility",
+	_doc_items_longdesc = "This gadget allows the aspiring genetic engineer to invent and change L-system trees, create L-system tree saplings and look at the inventions from other players.",
+	_doc_items_usagehelp = "Punch to open the L-System editor. A tabbed form will open. To edit and create trees, you need the “ledit” privilege, to make saplings, you need “lplant”. Detailed usage help can be found in that menu. You can also access the same editor with the server command “treeform”.",
+	inventory_image = "ltool_tool.png",
+	wield_image = "ltool_tool.png",
+	on_use = function(itemstack, user, pointed_thing)
+		ltool.show_treeform(user:get_player_name())
+	end,
+})
+
 --[[ Register privileges ]]
 minetest.register_privilege("ledit", {
 	description = "Can add, edit, rename and delete own L-system tree definitions of the ltool mod",
@@ -501,15 +512,15 @@ function ltool.tab_help_intro()
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
 	"table[-0.15,0.75;12,7;help_intro;"..
-	string.format("You are using the L-System Tree Utility mod version %s.,", ltool.VERSION.STRING)..
+	string.format("You are using the L-System Tree Utility, version %s.,", ltool.VERSION.STRING)..
 	","..
-	"The purpose of this mod is to aid with the creation of L-system trees.,"..
-	"With this mod you can create\\, save\\, manage and plant L-system trees.,"..
+	"The purpose of this utility is to aid with the creation of L-system trees.,"..
+	"You can create\\, save\\, manage and plant L-system trees.,"..
 	"All trees are saved into <world path>/ltool.mt on server shutdown.,"..
-	"This mod assumes you already understand the concept of L-systems\\;,"..
-	"this mod is mainly aimed towards modders.,"..
+	"It assumes you already understand the concept of L-systems\\;,"..
+	"this is mainly aimed towards modders.,"..
 	","..
-	"The usual workflow in this mod goes like this:,"..
+	"The usual workflow goes like this:,"..
 	","..
 	"1. Create a new tree in the \"Edit\" tab and save it,"..
 	"2. Select it in the database,"..
@@ -539,11 +550,11 @@ function ltool.tab_help_database()
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
 	"table[-0.15,0.75;12,8;help_database;"..
-	"The database contains a server-wide list of all created trees.,"..
-	"Each tree has an \"owner\". In this mod\\, the concept of ownership is a very,"..
-	"weak one: The owner may rename\\, change and delete his/her own trees\\,,"..
-	"everyone else is prevented from doing that. In contrast\\, all trees can be,"..
-	"copied freely\\;,"..
+	"The database contains a list of all created trees among all players.,"..
+	"Each tree has an \"owner\". This kind of ownership is limited:,"..
+	"The owner may rename\\, change and delete their own trees\\,,"..
+	"everyone else is prevented from doing that. But all trees can be,"..
+	"copied freely by everyone\\;,"..
 	"To do so\\, simply hit \"Copy tree to editor\"\\, change the name and hit,"..
 	"\"Save tree to database\". If you like someone else's tree definition\\,,"..
 	"it is recommended to make a copy for yourself\\, since the original owner,"..
