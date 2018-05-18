@@ -3,7 +3,10 @@ and power users.
 
 Current version: 1.4.2
 
-If you use the following mod, there will be buttons to ease node selection
+You can open the menu with an item “L-System Tree Utility” (`ltool:tool`)
+or the server command `/treeform`.
+
+If you use the following mod, there will be buttons to ease node selection:
 
 * Select Item [`select_item`]
 
@@ -13,8 +16,6 @@ menu for opening the form:
 * Unified Inventory [`unified_inventory`]
 * Simple Fast Inventory Buttons [`sfinv_buttons`]
 * Inventory++ [`inventory_plus`]
-
-Alternatively, you can always use the server command `/treeform`.
 
 This mod also adds the command `/lplant` to plant trees.
 
