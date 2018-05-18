@@ -29,8 +29,8 @@ ltool.default_edit_fields = {
 
 local mod_select_item = minetest.get_modpath("select_item") ~= nil
 
-local sapling_base_name = "L-system tree sapling"
-local sapling_format_string = "L-system tree sapling (%s)"
+local sapling_base_name = "L-System Tree Sapling"
+local sapling_format_string = "L-System Tree Sapling (%s)"
 
 local place_tree = function(pos)
 	-- Place tree
@@ -97,7 +97,7 @@ minetest.register_node("ltool:sapling", {
 
 minetest.register_craftitem("ltool:tool", {
 	description = "L-System Tree Utility",
-	_doc_items_longdesc = "This gadget allows the aspiring genetic engineer to invent and change L-system trees, create L-system tree saplings and look at the inventions from other players.",
+	_doc_items_longdesc = "This gadget allows the aspiring genetic engineer to invent and change L-system trees, create L-system tree saplings and look at the inventions from other players. L-system trees are trees and tree-like strucures which are built by a set of (possibly recursive) production rules.",
 	_doc_items_usagehelp = "Punch to open the L-System editor. A tabbed form will open. To edit and create trees, you need the “ledit” privilege, to make saplings, you need “lplant”. Detailed usage help can be found in that menu. You can also access the same editor with the server command “treeform”.",
 	inventory_image = "ltool_tool.png",
 	wield_image = "ltool_tool.png",
@@ -312,7 +312,7 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 		leditbuttons = "button[0,8.7;4,0;edit_save;Save tree to database]"..
 		"button[4,8.7;4,0;edit_clear;Reset fields]"
 		if has_lplant_priv then
-			leditbuttons = leditbuttons .. "button[8,8.7;4,0;edit_sapling;Give me a sapling]"
+			leditbuttons = leditbuttons .. "button[8,8.7;4,0;edit_sapling;Generate sapling]"
 		end
 	else
 		leditbuttons = "label[0,8.3;Read-only mode. You need the “ledit” privilege to save trees to the database.]"
@@ -464,7 +464,7 @@ but it is added anyways in case this gets fixed in later Minetest versions. ]]
 		"tooltip[seed;A number used for the random number generators. Identical randomness seeds will produce identical trees. This field is optional.]"..
 		"button[3.5,8;3,1;plant_plant;Plant tree]"..
 		"tooltip[plant_plant;Immediately place the tree at the specified position]"..
-		"button[6.5,8;3,1;sapling;Give me a sapling]"..
+		"button[6.5,8;3,1;sapling;Generate sapling]"..
 		"tooltip[sapling;This gives you an item which you can place manually in the world later]"
 	else
 		local notreestr = "No tree in database selected or database is empty."
@@ -518,7 +518,7 @@ function ltool.tab_help_intro()
 	"You can create\\, save\\, manage and plant L-system trees.,"..
 	"All trees are saved into <world path>/ltool.mt on server shutdown.,"..
 	"It assumes you already understand the concept of L-systems\\;,"..
-	"this is mainly aimed towards modders.,"..
+	"this utility is mainly aimed towards modders and nerds.,"..
 	","..
 	"The usual workflow goes like this:,"..
 	","..
