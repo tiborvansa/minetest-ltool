@@ -390,16 +390,22 @@ function ltool.tab_database(index, playername)
 		end
 		ltool.playerinfos[playername].treeform.database.textlist = tree_ids
 
-		local leditbuttons
+		local leditbuttons, lplantbuttons
 		if minetest.get_player_privs(playername).ledit then
 			leditbuttons = "button[3,7.5;3,1;database_rename;Rename tree]"..
 			"button[6,7.5;3,1;database_delete;Delete tree]"
 		else
 			leditbuttons = "label[0.2,7.2;Read-only mode. You need the “ledit” privilege to edit trees.]"
 		end
+		if minetest.get_player_privs(playername).lplant then
+			lplantbuttons = "button[0,8.5;3,1;sapling;Generate sapling]"
+		else
+			lplantbuttons = ""
+		end
 
 		return ""..
 		"textlist[0,0;11,7;treelist;"..treestr..";"..tostring(index)..";false]"..
+		lplantbuttons..
 		leditbuttons..
 		"button[3,8.5;3,1;database_copy;Copy tree to editor]"..
 		"button[6,8.5;3,1;database_update;Reload database]"
@@ -938,8 +944,29 @@ function ltool.save_fields(playername,formname,fields)
 	end
 end
 
---[=[ Callback functions start here ]=]
+local function handle_sapling_button_database_plant(seltree, seltree_id, privs, formname, fields, playername)
+	if(seltree ~= nil) then
+		if(privs.lplant ~= true) then
+			ltool.save_fields(playername, formname, fields)
+			local message = "You can't request saplings, you need to have the \"lplant\" privilege."
+			ltool.show_dialog(playername, "ltool:treeform_error_sapling", message)
+			return false
+		end
+		local seed = nil
+		if(tonumber(fields.seed)~=nil) then
+			seed = tonumber(fields.seed)
+		end
+		if ltool.trees[seltree_id] then
+			local ret, ret2 = ltool.give_sapling(ltool.trees[seltree_id].treedef, seed, playername, true, ltool.trees[seltree_id].name)
+			if(ret==false and ret2==2) then
+				ltool.save_fields(playername, formname, fields)
+				ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
+			end
+		end
+	end
+end
 
+--[=[ Callback functions start here ]=]
 function ltool.process_form(player,formname,fields)
 	local playername = player:get_player_name()
 
@@ -1041,22 +1068,9 @@ function ltool.process_form(player,formname,fields)
 				treedef.seed = nil
 			end
 		elseif(fields.sapling) then
-			if(seltree ~= nil) then
-				if(privs.lplant ~= true) then
-					ltool.save_fields(playername, formname, fields)
-					local message = "You can't request saplings, you need to have the \"lplant\" privilege."
-					ltool.show_dialog(playername, "ltool:treeform_error_sapling", message)
-					return
-				end
-				local seed = nil
-				if(tonumber(fields.seed)~=nil) then
-					seed = tonumber(fields.seed)
-				end
-				local ret, ret2 = ltool.give_sapling(ltool.trees[seltree_id].treedef, seed, playername, true, ltool.trees[seltree_id].name)
-				if(ret==false and ret2==2) then
-					ltool.save_fields(playername, formname, fields)
-					ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
-				end
+			local ret = handle_sapling_button_database_plant(seltree, seltree_id, privs, formname, fields, playername)
+			if ret == false then
+				return
 			end
 		end
 	--[[ "Edit" tab ]]
@@ -1313,6 +1327,11 @@ function ltool.process_form(player,formname,fields)
 				end
 			else
 				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
+			end
+		elseif(fields.sapling) then
+			local ret = handle_sapling_button_database_plant(seltree, seltree_id, privs, formname, fields, playername)
+			if ret == false then
+				return
 			end
 		end
 	--[[ Process "Do you want to replace this tree?" dialog ]]
