@@ -333,6 +333,18 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 		"tooltip[edit_fruit;Select node]"
 	end
 
+	local trunk_type_mapping_reverse = {
+		["single"] = 1,
+		["double"] = 2,
+		["crossed"] = 3,
+	}
+	local trunk_type_idx
+	if fields.trunk_type then
+		trunk_type_idx = trunk_type_mapping_reverse[fields.trunk_type]
+	else
+		trunk_type_idx = 1
+	end
+
 	return ""..
 	"field[0.2,1;11,0;axiom;Axiom;"..s(fields.axiom).."]"..
 	"button[11,0.7;1,0;edit_axiom;+]"..
@@ -356,8 +368,8 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	"field[9.2,6;"..nlength..",0;fruit;Fruit node;"..s(fields.fruit).."]"..
 	fields_select_item..
 
-	"field[0.2,7;3,0;trunk_type;Trunk type (single/double/crossed);"..s(fields.trunk_type).."]"..
-	"tooltip[trunk_type;This field specifies the shape of the tree trunk. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
+	"dropdown[-0.075,6.35;3;trunk_type;single,double,crossed;"..trunk_type_mapping_reverse[fields.trunk_type].."]"..
+	"tooltip[trunk_type;Tree trunk type. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
 	"field[3.2,7;3,0;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
 	"tooltip[thin_branches;\"true\": All branches are just 1 node wide. \"false\": Branches can be larger.]"..
 	"field[6.2,7;3,0;leaves2_chance;Secondary leaves chance (%);"..s(fields.leaves2_chance).."]"..
