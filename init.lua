@@ -370,8 +370,8 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 
 	"dropdown[-0.075,6.35;3;trunk_type;single,double,crossed;"..trunk_type_mapping_reverse[fields.trunk_type].."]"..
 	"tooltip[trunk_type;Tree trunk type. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
-	"field[3.2,7;3,0;thin_branches;Thin branches? (true/false);"..s(fields.thin_branches).."]"..
-	"tooltip[thin_branches;\"true\": All branches are just 1 node wide. \"false\": Branches can be larger.]"..
+	"checkbox[2.9,6.2;thin_branches;Thin branches;"..s(fields.thin_branches).."]"..
+	"tooltip[thin_branches;If enabled\\, all branches are just 1 node wide\\, otherwise, branches can be larger.]"..
 	"field[6.2,7;3,0;leaves2_chance;Secondary leaves chance (%);"..s(fields.leaves2_chance).."]"..
 	"tooltip[leaves2_chance;Chance (in percent) to replace a leaves node by a secondary leaves node]"..
 	"field[9.2,7;3,0;fruit_chance;Fruit chance (%);"..s(fields.fruit_chance).."]"..
@@ -947,6 +947,9 @@ function ltool.dbsel_to_tree(dbsel, playername)
 end
 
 function ltool.save_fields(playername,formname,fields)
+	if not fields.thin_branches then
+		fields.thin_branches = ltool.playerinfos[playername].treeform.edit.thin_branches
+	end
 	if(formname=="ltool:treeform_edit") then
 		ltool.playerinfos[playername].treeform.edit.fields = fields
 	elseif(formname=="ltool:treeform_database") then
@@ -993,6 +996,17 @@ function ltool.process_form(player,formname,fields)
 			ret = minetest.formspec_escape(tostring(input))
 		end
 		return ret
+	end
+	-- Update thin_branches field
+	if(formname == "ltool:treeform_edit") then
+		if(not fields.thin_branches) then
+			fields.thin_branches = ltool.playerinfos[playername].treeform.edit.thin_branches
+			if(not fields.thin_branches) then
+				minetest.log("error", "[ltool] thin_branches field of "..playername.." is nil!")
+			end
+		else
+			ltool.playerinfos[playername].treeform.edit.thin_branches = fields.thin_branches
+		end
 	end
 	--[[ process clicks on the tab header ]]
 	if(formname == "ltool:treeform_edit" or formname == "ltool:treeform_database" or formname == "ltool:treeform_plant" or formname == "ltool:treeform_help") then
@@ -1143,10 +1157,10 @@ function ltool.process_form(player,formname,fields)
 		end
 		if(fields.edit_clear) then
 			local privs = minetest.get_player_privs(playername)
-			ltool.save_fields(playername, formname, {})
-			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(nil, privs.ledit, privs.lplant)
+			ltool.save_fields(playername, formname, ltool.default_edit_fields)
+			local formspec = ltool.formspec_size..ltool.formspec_header(1)..ltool.tab_edit(ltool.default_edit_fields, privs.ledit, privs.lplant)
 
-			--[[ hacky_spaces part of a workaround, see comment on hacky_spaces in ltool.join.
+			--[[ hacky_spaces is part of a workaround, see comment on hacky_spaces in ltool.join.
 			This workaround will slightly change the formspec by adding 0-5 spaces
 			to the end, changing the number of spaces on each send. This forces
 			Minetest to re-send the formspec.
@@ -1479,6 +1493,7 @@ function ltool.join(player)
 	infotable.treeform.plant.fields = {}
 	infotable.treeform.edit = {}
 	infotable.treeform.edit.fields = ltool.default_edit_fields
+	infotable.treeform.edit.thin_branches = "true"
 	infotable.treeform.help = {}
 	infotable.treeform.help.tab = 1
 	--[[ Workaround for annoying bug in Minetest: When you call the identical formspec twice,
