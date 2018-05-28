@@ -368,6 +368,7 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	"field[9.2,6;"..nlength..",0;fruit;Fruit node;"..s(fields.fruit).."]"..
 	fields_select_item..
 
+	"label[-0.075,5.95;Trunk type]"..
 	"dropdown[-0.075,6.35;3;trunk_type;single,double,crossed;"..trunk_type_mapping_reverse[fields.trunk_type].."]"..
 	"tooltip[trunk_type;Tree trunk type. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
 	"checkbox[2.9,6.2;thin_branches;Thin branches;"..s(fields.thin_branches).."]"..
