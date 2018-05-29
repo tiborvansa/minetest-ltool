@@ -1,7 +1,7 @@
 This mod provides a form to easily spawn L-system trees, aimed at mod developers
 and power users.
 
-Current version: 1.4.2
+Current version: 1.5.0
 
 You can open the menu with an item “L-System Tree Utility” (`ltool:tool`)
 or the server command `/treeform`.

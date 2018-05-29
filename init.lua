@@ -2,8 +2,8 @@ ltool = {}
 
 ltool.VERSION = {}
 ltool.VERSION.MAJOR = 1
-ltool.VERSION.MINOR = 4
-ltool.VERSION.PATCH = 2
+ltool.VERSION.MINOR = 5
+ltool.VERSION.PATCH = 0
 ltool.VERSION.STRING = ltool.VERSION.MAJOR .. "." .. ltool.VERSION.MINOR .. "." .. ltool.VERSION.PATCH
 
 ltool.playerinfos = {}
