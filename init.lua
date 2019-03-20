@@ -530,89 +530,65 @@ function ltool.tab_cheat_sheet()
 	"\\],"..F(S("Recover from stack state info")).."]"
 end
 
--- TODO: Make help translatable
 function ltool.tab_help_intro()
 	return ""..
-	"tablecolumns[text]"..
-	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.75;12,7;help_intro;"..
-	F(S("You are using the L-System Tree Utility, version @1.", ltool.VERSION.STRING))..","..
-	","..
-	"The purpose of this utility is to aid with the creation of L-system trees.,"..
-	"You can create\\, save\\, manage and plant L-system trees.,"..
-	"All trees are saved into <world path>/ltool.mt on server shutdown.,"..
-	"It assumes you already understand the concept of L-systems\\;,"..
-	"this utility is mainly aimed towards modders and nerds.,"..
-	","..
-	"The usual workflow goes like this:,"..
-	","..
-	"1. Create a new tree in the \"Edit\" tab and save it,"..
-	"2. Select it in the database,"..
-	"3. Plant it,"..
-	","..
-	"To help you get started\\, you can create an example tree for the \"Edit\" tab,"..
-	"by pressing this button:]"..
-	"button[4,8;4,1;create_template;Create template]"
+	"textarea[0.2,0.75;12,8;;;"..
+	F(
+	S("You are using the L-System Tree Utility, version @1.", ltool.VERSION.STRING).."\n\n"..
+
+	S("The purpose of this utility is to aid with the creation of L-system trees. You can create, save, manage and plant L-system trees. All trees are saved into <world path>/ltool.mt on server shutdown.").."\n"..
+	S("It assumes you already understand the concept of L-systems, this utility is mainly aimed towards modders and nerds.").."\n\n"..
+
+	S("The usual workflow goes like this:").."\n\n"..
+
+	S("1. Create a new tree in the \"Edit\" tab and save it").."\n"..
+	S("2. Select it in the database").."\n"..
+	S("3. Plant it").."\n\n"..
+
+	S("To help you get started, you can create an example tree for the \"Edit\" tab by pressing this button:")
+	).."]"..
+	"button[4,8;4,1;create_template;"..F(S("Create template")).."]"
 end
 
 function ltool.tab_help_edit()
 	return ""..
-	"tablecolumns[text]"..
-	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.75;12,8;help_edit;"..
-	"To create a L-system tree\\, switch to the \"Edit\" tab.,"..
-	"When you are done\\, hit \"Save tree to database\". The tree will be stored in,"..
-	"the database. The \"Reset fields\" button resets the input fields to defaults.,"..
-	"To understand the meaning of the fields\\, read the introduction to L-systems.,"..
-	"All trees must have an unique name. You are notified in case there is a name,"..
-	"clash. If the name clash is with one of your own trees\\, you can choose to,"..
-	"replace it.]"
+	"textarea[0.2,0.75;12,9;;;"..
+	F(
+	S("To create a L-system tree, switch to the \"Edit\" tab.").."\n"..
+	S("When you are done, hit \"Save tree to database\". The tree will be stored in the database. The \"Reset fields\" button resets the input fields to defaults.").."\n\n"..
+
+	S("To understand the meaning of the fields, read the introduction to L-systems.").."\n\n"..
+
+	S("All trees must have an unique name. You are notified in case of a name clash. If the name clash is with one of your own trees, you can choose to replace it.")
+	).."]"
 end
 
 function ltool.tab_help_database()
 	return ""..
-	"tablecolumns[text]"..
-	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.75;12,8;help_database;"..
-	"The database contains a list of all created trees among all players.,"..
-	"Each tree has an \"owner\". This kind of ownership is limited:,"..
-	"The owner may rename\\, change and delete their own trees\\,,"..
-	"everyone else is prevented from doing that. But all trees can be,"..
-	"copied freely by everyone\\;,"..
-	"To do so\\, simply hit \"Copy tree to editor\"\\, change the name and hit,"..
-	"\"Save tree to database\". If you like someone else's tree definition\\,,"..
-	"it is recommended to make a copy for yourself\\, since the original owner,"..
-	"can at any time choose to delete or edit the tree. The trees which you \"own\","..
-	"are written in a yellow font\\, all other trees in a white font.,"..
-	"In order to plant a tree\\, you have to select a tree in the database first.]"
+	"textarea[0.2,0.75;12,9;;;"..
+	F(
+	S("The database contains a list of all created trees among all players.").."\n\n"..
+
+	S("Each tree has an \"owner\". This kind of ownership is limited: The owner may rename, change and delete their own trees, everyone else is prevented from doing that. But all trees can be copied freely by everyone.").."\n"..
+	S("To do so, simply hit \"Copy tree to editor\", change the name and hit \"Save tree to database\". If you like someone else's tree definition, it is recommended to make a copy for yourself, since the original owner can at any time choose to delete or edit the tree. The trees which you \"own\" are written in a yellow font, all other trees in a white font.").."\n\n"..
+
+	S("In order to plant a tree, you have to select a tree in the database first.")
+	).."]"
 end
 
 function ltool.tab_help_plant()
 	return ""..
-	"tablecolumns[text]"..
-	"tableoptions[background=#000000;highlight=#000000;border=false]"..
-	"table[-0.15,0.75;12,8;help_plant;"..
-	"To plant a tree from a previously created tree definition\\, first select,"..
-	"it in the database\\, then open the \"Plant\" tab.,"..
-	"In this tab\\, you can directly place the tree or request a sapling.,"..
-	"If you choose to directly place the tree\\, you can either specify absolute,"..
-	"or relative coordinates or specify that the tree should be planted in your,"..
-	"viewing direction. Absolute coordinates are the world coordinates as specified,"..
-	"by the \"x\"\\, \"y\"\\, and \"z\" fields. Relative coordinates are relative,"..
-	"to your position and use the same fields. When you choose to plant the tree,"..
-	"based on your viewing direction\\, the tree will be planted at a distance,"..
-	"specified by the field \"distance\" away from you in the direction you look to.,"..
-	"When using coordinates\\, the \"distance\" field is ignored\\, when using,"..
-	"direction\\, the coordinate fields are ignored.,"..
-	","..
-	"You can also use the “lplant” server command to plant trees.,"..
-	","..
-	"If you got a sapling\\, you can place it practically anywhere you like to.,"..
-	"After placing it\\, the sapling will be replaced by the L-system tree after,"..
-	"5 seconds\\, unless it was destroyed in the meantime.,"..
-	"All requested saplings are independent from the moment they are created.,"..
-	"The sapling will still work\\, even if the original tree definiton has been,"..
-	"deleted.]"
+	"textarea[0.2,0.75;12,9;;;"..
+	F(
+	S("To plant a tree from a previously created tree definition, first select it in the database, then open the \"Plant\" tab. In this tab, you can directly place the tree or request a sapling.").."\n"..
+	S("If you choose to directly place the tree, you can either specify absolute or relative coordinates or specify that the tree should be planted in your viewing direction. Absolute coordinates are the world coordinates as specified by the \"x\", \"y\", and \"z\" fields. Relative coordinates are relative to your position and use the same fields. When you choose to plant the tree based on your viewing direction, the tree will be planted at a distance specified by the field \"distance\" away from you in the direction you look to.").."\n"..
+	S("When using coordinates, the \"distance\" field is ignored, when using direction, the coordinate fields are ignored.").."\n\n"..
+
+	S("You can also use the “lplant” server command to plant trees.").."\n\n"..
+
+	S("If you got a sapling, you can place it practically anywhere you like to. After placing it, the sapling will be replaced by the L-system tree after 5 seconds, unless it was destroyed in the meantime.").."\n"..
+	S("All requested saplings are independent from the moment they are created. The sapling will still work, even if the original tree definiton has been deleted.")
+	).."]"
 end
 
 function ltool.tab_help(index)
