@@ -116,7 +116,7 @@ minetest.register_privilege("ledit", {
 	give_to_singleplayer = false,
 })
 minetest.register_privilege("lplant", {
-	description = S("Can place L-system trees and get L-system tree samplings of the ltool mod"),
+	description = S("Can place L-system trees and get L-system tree saplings of the ltool mod"),
 	give_to_singleplayer = false,
 })
 
@@ -424,11 +424,11 @@ function ltool.tab_database(index, playername)
 		"textlist[0,0;11,7;treelist;"..treestr..";"..tostring(index)..";false]"..
 		lplantbuttons..
 		leditbuttons..
-		"button[3,8.5;3,1;database_copy;"..S(F("Copy tree to editor")).."]"..
-		"button[6,8.5;3,1;database_update;"..S(F("Reload database")).."]"
+		"button[3,8.5;3,1;database_copy;"..F(S("Copy tree to editor")).."]"..
+		"button[6,8.5;3,1;database_update;"..F(F("Reload database")).."]"
 	else
-		return "label[0,0;"..S(F("The tree database is empty.")).."]"..
-		"button[6.5,8.5;3,1;database_update;"..S(F("Reload database")).."]"
+		return "label[0,0;"..F(S("The tree database is empty.")).."]"..
+		"button[6.5,8.5;3,1;database_update;"..F(F("Reload database")).."]"
 	end
 end
 
@@ -821,7 +821,7 @@ function ltool.evaluate_edit_fields(fields, ignore_name)
 	elseif(fields.thin_branches == "false") then
 		treedef.thin_branches = false
 	else
-		return nil, S("Field \"Thin branches?\" must be \"true\" or \"false\".")
+		return nil, S("Field \"Thin branches\" must be \"true\" or \"false\".")
 	end
 	local name = fields.name
 	if(ignore_name ~= true and name == "") then
@@ -1060,7 +1060,7 @@ function ltool.process_form(player,formname,fields)
 				local tree_pos
 				local fail_coordinates = function()
 					ltool.save_fields(playername, formname, fields)
-					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", S("Error: When using coordinates, you have to specifiy numbers in the fields \"x\", \"y\", \"z\"."))
+					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", S("Error: When using coordinates, you have to specify numbers in the fields \"x\", \"y\", \"z\"."))
 				end
 				local fail_distance = function()
 					ltool.save_fields(playername, formname, fields)
@@ -1136,7 +1136,7 @@ function ltool.process_form(player,formname,fields)
 							"button[3,1.5;3,1;replace_no;"..F(S("No")).."]"
 							minetest.show_formspec(playername, "ltool:treeform_replace", formspec)
 						else
-							ltool.show_dialog(playername, "ltool:treeform_error_nameclash", S("Error: This name is already taken by someone else.\nPlease choose a different name."))
+							ltool.show_dialog(playername, "ltool:treeform_error_nameclash", S("Error: This name is already taken by someone else."))
 						end
 						return
 					end
