@@ -409,13 +409,13 @@ function ltool.tab_database(index, playername)
 
 		local leditbuttons, lplantbuttons
 		if minetest.get_player_privs(playername).ledit then
-			leditbuttons = "button[3,7.5;3,1;database_rename;"..S(F("Rename tree")).."]"..
-			"button[6,7.5;3,1;database_delete;"..S(F("Delete tree")).."]"
+			leditbuttons = "button[3,7.5;3,1;database_rename;"..F(S("Rename tree")).."]"..
+			"button[6,7.5;3,1;database_delete;"..F(S("Delete tree")).."]"
 		else
-			leditbuttons = "label[0.2,7.2;"..S(F("Read-only mode. You need the “ledit” privilege to edit trees.")).."]"
+			leditbuttons = "label[0.2,7.2;"..F(S("Read-only mode. You need the “ledit” privilege to edit trees.")).."]"
 		end
 		if minetest.get_player_privs(playername).lplant then
-			lplantbuttons = "button[0,8.5;3,1;sapling;"..S(F("Generate sapling")).."]"
+			lplantbuttons = "button[0,8.5;3,1;sapling;"..F(S("Generate sapling")).."]"
 		else
 			lplantbuttons = ""
 		end
@@ -435,10 +435,10 @@ end
 --[[ This creates the "Plant" tab part of the main formspec ]]
 function ltool.tab_plant(tree, fields, has_lplant_priv)
 	if(tree ~= nil) then
-		local seltree = "label[0,-0.2;"..S(F("Selected tree: @1", tree.name)).."]"
+		local seltree = "label[0,-0.2;"..F(S("Selected tree: @1", tree.name)).."]"
 		if not has_lplant_priv then
 			return seltree..
-			"label[0,0.3;"..S(F("Planting of trees is not allowed. You need to have the “lplant” privilege.")).."]"
+			"label[0,0.3;"..F(S("Planting of trees is not allowed. You need to have the “lplant” privilege.")).."]"
 		end
 		if(fields==nil) then
 			fields = {}
