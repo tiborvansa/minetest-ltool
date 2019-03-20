@@ -1072,7 +1072,7 @@ function ltool.process_form(player,formname,fields)
 						fail_coordinates()
 						return
 					end
-					tree_pos = player:getpos()
+					tree_pos = player:get_pos()
 					tree_pos.x = tree_pos.x + x
 					tree_pos.y = tree_pos.y + y
 					tree_pos.z = tree_pos.z + z
@@ -1081,7 +1081,7 @@ function ltool.process_form(player,formname,fields)
 						fail_distance()
 						return
 					end
-					tree_pos = vector.round(vector.add(player:getpos(), vector.multiply(player:get_look_dir(), distance)))
+					tree_pos = vector.round(vector.add(player:get_pos(), vector.multiply(player:get_look_dir(), distance)))
 				else
 					minetest.log("error", "[ltool] fields.plantmode = "..tostring(fields.plantmode))
 				end
