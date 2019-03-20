@@ -425,10 +425,10 @@ function ltool.tab_database(index, playername)
 		lplantbuttons..
 		leditbuttons..
 		"button[3,8.5;3,1;database_copy;"..F(S("Copy tree to editor")).."]"..
-		"button[6,8.5;3,1;database_update;"..F(F("Reload database")).."]"
+		"button[6,8.5;3,1;database_update;"..F(S("Reload database")).."]"
 	else
 		return "label[0,0;"..F(S("The tree database is empty.")).."]"..
-		"button[6.5,8.5;3,1;database_update;"..F(F("Reload database")).."]"
+		"button[6.5,8.5;3,1;database_update;"..F(S("Reload database")).."]"
 	end
 end
 
