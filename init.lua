@@ -1,3 +1,7 @@
+local S = minetest.get_translator("ltool")
+local N = function(s) return s end
+local F = minetest.formspec_escape
+
 ltool = {}
 
 ltool.VERSION = {}
@@ -29,8 +33,8 @@ ltool.default_edit_fields = {
 
 local mod_select_item = minetest.get_modpath("select_item") ~= nil
 
-local sapling_base_name = "L-System Tree Sapling"
-local sapling_format_string = "L-System Tree Sapling (%s)"
+local sapling_base_name = S("L-System Tree Sapling")
+local sapling_format_string = N("L-System Tree Sapling (@1)")
 
 local place_tree = function(pos)
 	-- Place tree
@@ -43,8 +47,8 @@ end
 --[[ This registers the sapling for planting the trees ]]
 minetest.register_node("ltool:sapling", {
 	description = sapling_base_name,
-	_doc_items_longdesc = "This artificial sapling does not come from nature and contains the genome of a genetically engineered L-system tree. Every sapling of this kind is unique. Who knows what might grow from it when you plant it?",
-	_doc_items_usagehelp = "Place the sapling on any floor and wait 5 seconds for the tree to appear. If you have the “lplant” privilege, you can grow it instantly by rightclicking it. If you hold down the sneak key while placing it, you will keep a copy of the sapling in your inventory. To create your own saplings, you need to have the “lplant” privilege and pick a tree from the L-System Tree Utility (accessed with the server command “treeform”).",
+	_doc_items_longdesc = S("This artificial sapling does not come from nature and contains the genome of a genetically engineered L-system tree. Every sapling of this kind is unique. Who knows what might grow from it when you plant it?"),
+	_doc_items_usagehelp = S("Place the sapling on any floor and wait 5 seconds for the tree to appear. If you have the “lplant” privilege, you can grow it instantly by using it. If you hold down the sneak key while placing it, you will keep a copy of the sapling in your inventory.").."\n"..S("To create your own saplings, you need to have the “lplant” privilege and pick a tree from the L-System Tree Utility (accessed with the server command “treeform”)."),
 	drawtype = "plantlike",
 	tiles = { "ltool_sapling.png" },
 	inventory_image = "ltool_sapling.png",
@@ -96,9 +100,9 @@ minetest.register_node("ltool:sapling", {
 })
 
 minetest.register_craftitem("ltool:tool", {
-	description = "L-System Tree Utility",
-	_doc_items_longdesc = "This gadget allows the aspiring genetic engineer to invent and change L-system trees, create L-system tree saplings and look at the inventions from other players. L-system trees are trees and tree-like strucures which are built by a set of (possibly recursive) production rules.",
-	_doc_items_usagehelp = "Punch to open the L-System editor. A tabbed form will open. To edit and create trees, you need the “ledit” privilege, to make saplings, you need “lplant”. Detailed usage help can be found in that menu. You can also access the same editor with the server command “treeform”.",
+	description = S("L-System Tree Utility"),
+	_doc_items_longdesc = S("This gadget allows the aspiring genetic engineer to invent and change L-system trees, create L-system tree saplings and look at the inventions from other players. L-system trees are trees and tree-like strucures which are built by a set of (possibly recursive) production rules."),
+	_doc_items_usagehelp = S("Punch to open the L-System editor. A tabbed form will open. To edit and create trees, you need the “ledit” privilege, to make saplings, you need “lplant”. Detailed usage help can be found in that menu. You can also access the same editor with the server command “treeform”."),
 	inventory_image = "ltool_tool.png",
 	wield_image = "ltool_tool.png",
 	on_use = function(itemstack, user, pointed_thing)
@@ -108,11 +112,11 @@ minetest.register_craftitem("ltool:tool", {
 
 --[[ Register privileges ]]
 minetest.register_privilege("ledit", {
-	description = "Can add, edit, rename and delete own L-system tree definitions of the ltool mod",
+	description = S("Can add, edit, rename and delete own L-system tree definitions of the ltool mod"),
 	give_to_singleplayer = false,
 })
 minetest.register_privilege("lplant", {
-	description = "Can place L-system trees and get L-system tree samplings of the ltool mod",
+	description = S("Can place L-system trees and get L-system tree samplings of the ltool mod"),
 	give_to_singleplayer = false,
 })
 
@@ -229,7 +233,7 @@ function ltool.give_sapling(treedef, seed, player_name, ignore_priv, treename)
 	local smeta = sapling:get_meta()
 	smeta:set_string("treedef", minetest.serialize(treedef))
 	if treename and treename ~= "" then
-		smeta:set_string("description", string.format(sapling_format_string, treename))
+		smeta:set_string("description", S(sapling_format_string, treename))
 	end
 	treedef.seed = nil
 	local leftover = player:get_inventory():add_item("main", sapling)
@@ -287,7 +291,7 @@ ltool.formspec_size = "size[12,9]"
 
 --[[ This is a part of the main formspec: Tab header ]]
 function ltool.formspec_header(index)
-	return "tabheader[0,0;ltool_tab;Edit,Database,Plant,Help;"..tostring(index)..";true;false]"
+	return "tabheader[0,0;ltool_tab;"..F(S("Edit"))..","..F(S("Database"))..","..F(S("Plant"))..","..F(S("Help"))..";"..tostring(index)..";true;false]"
 end
 
 --[[ This creates the edit tab of the formspec
@@ -301,7 +305,7 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 		if(input==nil) then
 			ret = ""
 		else
-			ret = minetest.formspec_escape(tostring(input))
+			ret = F(tostring(input))
 		end
 		return ret
 	end
@@ -309,13 +313,13 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	-- Show save/clear buttons depending on privs
 	local leditbuttons
 	if has_ledit_priv then
-		leditbuttons = "button[0,8.7;4,0;edit_save;Save tree to database]"..
-		"button[4,8.7;4,0;edit_clear;Reset fields]"
+		leditbuttons = "button[0,8.7;4,0;edit_save;"..F(S("Save tree to database")).."]"..
+		"button[4,8.7;4,0;edit_clear;"..F(S("Reset fields")).."]"
 		if has_lplant_priv then
-			leditbuttons = leditbuttons .. "button[8,8.7;4,0;edit_sapling;Generate sapling]"
+			leditbuttons = leditbuttons .. "button[8,8.7;4,0;edit_sapling;"..F(S("Generate sapling")).."]"
 		end
 	else
-		leditbuttons = "label[0,8.3;Read-only mode. You need the “ledit” privilege to save trees to the database.]"
+		leditbuttons = "label[0,8.3;"..F(S("Read-only mode. You need the “ledit” privilege to save trees to the database.")).."]"
 	end
 
 	local nlength = "3"
@@ -323,14 +327,14 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	if mod_select_item then
 		nlength = "2.6"
 		fields_select_item = ""..
-		"button[2.4,5.7;0.5,0;edit_trunk;>]"..
-		"button[5.4,5.7;0.5,0;edit_leaves;>]"..
-		"button[8.4,5.7;0.5,0;edit_leaves2;>]"..
-		"button[11.4,5.7;0.5,0;edit_fruit;>]"..
-		"tooltip[edit_trunk;Select node]"..
-		"tooltip[edit_leaves;Select node]"..
-		"tooltip[edit_leaves2;Select node]"..
-		"tooltip[edit_fruit;Select node]"
+		"button[2.4,5.7;0.5,0;edit_trunk;"..F(S(">")).."]"..
+		"button[5.4,5.7;0.5,0;edit_leaves;"..F(S(">")).."]"..
+		"button[8.4,5.7;0.5,0;edit_leaves2;"..F(S(">")).."]"..
+		"button[11.4,5.7;0.5,0;edit_fruit;"..F(S(">")).."]"..
+		"tooltip[edit_trunk;"..F(S("Select node")).."]"..
+		"tooltip[edit_leaves;"..F(S("Select node")).."]"..
+		"tooltip[edit_leaves2;"..F(S("Select node")).."]"..
+		"tooltip[edit_fruit;"..F(S("Select node")).."]"
 	end
 
 	local trunk_type_mapping_reverse = {
@@ -346,45 +350,45 @@ function ltool.tab_edit(fields, has_ledit_priv, has_lplant_priv)
 	end
 
 	return ""..
-	"field[0.2,1;11,0;axiom;Axiom;"..s(fields.axiom).."]"..
-	"button[11,0.7;1,0;edit_axiom;+]"..
-	"tooltip[edit_axiom;Opens larger text field for Axiom]"..
-	"field[0.2,2;11,0;rules_a;Rules set A;"..s(fields.rules_a).."]"..
-	"button[11,1.7;1,0;edit_rules_a;+]"..
-	"tooltip[edit_rules_a;Opens larger text field for Rules set A]"..
-	"field[0.2,3;11,0;rules_b;Rules set B;"..s(fields.rules_b).."]"..
-	"button[11,2.7;1,0;edit_rules_b;+]"..
-	"tooltip[edit_rules_b;Opens larger text field for Rules set B]"..
-	"field[0.2,4;11,0;rules_c;Rules set C;"..s(fields.rules_c).."]"..
-	"button[11,3.7;1,0;edit_rules_c;+]"..
-	"tooltip[edit_rules_c;Opens larger text field for Rules set C]"..
-	"field[0.2,5;11,0;rules_d;Rules set D;"..s(fields.rules_d).."]"..
-	"button[11,4.7;1,0;edit_rules_d;+]"..
-	"tooltip[edit_rules_d;Opens larger text field for Rules set D]"..
+	"field[0.2,1;11,0;axiom;"..F(S("Axiom"))..";"..s(fields.axiom).."]"..
+	"button[11,0.7;1,0;edit_axiom;"..F(S("+")).."]"..
+	"tooltip[edit_axiom;"..F(S("Opens larger text field for Axiom")).."]"..
+	"field[0.2,2;11,0;rules_a;"..F(S("Rules set A"))..";"..s(fields.rules_a).."]"..
+	"button[11,1.7;1,0;edit_rules_a;"..F(S("+")).."]"..
+	"tooltip[edit_rules_a;"..F(S("Opens larger text field for Rules set A")).."]"..
+	"field[0.2,3;11,0;rules_b;"..F(S("Rules set B"))..";"..s(fields.rules_b).."]"..
+	"button[11,2.7;1,0;edit_rules_b;"..F(S("+")).."]"..
+	"tooltip[edit_rules_b;"..F(S("Opens larger text field for Rules set B")).."]"..
+	"field[0.2,4;11,0;rules_c;"..F(S("Rules set C"))..";"..s(fields.rules_c).."]"..
+	"button[11,3.7;1,0;edit_rules_c;"..F(S("+")).."]"..
+	"tooltip[edit_rules_c;"..F(S("Opens larger text field for Rules set C")).."]"..
+	"field[0.2,5;11,0;rules_d;"..F(S("Rules set D"))..";"..s(fields.rules_d).."]"..
+	"button[11,4.7;1,0;edit_rules_d;"..F(S("+")).."]"..
+	"tooltip[edit_rules_d;"..F(S("Opens larger text field for Rules set D")).."]"..
 
-	"field[0.2,6;"..nlength..",0;trunk;Trunk node;"..s(fields.trunk).."]"..
-	"field[3.2,6;"..nlength..",0;leaves;Leaves node;"..s(fields.leaves).."]"..
-	"field[6.2,6;"..nlength..",0;leaves2;Secondary leaves node;"..s(fields.leaves2).."]"..
-	"field[9.2,6;"..nlength..",0;fruit;Fruit node;"..s(fields.fruit).."]"..
+	"field[0.2,6;"..nlength..",0;trunk;"..F(S("Trunk node"))..";"..s(fields.trunk).."]"..
+	"field[3.2,6;"..nlength..",0;leaves;"..F(S("Leaves node"))..";"..s(fields.leaves).."]"..
+	"field[6.2,6;"..nlength..",0;leaves2;"..F(S("Secondary leaves node"))..";"..s(fields.leaves2).."]"..
+	"field[9.2,6;"..nlength..",0;fruit;"..F(S("Fruit node"))..";"..s(fields.fruit).."]"..
 	fields_select_item..
 
-	"label[-0.075,5.95;Trunk type]"..
+	"label[-0.075,5.95;"..F(S("Trunk type")).."]"..
 	"dropdown[-0.075,6.35;3;trunk_type;single,double,crossed;"..trunk_type_mapping_reverse[fields.trunk_type].."]"..
-	"tooltip[trunk_type;Tree trunk type. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).]"..
-	"checkbox[2.9,6.2;thin_branches;Thin branches;"..s(fields.thin_branches).."]"..
-	"tooltip[thin_branches;If enabled\\, all branches are just 1 node wide\\, otherwise, branches can be larger.]"..
-	"field[6.2,7;3,0;leaves2_chance;Secondary leaves chance (%);"..s(fields.leaves2_chance).."]"..
-	"tooltip[leaves2_chance;Chance (in percent) to replace a leaves node by a secondary leaves node]"..
-	"field[9.2,7;3,0;fruit_chance;Fruit chance (%);"..s(fields.fruit_chance).."]"..
-	"tooltip[fruit_chance;Chance (in percent) to replace a leaves node by a fruit node.]"..
+	"tooltip[trunk_type;"..F(S("Tree trunk type. Possible values:\n- \"single\": trunk of size 1×1\n- \"double\": trunk of size 2×2\n- \"crossed\": trunk in cross shape (3×3).")).."]"..
+	"checkbox[2.9,6.2;thin_branches;"..F(S("Thin branches"))..";"..s(fields.thin_branches).."]"..
+	"tooltip[thin_branches;"..F(S("If enabled, all branches are just 1 node wide, otherwise, branches can be larger.")).."]"..
+	"field[6.2,7;3,0;leaves2_chance;"..F(S("Secondary leaves chance (%)"))..";"..s(fields.leaves2_chance).."]"..
+	"tooltip[leaves2_chance;"..F(S("Chance (in percent) to replace a leaves node by a secondary leaves node")).."]"..
+	"field[9.2,7;3,0;fruit_chance;"..F(S("Fruit chance (%)"))..";"..s(fields.fruit_chance).."]"..
+	"tooltip[fruit_chance;"..F(S("Chance (in percent) to replace a leaves node by a fruit node.")).."]"..
 
-	"field[0.2,8;3,0;iterations;Iterations;"..s(fields.iterations).."]"..
-	"tooltip[iterations;Maximum number of iterations, usually between 2 and 5.]"..
-	"field[3.2,8;3,0;random_level;Randomness level;"..s(fields.random_level).."]"..
-	"tooltip[random_level;Factor to lower number of iterations, usually between 0 and 3.]"..
-	"field[6.2,8;3,0;angle;Angle (°);"..s(fields.angle).."]"..
-	"field[9.2,8;3,0;name;Name;"..s(fields.name).."]"..
-	"tooltip[name;Descriptive name for this tree, only used for convenience.]"..
+	"field[0.2,8;3,0;iterations;"..F(S("Iterations"))..";"..s(fields.iterations).."]"..
+	"tooltip[iterations;"..F(S("Maximum number of iterations, usually between 2 and 5.")).."]"..
+	"field[3.2,8;3,0;random_level;"..F(S("Randomness level"))..";"..s(fields.random_level).."]"..
+	"tooltip[random_level;"..F(S("Factor to lower number of iterations, usually between 0 and 3.")).."]"..
+	"field[6.2,8;3,0;angle;"..F(S("Angle (°)"))..";"..s(fields.angle).."]"..
+	"field[9.2,8;3,0;name;"..F(S("Name"))..";"..s(fields.name).."]"..
+	"tooltip[name;"..F(S("Descriptive name for this tree, only used for convenience.")).."]"..
 	leditbuttons
 end
 
@@ -405,13 +409,13 @@ function ltool.tab_database(index, playername)
 
 		local leditbuttons, lplantbuttons
 		if minetest.get_player_privs(playername).ledit then
-			leditbuttons = "button[3,7.5;3,1;database_rename;Rename tree]"..
-			"button[6,7.5;3,1;database_delete;Delete tree]"
+			leditbuttons = "button[3,7.5;3,1;database_rename;"..S(F("Rename tree")).."]"..
+			"button[6,7.5;3,1;database_delete;"..S(F("Delete tree")).."]"
 		else
-			leditbuttons = "label[0.2,7.2;Read-only mode. You need the “ledit” privilege to edit trees.]"
+			leditbuttons = "label[0.2,7.2;"..S(F("Read-only mode. You need the “ledit” privilege to edit trees.")).."]"
 		end
 		if minetest.get_player_privs(playername).lplant then
-			lplantbuttons = "button[0,8.5;3,1;sapling;Generate sapling]"
+			lplantbuttons = "button[0,8.5;3,1;sapling;"..S(F("Generate sapling")).."]"
 		else
 			lplantbuttons = ""
 		end
@@ -420,28 +424,28 @@ function ltool.tab_database(index, playername)
 		"textlist[0,0;11,7;treelist;"..treestr..";"..tostring(index)..";false]"..
 		lplantbuttons..
 		leditbuttons..
-		"button[3,8.5;3,1;database_copy;Copy tree to editor]"..
-		"button[6,8.5;3,1;database_update;Reload database]"
+		"button[3,8.5;3,1;database_copy;"..S(F("Copy tree to editor")).."]"..
+		"button[6,8.5;3,1;database_update;"..S(F("Reload database")).."]"
 	else
-		return "label[0,0;The tree database is empty.]"..
-		"button[6.5,8.5;3,1;database_update;Reload database]"
+		return "label[0,0;"..S(F("The tree database is empty.")).."]"..
+		"button[6.5,8.5;3,1;database_update;"..S(F("Reload database")).."]"
 	end
 end
 
 --[[ This creates the "Plant" tab part of the main formspec ]]
 function ltool.tab_plant(tree, fields, has_lplant_priv)
 	if(tree ~= nil) then
-		local seltree = "label[0,-0.2;Selected tree: "..minetest.formspec_escape(tree.name).."]"
+		local seltree = "label[0,-0.2;"..S(F("Selected tree: @1", tree.name)).."]"
 		if not has_lplant_priv then
 			return seltree..
-			"label[0,0.3;Planting of trees is not allowed. You need to have the “lplant” privilege.]"
+			"label[0,0.3;"..S(F("Planting of trees is not allowed. You need to have the “lplant” privilege.")).."]"
 		end
 		if(fields==nil) then
 			fields = {}
 		end
 		local s = function(i)
 			if(i==nil) then return ""
-			else return tostring(minetest.formspec_escape(i))
+			else return tostring(F(i))
 			end
 		end
 		local seed
@@ -451,11 +455,11 @@ function ltool.tab_plant(tree, fields, has_lplant_priv)
 			seed = fields.seed
 		end
 		local dropdownindex
-		if(fields.plantmode == "Absolute coordinates") then
+		if(fields.plantmode == F(S("Absolute coordinates"))) then
 			dropdownindex = 1
-		elseif(fields.plantmode == "Relative coordinates") then
+		elseif(fields.plantmode == F(S("Relative coordinates"))) then
 			dropdownindex = 2
-		elseif(fields.plantmode == "Distance in viewing direction") then
+		elseif(fields.plantmode == F(S("Distance in viewing direction"))) then
 			dropdownindex = 3
 		else
 			dropdownindex = 1
@@ -463,34 +467,34 @@ function ltool.tab_plant(tree, fields, has_lplant_priv)
 
 		return ""..
 		seltree..
-		"dropdown[-0.1,0.5;5;plantmode;Absolute coordinates,Relative coordinates,Distance in viewing direction;"..dropdownindex.."]"..
+		"dropdown[-0.1,0.5;5;plantmode;"..F(S("Absolute coordinates"))..","..F(S("Relative coordinates"))..","..F(S("Distance in viewing direction"))..";"..dropdownindex.."]"..
 --[[ NOTE: This tooltip does not work for the dropdown list in 0.4.10,
 but it is added anyways in case this gets fixed in later Minetest versions. ]]
 		"tooltip[plantmode;"..
-		"- \"Absolute coordinates\": Fields \"x\", \"y\" and \"z\" specify the absolute world coordinates where to plant the tree\n"..
-		"- \"Relative coordinates\": Fields \"x\", \"y\" and \"z\" specify the relative position from your position\n"..
-		"- \"Distance in viewing direction\": Plant tree relative from your position in the direction you look to, at the specified distance"..
+		F(S("- \"Absolute coordinates\": Fields \"x\", \"y\" and \"z\" specify the absolute world coordinates where to plant the tree")).."\n"..
+		F(S("- \"Relative coordinates\": Fields \"x\", \"y\" and \"z\" specify the relative position from your position")).."\n"..
+		F(S("- \"Distance in viewing direction\": Plant tree relative from your position in the direction you look to, at the specified distance"))..
 		"]"..
-		"field[0.2,-2;6,10;x;x;"..s(fields.x).."]"..
-		"tooltip[x;Field is only used by absolute and relative coordinates.]"..
-		"field[0.2,-1;6,10;y;y;"..s(fields.y).."]"..
-		"tooltip[y;Field is only used by absolute and relative coordinates.]"..
-		"field[0.2,0;6,10;z;z;"..s(fields.z).."]"..
-		"tooltip[z;Field is only used by absolute and relative coordinates.]"..
-		"field[0.2,1;6,10;distance;Distance;"..s(fields.distance).."]"..
-		"tooltip[distance;This field is used to specify the distance (in node lengths) from your position\nin the viewing direction. It is ignored if you use coordinates.]"..
-		"field[0.2,2;6,10;seed;Randomness seed;"..seed.."]"..
-		"tooltip[seed;A number used for the random number generators. Identical randomness seeds will produce identical trees. This field is optional.]"..
-		"button[3.5,8;3,1;plant_plant;Plant tree]"..
-		"tooltip[plant_plant;Immediately place the tree at the specified position]"..
-		"button[6.5,8;3,1;sapling;Generate sapling]"..
-		"tooltip[sapling;This gives you an item which you can place manually in the world later]"
+		"field[0.2,-2;6,10;x;"..F(S("x"))..";"..s(fields.x).."]"..
+		"tooltip[x;"..F(S("Field is only used by absolute and relative coordinates.")).."]"..
+		"field[0.2,-1;6,10;y;"..F(S("y"))..";"..s(fields.y).."]"..
+		"tooltip[y;"..F(S("Field is only used by absolute and relative coordinates.")).."]"..
+		"field[0.2,0;6,10;z;"..F(S("z"))..";"..s(fields.z).."]"..
+		"tooltip[z;"..F(S("Field is only used by absolute and relative coordinates.")).."]"..
+		"field[0.2,1;6,10;distance;"..F(S("Distance"))..";"..s(fields.distance).."]"..
+		"tooltip[distance;"..F(S("This field is used to specify the distance (in node lengths) from your position\nin the viewing direction. It is ignored if you use coordinates.")).."]"..
+		"field[0.2,2;6,10;seed;"..F(S("Randomness seed"))..";"..seed.."]"..
+		"tooltip[seed;"..F(S("A number used for the random number generators. Identical randomness seeds will produce identical trees. This field is optional.")).."]"..
+		"button[3.5,8;3,1;plant_plant;"..F(S("Plant tree")).."]"..
+		"tooltip[plant_plant;"..F(S("Immediately place the tree at the specified position")).."]"..
+		"button[6.5,8;3,1;sapling;"..F(S("Generate sapling")).."]"..
+		"tooltip[sapling;"..F(S("This gives you an item which you can place manually in the world later")).."]"
 	else
-		local notreestr = "No tree in database selected or database is empty."
+		local notreestr = F(S("No tree in database selected or database is empty."))
 		if has_lplant_priv then
 			return "label[0,0;"..notreestr.."]"
 		else
-			return "label[0,0;"..notreestr.."\nYou are not allowed to plant trees anyway as you don't have the “lplant” privilege.]"
+			return "label[0,0;"..notreestr.."\n"..F(S("You are not allowed to plant trees anyway as you don't have the “lplant” privilege.")).."]"
 		end
 	end
 end
@@ -502,36 +506,37 @@ function ltool.tab_cheat_sheet()
 	"tablecolumns[text;text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
 	"table[-0.15,0.75;12,8;cheat_sheet;"..
-	"Symbol,Action,"..
-	"G,Move forward one unit with the pen up,"..
-	"F,Move forward one unit with the pen down drawing trunks and branches,"..
-	"f,Move forward one unit with the pen down drawing leaves,"..
-	"T,Move forward one unit with the pen down drawing trunks,"..
-	"R,Move forward one unit with the pen down placing fruit,"..
-	"A,Replace with rules set A,"..
-	"B,Replace with rules set B,"..
-	"C,Replace with rules set C,"..
-	"D,Replace with rules set D,"..
-	"a,Replace with rules set A\\, chance 90%,"..
-	"b,Replace with rules set B\\, chance 80%,"..
-	"c,Replace with rules set C\\, chance 70%,"..
-	"d,Replace with rules set D\\, chance 60%,"..
-	"+,Yaw the turtle right by angle parameter,"..
-	"-,Yaw the turtle left by angle parameter,"..
-	"&,Pitch the turtle down by angle parameter,"..
-	"^,Pitch the turtle up by angle parameter,"..
-	"/,Roll the turtle to the right by angle parameter,"..
-	"*,Roll the turtle to the left by angle parameter,"..
-	"\\[,Save in stack current state info,"..
-	"\\],Recover from stack state info]"
+	F(S("Symbol"))..","..F(S("Action"))..","..
+	"G,"..F(S("Move forward one unit with the pen up"))..","..
+	"F,"..F(S("Move forward one unit with the pen down drawing trunks and branches"))..","..
+	"f,"..F(S("Move forward one unit with the pen down drawing leaves"))..","..
+	"T,"..F(S("Move forward one unit with the pen down drawing trunks"))..","..
+	"R,"..F(S("Move forward one unit with the pen down placing fruit"))..","..
+	"A,"..F(S("Replace with rules set A"))..","..
+	"B,"..F(S("Replace with rules set B"))..","..
+	"C,"..F(S("Replace with rules set C"))..","..
+	"D,"..F(S("Replace with rules set D"))..","..
+	"a,"..F(S("Replace with rules set A, chance 90%"))..","..
+	"b,"..F(S("Replace with rules set B, chance 80%"))..","..
+	"c,"..F(S("Replace with rules set C, chance 70%"))..","..
+	"d,"..F(S("Replace with rules set D, chance 60%"))..","..
+	"+,"..F(S("Yaw the turtle right by angle parameter"))..","..
+	"-,"..F(S("Yaw the turtle left by angle parameter"))..","..
+	"&,"..F(S("Pitch the turtle down by angle parameter"))..","..
+	"^,"..F(S("Pitch the turtle up by angle parameter"))..","..
+	"/,"..F(S("Roll the turtle to the right by angle parameter"))..","..
+	"*,"..F(S("Roll the turtle to the left by angle parameter"))..","..
+	"\\[,"..F(S("Save in stack current state info"))..","..
+	"\\],"..F(S("Recover from stack state info")).."]"
 end
 
+-- TODO: Make help translatable
 function ltool.tab_help_intro()
 	return ""..
 	"tablecolumns[text]"..
 	"tableoptions[background=#000000;highlight=#000000;border=false]"..
 	"table[-0.15,0.75;12,7;help_intro;"..
-	string.format("You are using the L-System Tree Utility, version %s.,", ltool.VERSION.STRING)..
+	F(S("You are using the L-System Tree Utility, version @1.", ltool.VERSION.STRING))..","..
 	","..
 	"The purpose of this utility is to aid with the creation of L-system trees.,"..
 	"You can create\\, save\\, manage and plant L-system trees.,"..
@@ -611,7 +616,7 @@ function ltool.tab_help_plant()
 end
 
 function ltool.tab_help(index)
-	local formspec = "tabheader[0.1,1;ltool_help_tab;Introduction,Creating Trees,Managing Trees,Planting Trees,Cheat Sheet;"..tostring(index)..";true;false]"
+	local formspec = "tabheader[0.1,1;ltool_help_tab;"..F(S("Introduction"))..","..F(S("Creating Trees"))..","..F(S("Managing Trees"))..","..F(S("Planting Trees"))..","..F(S("Cheat Sheet"))..";"..tostring(index)..";true;false]"
 	if(index==1) then
 		formspec = formspec .. ltool.tab_help_intro()
 	elseif(index==2) then
@@ -631,58 +636,58 @@ function ltool.formspec_editplus(fragment)
 	local formspec = ""..
 	"size[12,8]"..
 	"textarea[0.2,0.5;12,3;"..fragment.."]"..
-	"label[0,3.625;Draw:]"..
+	"label[0,3.625;"..F(S("Draw:")).."]"..
 	"button[2,3.5;1,1;editplus_c_G;G]"..
-	"tooltip[editplus_c_G;Move forward one unit with the pen up]"..
+	"tooltip[editplus_c_G;"..F(S("Move forward one unit with the pen up")).."]"..
 	"button[3,3.5;1,1;editplus_c_F;F]"..
-	"tooltip[editplus_c_F;Move forward one unit with the pen down drawing trunks and branches]"..
+	"tooltip[editplus_c_F;"..F(S("Move forward one unit with the pen down drawing trunks and branches")).."]"..
 	"button[4,3.5;1,1;editplus_c_f;f]"..
-	"tooltip[editplus_c_f;Move forward one unit with the pen down drawing leaves]"..
+	"tooltip[editplus_c_f;"..F(S("Move forward one unit with the pen down drawing leaves")).."]"..
 	"button[5,3.5;1,1;editplus_c_T;T]"..
-	"tooltip[editplus_c_T;Move forward one unit with the pen down drawing trunks]"..
+	"tooltip[editplus_c_T;"..F(S("Move forward one unit with the pen down drawing trunks")).."]"..
 	"button[6,3.5;1,1;editplus_c_R;R]"..
-	"tooltip[editplus_c_R;Move forward one unit with the pen down placing fruit]"..
+	"tooltip[editplus_c_R;"..F(S("Move forward one unit with the pen down placing fruit")).."]"..
 
-	"label[0,4.625;Rules:]"..
+	"label[0,4.625;"..F(S("Rules:")).."]"..
 	"button[2,4.5;1,1;editplus_c_A;A]"..
-	"tooltip[editplus_c_A;Replace with rules set A]"..
+	"tooltip[editplus_c_A;"..F(S("Replace with rules set A")).."]"..
 	"button[3,4.5;1,1;editplus_c_B;B]"..
-	"tooltip[editplus_c_B;Replace with rules set B]"..
+	"tooltip[editplus_c_B;"..F(S("Replace with rules set B")).."]"..
 	"button[4,4.5;1,1;editplus_c_C;C]"..
-	"tooltip[editplus_c_C;Replace with rules set C]"..
+	"tooltip[editplus_c_C;"..F(S("Replace with rules set C")).."]"..
 	"button[5,4.5;1,1;editplus_c_D;D]"..
-	"tooltip[editplus_c_D;Replace with rules set D]"..
+	"tooltip[editplus_c_D;"..F(S("Replace with rules set D")).."]"..
 	"button[6.5,4.5;1,1;editplus_c_a;a]"..
-	"tooltip[editplus_c_a;Replace with rules set A, chance 90%]"..
+	"tooltip[editplus_c_a;"..F(S("Replace with rules set A, chance 90%")).."]"..
 	"button[7.5,4.5;1,1;editplus_c_b;b]"..
-	"tooltip[editplus_c_b;Replace with rules set B, chance 80%]"..
+	"tooltip[editplus_c_b;"..F(S("Replace with rules set B, chance 80%")).."]"..
 	"button[8.5,4.5;1,1;editplus_c_c;c]"..
-	"tooltip[editplus_c_c;Replace with rules set C, chance 70%]"..
+	"tooltip[editplus_c_c;"..F(S("Replace with rules set C, chance 70%")).."]"..
 	"button[9.5,4.5;1,1;editplus_c_d;d]"..
-	"tooltip[editplus_c_d;Replace with rules set D, chance 60%]"..
+	"tooltip[editplus_c_d;"..F(S("Replace with rules set D, chance 60%")).."]"..
 
-	"label[0,5.625;Rotate:]"..
+	"label[0,5.625;"..F(S("Rotate:")).."]"..
 	"button[3,5.5;1,1;editplus_c_+;+]"..
-	"tooltip[editplus_c_+;Yaw the turtle right by the value specified in \"Angle\"]"..
+	"tooltip[editplus_c_+;"..F(S("Yaw the turtle right by the value specified in \"Angle\"")).."]"..
 	"button[2,5.5;1,1;editplus_c_-;-]"..
-	"tooltip[editplus_c_-;Yaw the turtle left by the value specified in \"Angle\"]"..
+	"tooltip[editplus_c_-;"..F(S("Yaw the turtle left by the value specified in \"Angle\"")).."]"..
 	"button[4.5,5.5;1,1;editplus_c_&;&]"..
-	"tooltip[editplus_c_&;Pitch the turtle down by the value specified in \"Angle\"]"..
+	"tooltip[editplus_c_&;"..F(S("Pitch the turtle down by the value specified in \"Angle\"")).."]"..
 	"button[5.5,5.5;1,1;editplus_c_^;^]"..
-	"tooltip[editplus_c_^;Pitch the turtle up by the value specified in \"Angle\"]"..
+	"tooltip[editplus_c_^;"..F(S("Pitch the turtle up by the value specified in \"Angle\"")).."]"..
 	"button[8,5.5;1,1;editplus_c_/;/]"..
-	"tooltip[editplus_c_/;Roll the turtle to the right by the value specified in \"Angle\"]"..
+	"tooltip[editplus_c_/;"..F(S("Roll the turtle to the right by the value specified in \"Angle\"")).."]"..
 	"button[7,5.5;1,1;editplus_c_*;*]"..
-	"tooltip[editplus_c_*;Roll the turtle to the left by the value specified in \"Angle\"]"..
+	"tooltip[editplus_c_*;"..F(S("Roll the turtle to the left by the value specified in \"Angle\"")).."]"..
 
-	"label[0,6.625;Stack:]"..
+	"label[0,6.625;"..F(S("Stack:")).."]"..
 	"button[2,6.5;1,1;editplus_c_P;\\[]"..
-	"tooltip[editplus_c_P;Save current state info into stack]"..
+	"tooltip[editplus_c_P;"..F(S("Save current state info into stack")).."]"..
 	"button[3,6.5;1,1;editplus_c_p;\\]]"..
-	"tooltip[editplus_c_p;Recover from current stack state info]"..
+	"tooltip[editplus_c_p;"..F(S("Recover from current stack state info")).."]"..
 
-	"button[2.5,7.5;3,1;editplus_save;Save]"..
-	"button[5.5,7.5;3,1;editplus_cancel;Cancel]"
+	"button[2.5,7.5;3,1;editplus_save;"..F(S("Save")).."]"..
+	"button[5.5,7.5;3,1;editplus_cancel;"..F(S("Cancel")).."]"
 
 	return formspec
 end
@@ -708,7 +713,7 @@ function ltool.build_tree_textlist(index, playername)
 		else
 			colorstring = ""
 		end
-		string = string .. colorstring .. tostring(tree_id) .. ": " .. minetest.formspec_escape(tree.name)
+		string = string .. colorstring .. tostring(tree_id) .. ": " .. F(tree.name)
 		if(i~=#tree_ids) then
 			string = string .. ","
 		end
@@ -728,7 +733,7 @@ end
 --[[ spawns a simple dialog formspec to a player ]]
 function ltool.show_dialog(playername, formname, message)
 	local formspec = "size[12,2;]label[0,0.2;"..message.."]"..
-	"button[4.5,1.5;3,1;okay;OK]"
+	"button[4.5,1.5;3,1;okay;"..F(S("OK")).."]"
 	minetest.show_formspec(playername, formname, formspec)
 
 end
@@ -775,10 +780,10 @@ function ltool.evaluate_edit_fields(fields, ignore_name)
 			treedef.rules_d = fields.rules_d
 			treedef.axiom = fields.axiom
 		else
-			return nil, "The brackets are unbalanced! For each of the axiom and the rule sets, each opening bracket must be matched by a closing bracket."
+			return nil, S("The brackets are unbalanced! For each of the axiom and the rule sets, each opening bracket must be matched by a closing bracket.")
 		end
 	else
-		return nil, "The axiom or one of the rule sets contains at least one invalid character.\nSee the cheat sheet for a list of allowed characters."
+		return nil, S("The axiom or one of the rule sets contains at least one invalid character.\nSee the cheat sheet for a list of allowed characters.")
 	end
 	treedef.trunk = fields.trunk
 	treedef.leaves = fields.leaves
@@ -786,29 +791,29 @@ function ltool.evaluate_edit_fields(fields, ignore_name)
 	treedef.leaves2_chance = fields.leaves2_chance
 	treedef.angle = tonumber(fields.angle)
 	if(treedef.angle == nil) then
-		return nil, "The field \"Angle\" must contain a number."
+		return nil, S("The field \"Angle\" must contain a number.")
 	end
 	treedef.iterations = tonumber(fields.iterations)
 	if(treedef.iterations == nil) then
-		return nil, "The field \"Iterations\" must contain a natural number greater or equal to 0."
+		return nil, S("The field \"Iterations\" must contain a natural number greater or equal to 0.")
 	elseif(treedef.iterations < 0) then
-		return nil, "The field \"Iterations\" must contain a natural number greater or equal to 0."
+		return nil, S("The field \"Iterations\" must contain a natural number greater or equal to 0.")
 	end
 	treedef.random_level = tonumber(fields.random_level)
 	if(treedef.random_level == nil) then
-		return nil, "The field \"Randomness level\" must contain a number."
+		return nil, S("The field \"Randomness level\" must contain a number.")
 	end
 	treedef.fruit = fields.fruit
 	treedef.fruit_chance = tonumber(fields.fruit_chance)
 	if(treedef.fruit_chance == nil) then
-		return nil, "The field \"Fruit chance\" must contain a number."
+		return nil, S("The field \"Fruit chance\" must contain a number.")
 	elseif(treedef.fruit_chance > 100 or treedef.fruit_chance < 0) then
-		return nil, "Fruit chance must be between 0% and 100%."
+		return nil, S("Fruit chance must be between 0% and 100%.")
 	end
 	if(fields.trunk_type == "single" or fields.trunk_type == "double" or fields.trunk_type == "crossed") then
 		treedef.trunk_type = fields.trunk_type
 	else
-		return nil, "Trunk type must be \"single\", \"double\" or \"crossed\"."
+		return nil, S("Trunk type must be \"single\", \"double\" or \"crossed\".")
 	end
 	treedef.thin_branches = fields.thin_branches
 	if(fields.thin_branches == "true") then
@@ -816,11 +821,11 @@ function ltool.evaluate_edit_fields(fields, ignore_name)
 	elseif(fields.thin_branches == "false") then
 		treedef.thin_branches = false
 	else
-		return nil, "Field \"Thin branches?\" must be \"true\" or \"false\"."
+		return nil, S("Field \"Thin branches?\" must be \"true\" or \"false\".")
 	end
 	local name = fields.name
 	if(ignore_name ~= true and name == "") then
-		return nil, "Name is empty."
+		return nil, S("Name is empty.")
 	end
 	return treedef, name
 end
@@ -919,24 +924,24 @@ minetest.register_chatcommand("treeform",
 
 minetest.register_chatcommand("lplant",
 {
-	description = "Plant a L-system tree at the specified position",
+	description = S("Plant a L-system tree at the specified position"),
 	privs = { lplant = true },
-	params = "<tree ID> <x> <y> <z> [<seed>]",
+	params = S("<tree ID> <x> <y> <z> [<seed>]"),
 	func = function(playername, param)
 		local p = {}
 		local tree_id, x, y, z, seed = string.match(param, "^([^ ]+) +([%d.-]+)[, ] *([%d.-]+)[, ] *([%d.-]+) *([%d.-]*)")
 		tree_id, p.x, p.y, p.z, seed = tonumber(tree_id), tonumber(x), tonumber(y), tonumber(z), tonumber(seed)
 		if not tree_id or not p.x or not p.y or not p.z then
-			return false, "Invalid usage, see /help lplant."
+			return false, S("Invalid usage, see /help lplant.")
 		end
 		local lm = tonumber(minetest.settings:get("map_generation_limit") or 31000)
 		if p.x < -lm or p.x > lm or p.y < -lm or p.y > lm or p.z < -lm or p.z > lm then
-			return false, "Cannot plant tree out of map bounds!"
+			return false, S("Cannot plant tree out of map bounds!")
 		end
 
 		local success = ltool.plant_tree(tree_id, p, seed)
 		if success == false then
-			return false, "Unknown tree ID!"
+			return false, S("Unknown tree ID!")
 		else
 			return true
 		end
@@ -964,7 +969,7 @@ local function handle_sapling_button_database_plant(seltree, seltree_id, privs, 
 	if(seltree ~= nil) then
 		if(privs.lplant ~= true) then
 			ltool.save_fields(playername, formname, fields)
-			local message = "You can't request saplings, you need to have the \"lplant\" privilege."
+			local message = S("You can't request saplings, you need to have the \"lplant\" privilege.")
 			ltool.show_dialog(playername, "ltool:treeform_error_sapling", message)
 			return false
 		end
@@ -976,7 +981,7 @@ local function handle_sapling_button_database_plant(seltree, seltree_id, privs, 
 			local ret, ret2 = ltool.give_sapling(ltool.trees[seltree_id].treedef, seed, playername, true, ltool.trees[seltree_id].name)
 			if(ret==false and ret2==2) then
 				ltool.save_fields(playername, formname, fields)
-				ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
+				ltool.show_dialog(playername, "ltool:treeform_error_sapling", S("Error: The sapling could not be given to you. Probably your inventory is full."))
 			end
 		end
 	end
@@ -994,7 +999,7 @@ function ltool.process_form(player,formname,fields)
 		if(input==nil) then
 			ret = ""
 		else
-			ret = minetest.formspec_escape(tostring(input))
+			ret = F(tostring(input))
 		end
 		return ret
 	end
@@ -1043,7 +1048,7 @@ function ltool.process_form(player,formname,fields)
 			if(seltree ~= nil) then
 				if(privs.lplant ~= true) then
 					ltool.save_fields(playername, formname, fields)
-					local message = "You can't plant trees, you need to have the \"lplant\" privilege."
+					local message = S("You can't plant trees, you need to have the \"lplant\" privilege.")
 					ltool.show_dialog(playername, "ltool:treeform_error_lplant", message)
 					return
 				end
@@ -1055,19 +1060,19 @@ function ltool.process_form(player,formname,fields)
 				local tree_pos
 				local fail_coordinates = function()
 					ltool.save_fields(playername, formname, fields)
-					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", "Error: When using coordinates, you have to specifiy numbers in the fields \"x\", \"y\", \"z\".")
+					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", S("Error: When using coordinates, you have to specifiy numbers in the fields \"x\", \"y\", \"z\"."))
 				end
 				local fail_distance = function()
 					ltool.save_fields(playername, formname, fields)
-					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", "Error: When using viewing direction for planting trees,\nyou must specify how far away you want the tree to be placed in the field \"Distance\".")
+					ltool.show_dialog(playername, "ltool:treeform_error_badplantfields", S("Error: When using viewing direction for planting trees,\nyou must specify how far away you want the tree to be placed in the field \"Distance\"."))
 				end
-				if(fields.plantmode == "Absolute coordinates") then
+				if(fields.plantmode == F(S("Absolute coordinates"))) then
 					if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
 						fail_coordinates()
 						return
 					end
 					tree_pos = {x=x, y=y, z=z}
-				elseif(fields.plantmode == "Relative coordinates") then
+				elseif(fields.plantmode == F(S("Relative coordinates"))) then
 					if(type(x)~="number" or type(y) ~= "number" or type(z) ~= "number") then
 						fail_coordinates()
 						return
@@ -1076,7 +1081,7 @@ function ltool.process_form(player,formname,fields)
 					tree_pos.x = tree_pos.x + x
 					tree_pos.y = tree_pos.y + y
 					tree_pos.z = tree_pos.z + z
-				elseif(fields.plantmode == "Distance in viewing direction") then
+				elseif(fields.plantmode == F(S("Distance in viewing direction"))) then
 					if(type(distance)~="number") then
 						fail_distance()
 						return
@@ -1107,13 +1112,13 @@ function ltool.process_form(player,formname,fields)
 			param1, param2 = ltool.evaluate_edit_fields(fields, fields.edit_sapling ~= nil)
 			if(fields.edit_save and privs.ledit ~= true) then
 				ltool.save_fields(playername, formname, fields)
-				local message = "You can't save trees, you need to have the \"ledit\" privilege."
+				local message = S("You can't save trees, you need to have the \"ledit\" privilege.")
 				ltool.show_dialog(playername, "ltool:treeform_error_ledit", message)
 				return
 			end
 			if(fields.edit_sapling and privs.lplant ~= true) then
 				ltool.save_fields(playername, formname, fields)
-				local message = "You can't request saplings, you need to have the \"lplant\" privilege."
+				local message = S("You can't request saplings, you need to have the \"lplant\" privilege.")
 				ltool.show_dialog(playername, "ltool:treeform_error_ledit", message)
 				return
 			end
@@ -1127,11 +1132,11 @@ function ltool.process_form(player,formname,fields)
 						ltool.save_fields(playername, formname, fields)
 						if(v.author == playername) then
 							local formspec = "size[6,2;]label[0,0.2;You already have a tree with this name.\nDo you want to replace it?]"..
-							"button[0,1.5;3,1;replace_yes;Yes]"..
-							"button[3,1.5;3,1;replace_no;No]"
+							"button[0,1.5;3,1;replace_yes;"..F(S("Yes")).."]"..
+							"button[3,1.5;3,1;replace_no;"..F(S("No")).."]"
 							minetest.show_formspec(playername, "ltool:treeform_replace", formspec)
 						else
-							ltool.show_dialog(playername, "ltool:treeform_error_nameclash", "Error: This name is already taken by someone else.\nPlease choose a different name.")
+							ltool.show_dialog(playername, "ltool:treeform_error_nameclash", S("Error: This name is already taken by someone else.\nPlease choose a different name."))
 						end
 						return
 					end
@@ -1147,12 +1152,12 @@ function ltool.process_form(player,formname,fields)
 					local ret, ret2 = ltool.give_sapling(treedef, tostring(ltool.seed), playername, true, fields.name)
 					if(ret==false and ret2==2) then
 						ltool.save_fields(playername, formname, fields)
-						ltool.show_dialog(playername, "ltool:treeform_error_sapling", "Error: The sapling could not be given to you. Probably your inventory is full.")
+						ltool.show_dialog(playername, "ltool:treeform_error_sapling", S("Error: The sapling could not be given to you. Probably your inventory is full."))
 					end
 				end
 			else
-				local message = "Error: The tree definition is invalid.\n"..
-				minetest.formspec_escape(param2)
+				local message = S("Error: The tree definition is invalid.").."\n"..
+				F(param2)
 				ltool.show_dialog(playername, "ltool:treeform_error_badtreedef", message)
 			end
 		end
@@ -1181,15 +1186,15 @@ function ltool.process_form(player,formname,fields)
 		if(fields.edit_axiom or fields.edit_rules_a or fields.edit_rules_b or fields.edit_rules_c or fields.edit_rules_d) then
 			local fragment
 			if(fields.edit_axiom) then
-				fragment = "axiom;Axiom;"..s(fields.axiom)
+				fragment = "axiom;"..F(S("Axiom"))..";"..s(fields.axiom)
 			elseif(fields.edit_rules_a) then
-				fragment = "rules_a;Rules set A;"..s(fields.rules_a)
+				fragment = "rules_a;"..F(S("Rules set A"))..";"..s(fields.rules_a)
 			elseif(fields.edit_rules_b) then
-				fragment = "rules_b;Rules set B;"..s(fields.rules_b)
+				fragment = "rules_b;"..F(S("Rules set B"))..";"..s(fields.rules_b)
 			elseif(fields.edit_rules_c) then
-				fragment = "rules_c;Rules set C;"..s(fields.rules_c)
+				fragment = "rules_c;"..F(S("Rules set C"))..";"..s(fields.rules_c)
 			elseif(fields.edit_rules_d) then
-				fragment = "rules_d;Rules set D;"..s(fields.rules_d)
+				fragment = "rules_d;"..F(S("Rules set D"))..";"..s(fields.rules_d)
 			end
 
 			ltool.save_fields(playername, formname, fields)
@@ -1256,15 +1261,15 @@ function ltool.process_form(player,formname,fields)
 			if(c=="P") then c = "[" end
 			if(c=="p") then c = "]" end
 			if(fields.axiom) then
-				fragment = "axiom;Axiom;"..s(fields.axiom..c)
+				fragment = "axiom;"..F(S("Axiom"))..";"..s(fields.axiom..c)
 			elseif(fields.rules_a) then
-				fragment = "rules_a;Rules set A;"..s(fields.rules_a..c)
+				fragment = "rules_a;"..F(S("Rules set A"))..";"..s(fields.rules_a..c)
 			elseif(fields.rules_b) then
-				fragment = "rules_b;Rules set B;"..s(fields.rules_b..c)
+				fragment = "rules_b;"..F(S("Rules set B"))..";"..s(fields.rules_b..c)
 			elseif(fields.rules_c) then
-				fragment = "rules_c;Rules set C;"..s(fields.rules_c..c)
+				fragment = "rules_c;"..F(S("Rules set C"))..";"..s(fields.rules_c..c)
 			elseif(fields.rules_d) then
-				fragment = "rules_d;Rules set D;"..s(fields.rules_d..c)
+				fragment = "rules_d;"..F(S("Rules set D"))..";"..s(fields.rules_d..c)
 			end
 			local formspec = ltool.formspec_editplus(fragment)
 			minetest.show_formspec(playername, "ltool:treeform_editplus", formspec)
@@ -1311,7 +1316,7 @@ function ltool.process_form(player,formname,fields)
 					minetest.show_formspec(playername, "ltool:treeform_edit", formspec)
 				end
 			else
-				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
+				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", S("Error: No tree is selected."))
 			end
 		elseif(fields.database_update) then
 			local formspec = ltool.formspec_size..ltool.formspec_header(2)..ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
@@ -1320,7 +1325,7 @@ function ltool.process_form(player,formname,fields)
 		elseif(fields.database_delete) then
 			if(privs.ledit ~= true) then
 				ltool.save_fields(playername, formname, fields)
-				local message = "You can't delete trees, you need to have the \"ledit\" privilege."
+				local message = S("You can't delete trees, you need to have the \"ledit\" privilege.")
 				ltool.show_dialog(playername, "ltool:treeform_error_ledit_db", message)
 				return
 			end
@@ -1333,27 +1338,27 @@ function ltool.process_form(player,formname,fields)
 						minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 					end
 				else
-					ltool.show_dialog(playername, "ltool:treeform_error_delete", "Error: This tree is not your own. You may only delete your own trees.")
+					ltool.show_dialog(playername, "ltool:treeform_error_delete", S("Error: This tree is not your own. You may only delete your own trees."))
 				end
 			else
-				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
+				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", S("Error: No tree is selected."))
 			end
 		elseif(fields.database_rename) then
 			if(seltree ~= nil) then
 				if(privs.ledit ~= true) then
 					ltool.save_fields(playername, formname, fields)
-					local message = "You can't rename trees, you need to have the \"ledit\" privilege."
+					local message = S("You can't rename trees, you need to have the \"ledit\" privilege.")
 					ltool.show_dialog(playername, "ltool:treeform_error_ledit_db", message)
 					return
 				end
 				if(playername == seltree.author) then
-					local formspec = "field[newname;New name:;"..minetest.formspec_escape(seltree.name).."]"
+					local formspec = "field[newname;"..F(S("New name:"))..";"..F(seltree.name).."]"
 					minetest.show_formspec(playername, "ltool:treeform_rename", formspec)
 				else
-					ltool.show_dialog(playername, "ltool:treeform_error_rename_forbidden", "Error: This tree is not your own. You may only rename your own trees.")
+					ltool.show_dialog(playername, "ltool:treeform_error_rename_forbidden", S("Error: This tree is not your own. You may only rename your own trees."))
 				end
 			else
-				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", "Error: No tree is selected.")
+				ltool.show_dialog(playername, "ltool:treeform_error_nodbsel", S("Error: No tree is selected."))
 			end
 		elseif(fields.sapling) then
 			local ret = handle_sapling_button_database_plant(seltree, seltree_id, privs, formname, fields, playername)
@@ -1366,7 +1371,7 @@ function ltool.process_form(player,formname,fields)
 		local editfields = ltool.playerinfos[playername].treeform.edit.fields
 		local newtreedef, newname = ltool.evaluate_edit_fields(editfields)
 		if(privs.ledit ~= true) then
-			local message = "You can't overwrite trees, you need to have the \"ledit\" privilege."
+			local message = S("You can't overwrite trees, you need to have the \"ledit\" privilege.")
 			minetest.show_dialog(playername, "ltool:treeform_error_ledit", message)
 			return
 		end
@@ -1420,7 +1425,7 @@ function ltool.process_form(player,formname,fields)
 	elseif(formname == "ltool:treeform_rename") then
 		if(privs.ledit ~= true) then
 			ltool.save_fields(playername, formname, fields)
-			local message = "You can't delete trees, you need to have the \"ledit\" privilege."
+			local message = S("You can't delete trees, you need to have the \"ledit\" privilege.")
 			ltool.show_dialog(playername, "ltool:treeform_error_ledit_delete", message)
 			return
 		end
@@ -1429,7 +1434,7 @@ function ltool.process_form(player,formname,fields)
 			local formspec = ltool.formspec_size..ltool.formspec_header(2)..ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
 			minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 		else
-			ltool.show_dialog(playername, "ltool:treeform_error_bad_rename", "Error: This name is empty. The tree name must be non-empty.")
+			ltool.show_dialog(playername, "ltool:treeform_error_bad_rename", S("Error: This name is empty. The tree name must be non-empty."))
 		end
 	--[[ Here come various error messages to handle ]]
 	elseif(formname == "ltool:treeform_error_badtreedef" or formname == "ltool:treeform_error_nameclash" or formname == "ltool:treeform_error_ledit") then
@@ -1442,7 +1447,7 @@ function ltool.process_form(player,formname,fields)
 		local formspec = ltool.formspec_size..ltool.formspec_header(2)..ltool.tab_database(ltool.playerinfos[playername].dbsel, playername)
 		minetest.show_formspec(playername, "ltool:treeform_database", formspec)
 	elseif(formname == "ltool:treeform_error_bad_rename") then
-		local formspec = "field[newname;New name:;"..minetest.formspec_escape(seltree.name).."]"
+		local formspec = "field[newname;"..F(S("New name:"))..";"..F(seltree.name).."]"
 		minetest.show_formspec(playername, "ltool:treeform_rename", formspec)
 	else
 		-- Action for Inventory++ button
@@ -1509,7 +1514,7 @@ function ltool.join(player)
 
 	-- Add Inventory++ support
 	if minetest.get_modpath("inventory_plus") then
-		inventory_plus.register_button(player, "ltool", "L-System Tree Utility")
+		inventory_plus.register_button(player, "ltool", S("L-System Tree Utility"))
 	end
 end
 
@@ -1547,15 +1552,15 @@ if minetest.get_modpath("unified_inventory") ~= nil then
 	unified_inventory.register_button("ltool", {
 		type = "image",
 		image = "ltool_sapling.png",
-		tooltip = "L-System Tree Utility",
+		tooltip = S("L-System Tree Utility"),
 		action = button_action,
 	})
 end
 
 if minetest.get_modpath("sfinv_buttons") ~= nil then
 	sfinv_buttons.register_button("ltool", {
-		title = "L-System Tree Utility",
-		tooltip = "Invent your own trees and plant them",
+		title = S("L-System Tree Utility"),
+		tooltip = S("Invent your own trees and plant them"),
 		image = "ltool_sapling.png",
 		action = button_action,
 	})
