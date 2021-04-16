@@ -133,7 +133,7 @@ do
 				ltool.trees = savetable.trees
 				ltool.next_tree_id = savetable.next_tree_id
 				ltool.number_of_trees = savetable.number_of_trees
-				minetest.log("action", "[ltool] Tree data loaded from "..filepath..".")
+				--minetest.log("action", "[ltool] Tree data loaded from "..filepath..".")
 			else
 				minetest.log("error", "[ltool] Failed to load tree data from "..filepath..".")
 			end
